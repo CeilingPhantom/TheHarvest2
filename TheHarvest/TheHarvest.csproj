@@ -46,7 +46,8 @@
     <Compile Include="TheHarvest.cs" />
     <Compile Include="BaseScene.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="NezExtensions/*.cs" />
+    <Compile Include="NezExtensions/**" />
+    <Compile Include="Events/**" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
