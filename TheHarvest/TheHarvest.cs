@@ -1,4 +1,7 @@
-﻿using Nez;
+﻿using Microsoft.Xna.Framework;
+using Nez;
+
+using TheHarvest.Scenes;
 
 namespace TheHarvest
 {
@@ -8,6 +11,7 @@ namespace TheHarvest
         {
             base.Initialize();
             Window.AllowUserResizing = true;
+            Scene = new BaseScene();
         }
     }
 }
