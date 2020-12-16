@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Nez;
 
@@ -6,14 +5,7 @@ namespace TheHarvest.Events
 {
     public sealed class EventGroupController
     {
-        static readonly Lazy<EventGroupController> lazy = new Lazy<EventGroupController>(() => new EventGroupController());
-
-        public static EventGroupController Instance => lazy.Value;
-
         Dictionary<string, FastList<EventGroupMember>> groupDict = new Dictionary<string, FastList<EventGroupMember>>();
-
-        private EventGroupController() { }
-
         public List<string> Groups => new List<string>(this.groupDict.Keys);
 
         public void RegisterEntityGroup(string name)

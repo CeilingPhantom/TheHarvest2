@@ -10,7 +10,7 @@ namespace TheHarvest
         {
             base.Initialize();
             Window.AllowUserResizing = true;
-            Scene = new BaseScene();
+            Scene = FarmScene.Instance;
         }
     }
 }
