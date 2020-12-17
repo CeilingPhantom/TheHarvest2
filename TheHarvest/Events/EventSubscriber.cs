@@ -3,11 +3,11 @@ using Nez;
 
 namespace TheHarvest.Events
 {
-    public abstract class EventGroupMember : Component, IUpdatable
+    public abstract class EventSubscriber : Component, IUpdatable
     {
-        Queue<Event> queue;
+        Queue<IEvent> queue;
         
-        public void SendEvent(Event e)
+        public void SendEvent(IEvent e)
         {
             this.queue.Enqueue(e);
         }
@@ -17,10 +17,10 @@ namespace TheHarvest.Events
             // for current number of events in queue
             // new events may be queued during the update
             for (var c = queue.Count; c > 0; --c)
-                ProcessEvent(queue.Dequeue());
+                queue.Dequeue().Accept(this);
         }
 
         // members decide what events to process and how to process them
-        protected abstract void ProcessEvent(Event e);
+        internal abstract void ProcessEvent(AddMoneyEvent e);
     }
 }
