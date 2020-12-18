@@ -8,5 +8,10 @@ namespace TheHarvest.Scenes
         public static FarmScene Instance => lazy.Value;
 
         private FarmScene() : base() { }
+
+        public override void Initialize()
+        {
+            base.Initialize();
+        }
     }
 }

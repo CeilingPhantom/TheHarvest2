@@ -6,7 +6,6 @@ namespace TheHarvest.Events
 {
     public sealed class EventController
     {
-        // possible groups - game, ui
         Dictionary<Type, FastList<EventSubscriber>> groupDict = new Dictionary<Type, FastList<EventSubscriber>>();
 
         private void RegisterEventGroup<T>() where T : IEvent

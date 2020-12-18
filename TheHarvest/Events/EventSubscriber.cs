@@ -20,7 +20,7 @@ namespace TheHarvest.Events
                 queue.Dequeue().Accept(this);
         }
 
-        // members decide what events to process and how to process them
+        // subscribers decide what events to process and how to process them
         internal abstract void ProcessEvent(AddMoneyEvent e);
     }
 }
