@@ -1,5 +1,6 @@
 using System;
 using Nez;
+using Nez.Sprites;
 
 namespace TheHarvest.ECS.Components
 {
@@ -10,15 +11,9 @@ namespace TheHarvest.ECS.Components
     
     public abstract class Tile : Component, IUpdatable
     {
-        // tile type - 1 byte
-        // x pos - int, 4 bytes
-        // y pos - int, 4 bytes
-        // current cycle time - float, 4 bytes
-        // will advance into another tile - 1 byte
-        // advancing tile type - 1 byte
         public static readonly int ChunkSize = 15;
 
-        public Farm Farm { get; }
+        public Farm Farm { get; protected internal set; }
         public TileType Type { get; }
         public int X { get; }
         public int Y { get; }
@@ -26,9 +21,10 @@ namespace TheHarvest.ECS.Components
         public bool IsAdvancing { get; internal set; }
         public TileType AdvancingType { get; internal set; }
 
-        public Tile(Farm farm, TileType type, int x, int y, float cycleTime=0, bool isAdvancing=false, TileType advancingType=0)
+        protected SpriteRenderer SpriteRenderer;
+
+        public Tile(TileType type, int x, int y, float cycleTime=0, bool isAdvancing=false, TileType advancingType=0)
         {
-            this.Farm = farm;
             this.Type = type;
             this.X = x;
             this.Y = y;
@@ -37,16 +33,16 @@ namespace TheHarvest.ECS.Components
             this.AdvancingType = advancingType;
         }
 
-        public static Tile CreateTile(Farm farm, TileType type, int x, int y, float cycleTime=0, bool isAdvancing=false, TileType advancingType=0)
+        public static Tile CreateTile(TileType type, int x, int y, float cycleTime=0, bool isAdvancing=false, TileType advancingType=0)
         {
             return type switch
             {
-                TileType.Dirt   => new DirtTile(farm, x, y, cycleTime, isAdvancing, advancingType),
+                TileType.Dirt   => new DirtTile(x, y, cycleTime, isAdvancing, advancingType),
                 _               => throw new ArgumentOutOfRangeException(nameof(type)),
             };
         }
 
-        public static Tile CreateTile(Farm farm, byte[] byteInput)
+        public static Tile CreateTile(byte[] byteInput)
         {
             var type = (TileType) byteInput[0];
             var x = BitConverter.ToInt32(byteInput, 1);
@@ -54,24 +50,30 @@ namespace TheHarvest.ECS.Components
             var cycleTime = BitConverter.ToSingle(byteInput, 9);
             var isAdvancing = BitConverter.ToBoolean(byteInput, 13);
             var advancingType = (TileType) byteInput[14];
-            return CreateTile(farm, type, x, y, cycleTime, isAdvancing, advancingType);
+            return CreateTile(type, x, y, cycleTime, isAdvancing, advancingType);
         }
 
         public byte[] ToBytes()
         {
-            var bytes = new byte[ChunkSize];
-            bytes[0] = (byte) Type;
-            BitConverter.GetBytes(X).CopyTo(bytes, 1);
-            BitConverter.GetBytes(Y).CopyTo(bytes, 5);
-            BitConverter.GetBytes(CycleTime).CopyTo(bytes, 9);
-            BitConverter.GetBytes(IsAdvancing).CopyTo(bytes, 13);
-            bytes[14] = (byte) AdvancingType;
+            var bytes = new byte[Tile.ChunkSize];
+            bytes[0] = (byte) this.Type;
+            BitConverter.GetBytes(this.X).CopyTo(bytes, 1);
+            BitConverter.GetBytes(this.Y).CopyTo(bytes, 5);
+            BitConverter.GetBytes(this.CycleTime).CopyTo(bytes, 9);
+            BitConverter.GetBytes(this.IsAdvancing).CopyTo(bytes, 13);
+            bytes[14] = (byte) this.AdvancingType;
             return bytes;
+        }
+
+        public override void OnAddedToEntity()
+        {
+            base.OnAddedToEntity();
+            this.SpriteRenderer = this.Entity.GetComponent<SpriteRenderer>();
         }
 
         public virtual void Update()
         {
-            CycleTime += Time.DeltaTime;
+            this.CycleTime += Time.DeltaTime;
         }
 
         protected virtual void AdvanceTile()

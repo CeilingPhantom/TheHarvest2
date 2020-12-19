@@ -40,5 +40,12 @@ namespace TheHarvest.Util
                 all.AddRange(matrix[i.Key].Values);
             return all.ToArray();
         }
+
+        public bool IsEmpty()
+        {
+            // once an item has been placed, it can only be replaced
+            // so don't have to check for actual items
+            return matrix.Count == 0;
+        }
     }
 }
