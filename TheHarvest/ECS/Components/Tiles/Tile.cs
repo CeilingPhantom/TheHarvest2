@@ -35,11 +35,16 @@ namespace TheHarvest.ECS.Components
 
         public static Tile CreateTile(TileType type, int x, int y, float cycleTime=0, bool isAdvancing=false, TileType advancingType=0)
         {
-            return type switch
+            Tile tile;
+            switch(type)
             {
-                TileType.Dirt   => new DirtTile(x, y, cycleTime, isAdvancing, advancingType),
-                _               => throw new ArgumentOutOfRangeException(nameof(type)),
-            };
+                case TileType.Dirt:
+                    tile = new DirtTile(x, y, cycleTime, isAdvancing, advancingType);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type));
+            }
+            return tile;
         }
 
         public static Tile CreateTile(byte[] byteInput)

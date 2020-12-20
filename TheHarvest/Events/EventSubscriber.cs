@@ -5,7 +5,7 @@ namespace TheHarvest.Events
 {
     public abstract class EventSubscriber : Component, IUpdatable
     {
-        Queue<IEvent> queue;
+        Queue<IEvent> queue = new Queue<IEvent>();
         
         public void SendEvent(IEvent e)
         {

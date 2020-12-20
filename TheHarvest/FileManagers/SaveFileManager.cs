@@ -49,6 +49,8 @@ namespace TheHarvest.FileManagers
                 if (prevTile == null)
                     prevTile = tile;
                 // check if current tile has the same (x, y) as the prev one
+                // if the grid has 1 tile, its save will have 2 tiles
+                // if the grid has 0 tiles, its save will have 0 tiles
                 else if (prevTile.X == tile.X && prevTile.Y == tile.Y)
                     // we've reached the end for this grid
                     break;
@@ -60,20 +62,27 @@ namespace TheHarvest.FileManagers
 
         public static Farm GetLoadedFarm(string name)
         {
-            if (LoadedFarms.TryGetValue(name, out Farm val))
+            Farm val;
+            if (LoadedFarms.TryGetValue(name, out val))
                 return val;
             return null;
         }
 
-        public static void Save(string filename)
+        public static void Save(string filename, params Farm[] farms)
         {
-            using (BinaryWriter writer = new BinaryWriter(File.Open(filename, FileMode.Truncate)))
+            using (BinaryWriter writer = new BinaryWriter(File.Open(filename, FileMode.Create)))
             {
                 writer.Write(PlayerState.Instance.ToBytes());
-                byte[] farmSeparator = null;
-                foreach (var sceneEntry in TheHarvest.Scenes)
+                if (farms.Length == 0)
                 {
-                    var farm = sceneEntry.Value().EntitiesOfType<FarmEntity>()[0].GetComponent<Farm>();
+                    Array.Resize(ref farms, TheHarvest.Scenes.Count);
+                    int i = 0;
+                    foreach (var sceneEntry in TheHarvest.Scenes)
+                        farms[i++] = sceneEntry.Value().EntitiesOfType<FarmEntity>()[0].GetComponent<Farm>();
+                }
+                byte[] farmSeparator = null;
+                foreach (var farm in farms)
+                {
                     if (farmSeparator != null)
                         writer.Write(farmSeparator);
                     writer.Write(farm.Name);

@@ -10,14 +10,11 @@ namespace TheHarvest.Scenes
 {
     public abstract class BaseScene : Scene
     {
-        public readonly string Name;
         EventController controller = new EventController();
         public EventController Controller => controller;
 
-        public BaseScene(string name) : base()
-        {
-            this.Name = name;
-        }
+        public BaseScene() : base()
+        {}
 
         public override void Initialize()
         {

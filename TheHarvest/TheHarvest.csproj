@@ -13,8 +13,8 @@
     <AssemblyName>TheHarvest</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MonoGamePlatform>DesktopGL</MonoGamePlatform>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
-    <LangVersion>8.0</LangVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <RuntimeIdentifier>win</RuntimeIdentifier>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
@@ -45,7 +45,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="TheHarvest.cs" />
-    <Compile Include="BaseScene.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ECS/**" />
     <Compile Include="Events/**" />
