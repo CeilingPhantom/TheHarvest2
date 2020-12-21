@@ -7,9 +7,10 @@ namespace TheHarvest.ECS.Components
     public enum TileType : byte
     {
         Dirt,
+        Grass,
     }
     
-    public abstract class Tile : Component, IUpdatable
+    public abstract class Tile : Component, IUpdatable, IComparable<Tile>
     {
         public static readonly int ChunkSize = 15;
 
@@ -17,7 +18,7 @@ namespace TheHarvest.ECS.Components
         public TileType Type { get; }
         public int X { get; }
         public int Y { get; }
-        public float CycleTime { get; internal set; }
+        public float CycleTime { get; internal set; }  // not for tile animation - that is managed by the sprite animator
         public bool IsAdvancing { get; internal set; }
         public TileType AdvancingType { get; internal set; }
 
@@ -40,6 +41,9 @@ namespace TheHarvest.ECS.Components
             {
                 case TileType.Dirt:
                     tile = new DirtTile(x, y, cycleTime, isAdvancing, advancingType);
+                    break;
+                case TileType.Grass:
+                    tile = new GrassTile(x, y, cycleTime, isAdvancing, advancingType);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type));
@@ -84,6 +88,27 @@ namespace TheHarvest.ECS.Components
         protected virtual void AdvanceTile()
         {
 
+        }
+
+        public int CompareTo(Tile other)
+        {
+            if (other == null)
+                return 1;
+            var TypeCmp = this.Type.CompareTo(other.Type);
+            if (TypeCmp != 0)
+                return TypeCmp;
+            var XCmp = this.X.CompareTo(other.X);
+            if (XCmp != 0)
+                return XCmp;
+            var YCmp = this.Y.CompareTo(other.Y);
+            if (YCmp != 0)
+                return YCmp;
+            var CycleTimeCmp = this.CycleTime.CompareTo(other.CycleTime);
+            if (CycleTimeCmp != 0)
+                return CycleTimeCmp;
+            if (this.IsAdvancing != other.IsAdvancing)
+                return this.IsAdvancing.CompareTo(other.IsAdvancing);
+            return this.AdvancingType.CompareTo(other.AdvancingType);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace TheHarvest.ECS.Components
         public static readonly int ChunkSize = 11;
 
         public int Money { get; private set; }
-        public float TimeDay { get; private set; }
+        public float TimeOfDay { get; private set; }  // ms
         public byte Day { get; private set; }
         public byte Season { get; private set; }
         public byte Year { get; private set; }
@@ -22,7 +22,7 @@ namespace TheHarvest.ECS.Components
         public void LoadFromBytes(byte[] bytes)
         {
             this.Money = BitConverter.ToInt32(bytes, 0);
-            this.TimeDay = BitConverter.ToSingle(bytes, 4);
+            this.TimeOfDay = BitConverter.ToSingle(bytes, 4);
             this.Day = bytes[8];
             this.Season = bytes[9];
             this.Year = bytes[10];
@@ -32,7 +32,7 @@ namespace TheHarvest.ECS.Components
         {
             var bytes = new byte[PlayerState.ChunkSize];
             BitConverter.GetBytes(this.Money).CopyTo(bytes, 0);
-            BitConverter.GetBytes(this.TimeDay).CopyTo(bytes, 4);
+            BitConverter.GetBytes(this.TimeOfDay).CopyTo(bytes, 4);
             bytes[8] = this.Day;
             bytes[9] = this.Season;
             bytes[10] = this.Year;
@@ -41,7 +41,7 @@ namespace TheHarvest.ECS.Components
 
         public void Update()
         {
-            TimeDay += Time.DeltaTime;
+            TimeOfDay += Time.DeltaTime;
         }
     }
 }

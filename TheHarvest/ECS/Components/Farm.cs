@@ -24,9 +24,10 @@ namespace TheHarvest.ECS.Components
             playerState = this.Entity.GetComponent<PlayerState>();
         }
 
-        public void PlaceTile(Tile tile) {
+        public TileEntity PlaceTile(Tile tile) {
             tile.Farm = this;
             Grid[tile.X, tile.Y] = new TileEntity(tile);
+            return Grid[tile.X, tile.Y];
         }
 
         // public void EnableTileRender()

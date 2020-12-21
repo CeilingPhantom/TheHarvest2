@@ -10,7 +10,7 @@ namespace TheHarvest.ECS.Entities
         public TileEntity(Tile tile) : base()
         {
             this.AddComponent(tile);
-            this.AddComponent<SpriteRenderer>();
+            this.AddComponent<SpriteAnimator>();
         }
     }
 }
