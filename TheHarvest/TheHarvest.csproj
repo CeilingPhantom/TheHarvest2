@@ -122,6 +122,14 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
+
+  <ItemGroup>
+    <None Include="Content\imgs\**" CopyToOutputDirectory="PreserveNewest"/>
+    <None Include="Content\music\**" CopyToOutputDirectory="PreserveNewest"/>
+    <None Include="Content\sfx\**" CopyToOutputDirectory="PreserveNewest"/>
+    <None Include="Content\Tiled\**" CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
+
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

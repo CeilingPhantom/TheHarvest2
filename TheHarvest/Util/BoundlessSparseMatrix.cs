@@ -37,7 +37,7 @@ namespace TheHarvest.Util
         {
             var all = new List<T>();
             foreach (var i in matrix)
-                all.AddRange(matrix[i.Key].Values);
+                all.AddRange(i.Value.Values);
             return all.ToArray();
         }
 

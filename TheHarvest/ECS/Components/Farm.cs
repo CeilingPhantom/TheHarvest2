@@ -11,6 +11,8 @@ namespace TheHarvest.ECS.Components
         public BoundlessSparseMatrix<TileEntity> Grid { get; } = new BoundlessSparseMatrix<TileEntity>();
         PlayerState playerState;
 
+        FastList<TileEntity> init_tile_entities = new FastList<TileEntity>();
+
         public string Name { get; }
 
         public Farm(string name) : base()
@@ -21,13 +23,21 @@ namespace TheHarvest.ECS.Components
         public override void OnAddedToEntity()
         {
             base.OnAddedToEntity();
-            playerState = this.Entity.GetComponent<PlayerState>();
+            this.playerState = this.Entity.GetComponent<PlayerState>();
+            for (var i = 0; i < this.init_tile_entities.Length; ++i)
+                this.Entity.Scene.AddEntity(this.init_tile_entities[i]);
+            this.init_tile_entities.Clear();
         }
 
         public TileEntity PlaceTile(Tile tile) {
             tile.Farm = this;
-            Grid[tile.X, tile.Y] = new TileEntity(tile);
-            return Grid[tile.X, tile.Y];
+            var tileEntity = new TileEntity(tile);
+            this.Grid[tile.X, tile.Y] = tileEntity;
+            if (this.Entity != null && this.Entity.Scene != null)
+                this.Entity.Scene.AddEntity(tileEntity);
+            else
+                this.init_tile_entities.Add(tileEntity);
+            return this.Grid[tile.X, tile.Y];
         }
 
         // public void EnableTileRender()

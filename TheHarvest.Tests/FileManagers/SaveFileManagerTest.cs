@@ -13,15 +13,15 @@ namespace TheHarvest.Tests.FileManagers
         public void SaveAndLoadTest1()
         {
             var farm1In = new Farm("farm1");
-            var tile1 = Tile.CreateTile(TileType.Dirt, -1, 2, 10);
+            var tile1 = Tile.CreateTile(TileType.Dirt, 1, 2, 10);
             farm1In.PlaceTile(tile1);
             SaveFileManager.Save("test1.dat", farm1In);
 
             SaveFileManager.Load("test1.dat");
             var farm1Out = SaveFileManager.GetLoadedFarm("farm1");
             Assert.IsTrue(farm1Out.Grid.AllItems().Length == 1);
-            Assert.IsTrue(farm1Out.Grid[-1, 2] != null);
-            Assert.IsTrue(farm1Out.Grid[-1, 2].GetComponent<Tile>().CompareTo(tile1) == 0);
+            Assert.IsTrue(farm1Out.Grid[1, 2] != null);
+            Assert.IsTrue(farm1Out.Grid[1, 2].GetComponent<Tile>().CompareTo(tile1) == 0);
             Assert.IsTrue(farm1Out.Grid[0, 0] == null);
         }
 

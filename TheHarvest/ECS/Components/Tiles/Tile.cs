@@ -13,6 +13,7 @@ namespace TheHarvest.ECS.Components
     public abstract class Tile : Component, IUpdatable, IComparable<Tile>
     {
         public static readonly int ChunkSize = 15;
+        public static readonly float Size = 32;
 
         public Farm Farm { get; protected internal set; }
         public TileType Type { get; }
