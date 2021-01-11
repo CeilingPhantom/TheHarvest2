@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework.Input;
 using System;
 using Nez;
 
@@ -41,7 +42,7 @@ namespace TheHarvest.ECS.Components
 
         public void Update()
         {
-            TimeOfDay += Time.DeltaTime;
+            this.TimeOfDay += Time.DeltaTime;
         }
     }
 }

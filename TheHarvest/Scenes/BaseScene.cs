@@ -1,9 +1,6 @@
-using Microsoft.Xna.Framework;
 using Nez;
-using Nez.UI;
-using Nez.Sprites;
-using Nez.Textures;
 
+using TheHarvest.ECS.Entities;
 using TheHarvest.Events;
 
 namespace TheHarvest.Scenes
@@ -21,6 +18,8 @@ namespace TheHarvest.Scenes
             base.Initialize();
             AddRenderer(new DefaultRenderer());
             SetDefaultDesignResolution(1280, 720, SceneResolutionPolicy.ShowAllPixelPerfect);
+            var playerCamera = this.AddEntity(new PlayerCameraEntity());
+            this.Camera.AddComponent(new FollowCamera(playerCamera));
         }
     }
 }

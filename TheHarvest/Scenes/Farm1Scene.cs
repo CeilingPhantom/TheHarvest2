@@ -16,7 +16,7 @@ namespace TheHarvest.Scenes
         public override void Initialize()
         {
             base.Initialize();
-            var farmEntity = this.AddEntity(new FarmEntity(Farm1Scene.Name));
+            this.AddEntity(new FarmEntity(Farm1Scene.Name));
         }
     }
 }
