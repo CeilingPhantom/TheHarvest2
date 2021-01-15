@@ -6,13 +6,18 @@ namespace TheHarvest.Events
     public abstract class EventSubscriber : Component, IUpdatable
     {
         Queue<IEvent> queue = new Queue<IEvent>();
+
+        public void SubscribeTo<T>() where T : IEvent
+        {
+            EventManager.Instance.AddSubscribers<T>(this);
+        }
         
         public void SendEvent(IEvent e)
         {
             this.queue.Enqueue(e);
         }
 
-        public void Update()
+        public virtual void Update()
         {
             // for current number of events in queue
             // new events may be queued during the update
@@ -20,7 +25,11 @@ namespace TheHarvest.Events
                 queue.Dequeue().Accept(this);
         }
 
-        // subscribers decide what events to process and how to process them
-        internal abstract void ProcessEvent(AddMoneyEvent e);
+        #region Event Processing
+
+        protected internal virtual void ProcessEvent(AddMoneyEvent e)
+        {}
+
+        #endregion
     }
 }

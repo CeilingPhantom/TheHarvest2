@@ -1,13 +1,14 @@
-using Microsoft.Xna.Framework.Input;
 using System;
 using Nez;
 
+using TheHarvest.Events;
+
 namespace TheHarvest.ECS.Components
 {
-    public class PlayerState : Component, IUpdatable
+    public class PlayerState : EventSubscriber
     {
         static readonly Lazy<PlayerState> lazy = new Lazy<PlayerState>(() => new PlayerState());
-        public static PlayerState Instance = lazy.Value;
+        public static PlayerState Instance => lazy.Value;
 
         public static readonly int ChunkSize = 11;
 
@@ -18,7 +19,9 @@ namespace TheHarvest.ECS.Components
         public byte Year { get; private set; }
 
         private PlayerState() : base()
-        {}
+        {
+            this.SubscribeTo<AddMoneyEvent>();
+        }
 
         public void LoadFromBytes(byte[] bytes)
         {
@@ -40,9 +43,14 @@ namespace TheHarvest.ECS.Components
             return bytes;
         }
 
-        public void Update()
+        public override void Update()
         {
+            base.Update();
             this.TimeOfDay += Time.DeltaTime;
         }
+
+        #region Event Processing
+
+        #endregion
     }
 }

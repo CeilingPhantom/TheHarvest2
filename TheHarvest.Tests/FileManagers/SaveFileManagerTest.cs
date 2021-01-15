@@ -12,13 +12,13 @@ namespace TheHarvest.Tests.FileManagers
         [TestMethod]
         public void SaveAndLoadTest1()
         {
-            var farm1In = new Farm("farm1");
+            var farm1In = new Farm();
             var tile1 = Tile.CreateTile(TileType.Dirt, 1, 2, 10);
             farm1In.PlaceTile(tile1);
             SaveFileManager.Save("test1.dat", farm1In);
 
             SaveFileManager.Load("test1.dat");
-            var farm1Out = SaveFileManager.GetLoadedFarm("farm1");
+            var farm1Out = SaveFileManager.LoadedFarm;
             Assert.IsTrue(farm1Out.Grid.AllItems().Length == 1);
             Assert.IsTrue(farm1Out.Grid[1, 2] != null);
             Assert.IsTrue(farm1Out.Grid[1, 2].GetComponent<Tile>().CompareTo(tile1) == 0);
@@ -35,7 +35,7 @@ namespace TheHarvest.Tests.FileManagers
             bytes[9] = 2;
             bytes[10] = 202;
             PlayerState.Instance.LoadFromBytes(bytes);
-            var farm2In = new Farm("farm2");
+            var farm2In = new Farm();
             var tile1 = Tile.CreateTile(TileType.Dirt, 0, 0);
             farm2In.PlaceTile(tile1);
             var tile2 = Tile.CreateTile(TileType.Grass, 0, 1);
@@ -52,7 +52,7 @@ namespace TheHarvest.Tests.FileManagers
             Assert.IsTrue(PlayerState.Instance.Day == 21);
             Assert.IsTrue(PlayerState.Instance.Season == 2);
             Assert.IsTrue(PlayerState.Instance.Year == 202);
-            var farm2Out = SaveFileManager.GetLoadedFarm("farm2");
+            var farm2Out = SaveFileManager.LoadedFarm;
             Assert.IsTrue(farm2Out.Grid.AllItems().Length == 4);
             Assert.IsTrue(farm2Out.Grid[0, 0].GetComponent<Tile>().CompareTo(tile1) == 0);
             Assert.IsTrue(farm2Out.Grid[0, 1].GetComponent<Tile>().CompareTo(tile2) == 0);

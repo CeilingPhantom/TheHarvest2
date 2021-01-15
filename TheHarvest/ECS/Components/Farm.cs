@@ -1,28 +1,24 @@
 using Nez;
 
 using TheHarvest.ECS.Entities;
+using TheHarvest.Events;
 using TheHarvest.Util;
 
 namespace TheHarvest.ECS.Components
 {
-    public class Farm : Component
+    public class Farm : EventSubscriber
     {
         public BoundlessSparseMatrix<TileEntity> Grid { get; } = new BoundlessSparseMatrix<TileEntity>();
-        PlayerState playerState;
+        PlayerState playerState = PlayerState.Instance;
 
         FastList<TileEntity> initTileEntities = new FastList<TileEntity>();
 
-        public string Name { get; }
-
-        public Farm(string name) : base()
-        {
-            this.Name = name;
-        }
+        public Farm() : base()
+        {}
 
         public override void OnAddedToEntity()
         {
             base.OnAddedToEntity();
-            this.playerState = this.Entity.GetComponent<PlayerState>();
             if (this.initTileEntities.Length == 0)
                 this.DefaultInitTileEntities();
             this.AttachTileEntitiesToScene();
@@ -33,8 +29,8 @@ namespace TheHarvest.ECS.Components
             // TODO more elaborate default tiling
             var w = 20;
             var h = 12;
-            for (var i = 0; i < w; ++i)
-                for (var j = 0; j < h; ++j)
+            for (var i = -w; i < w; ++i)
+                for (var j = -h; j < h; ++j)
                     this.PlaceTile(Tile.CreateTile(TileType.Dirt, i, j));
         }
 
@@ -59,5 +55,9 @@ namespace TheHarvest.ECS.Components
 
         // public void EnableTileRender()
         // public void DisableTileRender()
+
+        #region Event Processing
+        
+        #endregion
     }
 }

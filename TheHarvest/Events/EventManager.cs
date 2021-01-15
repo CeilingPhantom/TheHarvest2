@@ -4,9 +4,20 @@ using Nez;
 
 namespace TheHarvest.Events
 {
-    public sealed class EventController
+    public sealed class EventManager : GlobalManager
     {
+        static readonly Lazy<EventManager> lazy = new Lazy<EventManager>(() => new EventManager());
+        public static EventManager Instance => lazy.Value;
+
         Dictionary<Type, FastList<EventSubscriber>> groupDict = new Dictionary<Type, FastList<EventSubscriber>>();
+
+        private EventManager() : base()
+        {}
+
+        public void Initialize()
+        {
+            Core.RegisterGlobalManager(this);
+        }
 
         private void RegisterEventGroup<T>() where T : IEvent
         {
@@ -14,7 +25,7 @@ namespace TheHarvest.Events
                 this.groupDict.Add(typeof(T), new FastList<EventSubscriber>());
         }
 
-        public void Subscribe<T>(params EventSubscriber[] subscribers) where T : IEvent
+        public void AddSubscribers<T>(params EventSubscriber[] subscribers) where T : IEvent
         {
             this.RegisterEventGroup<T>();
             this.groupDict[typeof(T)].AddRange(subscribers);

@@ -4,10 +4,11 @@ using TheHarvest.ECS.Components;
 
 namespace TheHarvest.ECS.Entities
 {
-    public class PlayerCameraEntity : Entity
+    public class PlayerEntity : Entity
     {
-        public PlayerCameraEntity() : base("PlayerCamera")
+        public PlayerEntity() : base("Player")
         {
+            this.AddComponent(PlayerState.Instance);
             this.AddComponent<PlayerCamera>();
         }
     }

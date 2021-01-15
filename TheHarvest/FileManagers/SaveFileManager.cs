@@ -5,16 +5,13 @@ using Nez;
 
 using TheHarvest.ECS.Entities;
 using TheHarvest.ECS.Components;
-using TheHarvest.Util;
+using TheHarvest.Scenes;
 
 namespace TheHarvest.FileManagers
 {
     public static class SaveFileManager
     {
-        // magic number/chunk to separate different grids is a tile with the same position as the last
-        // works since there can't be two tiles in the same position in a grid
-
-        public static Dictionary<string, Farm> LoadedFarms { get; } = new Dictionary<string, Farm>();
+        public static Farm LoadedFarm = null;
 
         public static void Load(string filename)
         {
@@ -23,10 +20,11 @@ namespace TheHarvest.FileManagers
                 using (BinaryReader reader = new BinaryReader(File.Open(filename, FileMode.Open)))
                 {
                     LoadPlayerState(reader);
-                    while (reader.BaseStream.Position < reader.BaseStream.Length)
-                        LoadFarm(reader);
+                    LoadFarm(reader);
                 }
             }
+            if (LoadedFarm == null)
+                LoadedFarm = new Farm();
         }
 
         private static void LoadPlayerState(BinaryReader reader)
@@ -38,8 +36,7 @@ namespace TheHarvest.FileManagers
 
         private static void LoadFarm(BinaryReader reader)
         {
-            var name = reader.ReadString();
-            var farm = new Farm(name);
+            LoadedFarm = new Farm();
             var chunk = reader.ReadBytes(Tile.ChunkSize);
             Tile prevTile = null;
             while (chunk.Length > 0)
@@ -54,44 +51,21 @@ namespace TheHarvest.FileManagers
                 else if (prevTile.X == tile.X && prevTile.Y == tile.Y)
                     // we've reached the end for this grid
                     break;
-                farm.PlaceTile(tile);
+                LoadedFarm.PlaceTile(tile);
                 chunk = reader.ReadBytes(Tile.ChunkSize);
             }
-            LoadedFarms[name] = farm;
         }
 
-        public static Farm GetLoadedFarm(string name)
-        {
-            Farm val;
-            if (LoadedFarms.TryGetValue(name, out val))
-                return val;
-            return null;
-        }
-
-        public static void Save(string filename, params Farm[] farms)
+        public static void Save(string filename="farm.dat", Farm farm=null)
         {
             using (BinaryWriter writer = new BinaryWriter(File.Open(filename, FileMode.Create)))
             {
                 writer.Write(PlayerState.Instance.ToBytes());
-                if (farms.Length == 0)
-                {
-                    Array.Resize(ref farms, TheHarvest.Scenes.Count);
-                    int i = 0;
-                    foreach (var sceneEntry in TheHarvest.Scenes)
-                        farms[i++] = sceneEntry.Value().EntitiesOfType<FarmEntity>()[0].GetComponent<Farm>();
-                }
-                byte[] farmSeparator = null;
-                foreach (var farm in farms)
-                {
-                    if (farmSeparator != null)
-                        writer.Write(farmSeparator);
-                    writer.Write(farm.Name);
-                    var tileEntities = farm.Grid.AllItems();
-                    foreach (var tileEntity in tileEntities)
-                        writer.Write(tileEntity.GetComponent<Tile>().ToBytes());
-                    // write dup of last tile
-                    farmSeparator = tileEntities[tileEntities.Length - 1].GetComponent<Tile>().ToBytes();
-                }
+                // if not specified, get farm scene instance's farm
+                if (farm == null)
+                    farm = FarmScene.Instance.FindEntity("farm").GetComponent<Farm>();
+                foreach (var tileEntity in farm.Grid.AllItems())
+                    writer.Write(tileEntity.GetComponent<Tile>().ToBytes());
             }
         }
     }
