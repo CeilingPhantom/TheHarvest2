@@ -38,20 +38,9 @@ namespace TheHarvest.FileManagers
         {
             LoadedFarm = new Farm();
             var chunk = reader.ReadBytes(Tile.ChunkSize);
-            Tile prevTile = null;
             while (chunk.Length > 0)
             {
-                var tile = Tile.CreateTile(chunk);
-                // first chunk
-                if (prevTile == null)
-                    prevTile = tile;
-                // check if current tile has the same (x, y) as the prev one
-                // if the grid has 1 tile, its save will have 2 tiles
-                // if the grid has 0 tiles, its save will have 0 tiles
-                else if (prevTile.X == tile.X && prevTile.Y == tile.Y)
-                    // we've reached the end for this grid
-                    break;
-                LoadedFarm.PlaceTile(tile);
+                LoadedFarm.PlaceTile(Tile.CreateTile(chunk));
                 chunk = reader.ReadBytes(Tile.ChunkSize);
             }
         }
