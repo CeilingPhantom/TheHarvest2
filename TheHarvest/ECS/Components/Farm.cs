@@ -1,3 +1,4 @@
+using System;
 using Nez;
 
 using TheHarvest.ECS.Entities;
@@ -6,12 +7,17 @@ using TheHarvest.Util;
 
 namespace TheHarvest.ECS.Components
 {
-    public class Farm : EventSubscriber
+    public class Farm : RenderableEventSubscriberComponent
     {
         public BoundlessSparseMatrix<TileEntity> Grid { get; } = new BoundlessSparseMatrix<TileEntity>();
         PlayerState playerState = PlayerState.Instance;
 
+        FastList<TileEntity> defaultTileEntityPool = new FastList<TileEntity>();
+
         FastList<TileEntity> initTileEntities = new FastList<TileEntity>();
+
+        public override float Width => Grid.Width;
+        public override float Height => Grid.Height;
 
         public Farm() : base()
         {}
@@ -19,9 +25,9 @@ namespace TheHarvest.ECS.Components
         public override void OnAddedToEntity()
         {
             base.OnAddedToEntity();
-            if (this.initTileEntities.Length == 0)
-                this.DefaultInitTileEntities();
-            this.AttachTileEntitiesToScene();
+            //if (this.initTileEntities.Length == 0)
+            //    this.DefaultInitTileEntities();
+            this.AttachInitTileEntitiesToScene();
         }
 
         private void DefaultInitTileEntities()
@@ -29,12 +35,12 @@ namespace TheHarvest.ECS.Components
             // TODO more elaborate default tiling
             var w = 20;
             var h = 12;
-            for (var i = -w; i < w; ++i)
-                for (var j = -h; j < h; ++j)
+            for (var i = 0; i < w; ++i)
+                for (var j = 0; j < h; ++j)
                     this.PlaceTile(Tile.CreateTile(TileType.Dirt, i, j));
         }
 
-        private void AttachTileEntitiesToScene()
+        private void AttachInitTileEntitiesToScene()
         {
             for (var i = 0; i < this.initTileEntities.Length; ++i)
                 this.Entity.Scene.AddEntity(this.initTileEntities[i]);
@@ -56,8 +62,26 @@ namespace TheHarvest.ECS.Components
         // public void EnableTileRender()
         // public void DisableTileRender()
 
+        public override void Update()
+        {
+            var bounds = this.Entity.Scene.Camera.Bounds;
+
+            System.Diagnostics.Debug.WriteLine("topleft: {0}, {1}", Math.Floor(bounds.X / Tile.Size), Math.Floor(bounds.Y / Tile.Size));
+
+            var topTileOverflow = Math.Abs(bounds.Y % Tile.Size);
+            System.Diagnostics.Debug.WriteLine("height: {0}", Math.Ceiling((bounds.Height - topTileOverflow) / Tile.Size) + (topTileOverflow == 0 ? 0 : 1));
+
+            var leftTileOverflow = Math.Abs(bounds.X % Tile.Size);
+            System.Diagnostics.Debug.WriteLine("width: {0}", Math.Ceiling((bounds.Width -leftTileOverflow) / Tile.Size) + (leftTileOverflow == 0 ? 0 : 1));
+
+            // handle events
+        }
+
+        public override void Render(Batcher batcher, Camera camera)
+        {}
+
         #region Event Processing
-        
+
         #endregion
     }
 }

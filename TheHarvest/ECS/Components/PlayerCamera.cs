@@ -24,7 +24,7 @@ namespace TheHarvest.ECS.Components
             this.camera = this.Entity.Scene.Camera;
         }
 
-        private void SetupInput()
+        void SetupInput()
         {
             this.xAxisInput.AddKeyboardKeys(VirtualInput.OverlapBehavior.CancelOut, Keys.Left, Keys.Right);
             this.yAxisInput.AddKeyboardKeys(VirtualInput.OverlapBehavior.CancelOut, Keys.Up, Keys.Down);
@@ -36,21 +36,9 @@ namespace TheHarvest.ECS.Components
         {
             this.UpdateMovement();
             this.UpdateZoom();
-
-            var b = this.camera.Bounds;
-
-            var a = Math.Abs(b.Y % Tile.Size);
-            System.Diagnostics.Debug.WriteLine(Math.Ceiling((b.Height - a) / Tile.Size) + (a == 0 ? 0 : 1));
-
-            //System.Diagnostics.Debug.WriteLine(Math.Ceiling(b.Width / Tile.Size));
-            //System.Diagnostics.Debug.WriteLine(Math.Ceiling(b.Height / Tile.Size));
-            System.Diagnostics.Debug.WriteLine(Math.Floor(b.X / Tile.Size));
-            System.Diagnostics.Debug.WriteLine(Math.Floor(b.Y / Tile.Size));
-
-            // camera move event for farm to accept and expand grid if needed
         }
 
-        private void UpdateMovement()
+        void UpdateMovement()
         {
             var motion = Vector2.Zero;
             var moveSpeed = CalcMoveSpeed();
@@ -65,13 +53,13 @@ namespace TheHarvest.ECS.Components
             this.Entity.Position += motion;
         }
 
-        private float CalcMoveSpeed()
+        float CalcMoveSpeed()
         {
             // rate of change in speed slows down significantly as camera approaches min/max zoom
             return (float) ((2 * Math.Atan(this.moveSpeedParam) / Math.PI) + 1) * this.moveSpeedMultiplier;
         }
 
-        private void UpdateZoom()
+        void UpdateZoom()
         {
             if (zoomInInput.IsDown)
             {

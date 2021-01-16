@@ -1,4 +1,3 @@
-using Nez;
 using Nez.Textures;
 
 namespace TheHarvest.ECS.Components
@@ -12,7 +11,7 @@ namespace TheHarvest.ECS.Components
         public override void OnAddedToEntity()
         {
             base.OnAddedToEntity();
-            this.SpriteRenderer.SetSprite(new Sprite(this.Entity.Scene.Content.LoadTexture("Content/imgs/tiles/dirt0.png")));
+            this.SpriteAnimator.SetSprite(new Sprite(this.Entity.Scene.Content.LoadTexture("imgs/tiles/dirt0")));
         }
     }
 }

@@ -25,6 +25,6 @@ namespace TheHarvest.Events
     // e.g. BuyTile (from UI to game) triggers AddMoney (UI adjusts money counter, sound makes appropriate affirmative/negative sound)
     public interface IEvent
     {
-        void Accept(EventSubscriber subscriber);
+        void Accept(IEventSubscriber subscriber);
     }
 }

@@ -5,7 +5,7 @@ using TheHarvest.Events;
 
 namespace TheHarvest.ECS.Components
 {
-    public class PlayerState : EventSubscriber
+    public class PlayerState : EventSubscriberComponent
     {
         static readonly Lazy<PlayerState> lazy = new Lazy<PlayerState>(() => new PlayerState());
         public static PlayerState Instance => lazy.Value;
@@ -20,7 +20,7 @@ namespace TheHarvest.ECS.Components
 
         private PlayerState() : base()
         {
-            this.SubscribeTo<AddMoneyEvent>();
+            EventManager.Instance.SubscribeTo<AddMoneyEvent>(this);
         }
 
         public void LoadFromBytes(byte[] bytes)
@@ -45,7 +45,6 @@ namespace TheHarvest.ECS.Components
 
         public override void Update()
         {
-            base.Update();
             this.TimeOfDay += Time.DeltaTime;
         }
 

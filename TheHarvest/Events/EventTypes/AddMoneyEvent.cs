@@ -9,7 +9,7 @@ namespace TheHarvest.Events
             this.amount = amount;
         }
 
-        public void Accept(EventSubscriber member)
+        public void Accept(IEventSubscriber member)
         {
             member.ProcessEvent(this);
         }

@@ -124,9 +124,6 @@
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
 
   <ItemGroup>
-    <None Include="Content\imgs\**" CopyToOutputDirectory="PreserveNewest"/>
-    <None Include="Content\music\**" CopyToOutputDirectory="PreserveNewest"/>
-    <None Include="Content\sfx\**" CopyToOutputDirectory="PreserveNewest"/>
     <None Include="Content\Tiled\**" CopyToOutputDirectory="PreserveNewest"/>
   </ItemGroup>
 

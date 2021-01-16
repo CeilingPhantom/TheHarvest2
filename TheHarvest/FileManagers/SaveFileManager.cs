@@ -27,14 +27,14 @@ namespace TheHarvest.FileManagers
                 LoadedFarm = new Farm();
         }
 
-        private static void LoadPlayerState(BinaryReader reader)
+        static void LoadPlayerState(BinaryReader reader)
         {
             var chunk = reader.ReadBytes(PlayerState.ChunkSize);
             if (chunk.Length > 0)
                 PlayerState.Instance.LoadFromBytes(chunk);
         }
 
-        private static void LoadFarm(BinaryReader reader)
+        static void LoadFarm(BinaryReader reader)
         {
             LoadedFarm = new Farm();
             var chunk = reader.ReadBytes(Tile.ChunkSize);

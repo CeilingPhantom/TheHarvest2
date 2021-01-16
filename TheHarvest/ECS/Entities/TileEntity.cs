@@ -10,17 +10,25 @@ namespace TheHarvest.ECS.Entities
     {
         Tile tile;
 
-        public TileEntity(Tile tile) : base()
+        public TileEntity(Tile tile) : base(tile.Type + Utils.RandomString(8))
         {
             this.tile = tile;
             this.AddComponent(tile);
             this.AddComponent<SpriteAnimator>();
-            UpdatePosition();
+            this.UpdatePosition(tile.X, tile.Y);
         }
 
-        public void UpdatePosition()
+        public void SetPosition(int x, int y)
         {
-            this.SetPosition(new Vector2(this.tile.X + 0.5f, this.tile.Y + 0.5f) * Tile.Size);
+            // +0.5 since entity position is based on center
+            this.tile.X = x;
+            this.tile.Y = y;
+            this.UpdatePosition(x, y);
+        }
+
+        public void UpdatePosition(int x, int y)
+        {
+            this.SetPosition(new Vector2(x + 0.5f, y + 0.5f) * Tile.Size);
         }
     }
 }

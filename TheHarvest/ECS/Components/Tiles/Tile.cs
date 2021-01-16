@@ -17,13 +17,13 @@ namespace TheHarvest.ECS.Components
 
         public Farm Farm { get; protected internal set; }
         public TileType Type { get; }
-        public int X { get; }
-        public int Y { get; }
+        public int X { get; internal set; }
+        public int Y { get; internal set; }
         public float CycleTime { get; internal set; }  // not for tile animation - that is managed by the sprite animator
         public bool IsAdvancing { get; internal set; }
         public TileType AdvancingType { get; internal set; }
 
-        protected SpriteRenderer SpriteRenderer;
+        protected SpriteAnimator SpriteAnimator;
 
         public Tile(TileType type, int x, int y, float cycleTime=0, bool isAdvancing=false, TileType advancingType=0)
         {
@@ -78,12 +78,12 @@ namespace TheHarvest.ECS.Components
         public override void OnAddedToEntity()
         {
             base.OnAddedToEntity();
-            this.SpriteRenderer = this.Entity.GetComponent<SpriteRenderer>();
+            this.SpriteAnimator = this.Entity.GetComponent<SpriteAnimator>();
         }
 
         public virtual void Update()
         {
-            this.CycleTime += Time.DeltaTime;
+            //this.CycleTime += Time.DeltaTime;
         }
 
         protected virtual void AdvanceTile()
