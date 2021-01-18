@@ -5,7 +5,7 @@ using TheHarvest.Events;
 
 namespace TheHarvest.ECS.Components
 {
-    public class PlayerState : EventSubscriberComponent
+    public class PlayerState : EventSubscribingUpdatableComponent
     {
         static readonly Lazy<PlayerState> lazy = new Lazy<PlayerState>(() => new PlayerState());
         public static PlayerState Instance => lazy.Value;
@@ -13,7 +13,7 @@ namespace TheHarvest.ECS.Components
         public static readonly int ChunkSize = 11;
 
         public int Money { get; private set; }
-        public float TimeOfDay { get; private set; }  // ms
+        public float TimeOfDay { get; private set; }  // time in seconds
         public byte Day { get; private set; }
         public byte Season { get; private set; }
         public byte Year { get; private set; }

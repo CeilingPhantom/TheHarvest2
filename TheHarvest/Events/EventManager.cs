@@ -14,9 +14,7 @@ namespace TheHarvest.Events
         FastList<IEvent> nextFrameEvents = new FastList<IEvent>();
 
         EventManager() : base()
-        {
-            nextFrameEvents.Add(new AddMoneyEvent(1));
-        }
+        {}
 
         public void Initialize()
         {
@@ -37,14 +35,21 @@ namespace TheHarvest.Events
 
         public void Publish<T>(T e) where T : IEvent
         {
-            for (var i = 0; i < this.groupDict[typeof(T)].Length; ++i)
-                this.groupDict[typeof(T)][i].SendEvent(e);
+            this.nextFrameEvents.Add(e);
         }
 
         public override void Update()
         {
             base.Update();
-            System.Diagnostics.Debug.WriteLine(nextFrameEvents[0].GetType() == typeof(AddMoneyEvent));
+            for (var i = 0; i < this.nextFrameEvents.Length; ++i)
+                SendEvent(this.nextFrameEvents[i]);
+            this.nextFrameEvents.Clear();
+        }
+
+        void SendEvent<T>(T e) where T : IEvent
+        {
+            for (var i = 0; i < this.groupDict[e.GetType()].Length; ++i)
+                this.groupDict[e.GetType()][i].SendEvent(e);
         }
     }
 }

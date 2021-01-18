@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TheHarvest.Util
 {
@@ -49,6 +50,17 @@ namespace TheHarvest.Util
                     this[i, j] = initVal();
         }
 
+        void UpdateMinMaxXY()
+        {
+            this.minX = this.matrix.Keys.Min();
+            this.maxX = this.matrix.Keys.Max();
+            foreach (var xDict in this.matrix.Values)
+            {
+                this.minY = Math.Min(this.minY, xDict.Keys.Min());
+                this.maxY = Math.Max(this.maxY, xDict.Keys.Max());
+            }
+        }
+
         public T[] AllItems()
         {
             var all = new List<T>();
@@ -57,10 +69,20 @@ namespace TheHarvest.Util
             return all.ToArray();
         }
 
+        public bool Remove(int x, int y)
+        {
+            if (this.matrix.ContainsKey(x) && this.matrix[x].Remove(y))
+            {
+                if (this.matrix[x].Count == 0)
+                    this.matrix.Remove(x);
+                UpdateMinMaxXY();
+                return true;
+            }
+            return false;
+        }
+
         public bool IsEmpty()
         {
-            // once an item has been placed, it can only be replaced
-            // so don't have to check for actual items
             return this.matrix.Count == 0;
         }
     }

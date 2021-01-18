@@ -1,5 +1,6 @@
 using Nez;
 
+using TheHarvest.ECS.Components;
 using TheHarvest.FileManagers;
 
 namespace TheHarvest.ECS.Entities
@@ -8,7 +9,8 @@ namespace TheHarvest.ECS.Entities
     {
         public FarmEntity() : base()
         {
-            this.AddComponent(SaveFileManager.LoadedFarm);
+            var farm = this.AddComponent(SaveFileManager.LoadedFarm);
+            this.AddComponent(new FarmDefaultTiler(farm));
         }
     }
 }

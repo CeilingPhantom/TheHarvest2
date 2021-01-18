@@ -3,7 +3,7 @@ using Nez;
 
 namespace TheHarvest.Events
 {
-    public abstract class EventSubscriberComponent : Component, IUpdatable, IEventSubscriber
+    public abstract class EventSubscribingUpdatableComponent : Component, IUpdatable, IEventSubscriber
     {
         Queue<IEvent> queue = new Queue<IEvent>();
 
