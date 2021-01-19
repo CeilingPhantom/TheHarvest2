@@ -9,7 +9,7 @@ namespace TheHarvest.ECS.Entities
         public PlayerEntity() : base("Player")
         {
             this.AddComponent(PlayerState.Instance);
-            this.AddComponent<PlayerCamera>();
+            this.AddComponent(PlayerCamera.Instance);
         }
     }
 }

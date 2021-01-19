@@ -14,7 +14,9 @@ namespace TheHarvest.ECS.Components
         FastList<TileEntity> initTileEntities = new FastList<TileEntity>();
 
         public Farm() : base()
-        {}
+        {
+            PlaceTile(Tile.CreateTile(TileType.Grass, 0, 0));
+        }
 
         public override void OnAddedToEntity()
         {

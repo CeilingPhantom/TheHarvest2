@@ -12,7 +12,8 @@ namespace TheHarvest.ECS.Components
         static string defaultTileType = DirtTile.TexturePath;
         Texture2D defaultTileTexture;
 
-        public override RectangleF Bounds => this.Entity.Scene.Camera.Bounds;
+        PlayerCamera playerCamera = PlayerCamera.Instance;
+        public override RectangleF Bounds => this.playerCamera.Bounds;
 
         public FarmDefaultTiler(Farm farm)
         {
@@ -27,15 +28,9 @@ namespace TheHarvest.ECS.Components
 
         public override void Render(Batcher batcher, Camera camera)
         {
-            var topLeftX = (int) Math.Floor(this.Bounds.X / Tile.Size);
-            var topLeftY = (int) Math.Floor(this.Bounds.Y / Tile.Size);
-            var topTileOverflow = Math.Abs(this.Bounds.Y % Tile.Size);
-            var leftTileOverflow = Math.Abs(this.Bounds.X % Tile.Size);
-            var width = Math.Ceiling((this.Bounds.Width -leftTileOverflow) / Tile.Size) + (leftTileOverflow == 0 ? 0 : 1);
-            var height = Math.Ceiling((this.Bounds.Height - topTileOverflow) / Tile.Size) + (topTileOverflow == 0 ? 0 : 1);
-            for (var x = topLeftX; x < topLeftX + width; ++x)
+            for (var x = this.playerCamera.TopLeftTileX; x < this.playerCamera.TopLeftTileX + this.playerCamera.WidthTiles; ++x)
             {
-                for (var y = topLeftY; y < topLeftY + height; ++y)
+                for (var y = this.playerCamera.TopLeftTileY; y < this.playerCamera.TopLeftTileY + this.playerCamera.HeightTiles; ++y)
                 {
                     if (this.farm.Grid[x, y] == null)
                     {

@@ -18,7 +18,7 @@ namespace TheHarvest.ECS.Components
         public byte Season { get; private set; }
         public byte Year { get; private set; }
 
-        private PlayerState() : base()
+        PlayerState() : base()
         {
             EventManager.Instance.SubscribeTo<AddMoneyEvent>(this);
         }
