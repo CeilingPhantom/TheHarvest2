@@ -17,15 +17,11 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
-    - name: Cache Nez
-      id: cache-nez
-      uses: actions/cache@v2
+    - name: Checkout Nez
+      uses: actions/checkout@v2
       with:
-        path: '../nez'
-        key: nez-${{ hashFiles('../nez/.git/ORIG_HEAD') }}
-    - name: Install Nez
-      if: steps.cache-nez.outputs.cache-hit != 'true'
-      run: git clone git@github.com:prime31/Nez.git ../nez
+        repository: prime31/Nez
+        path: ../Nez
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
