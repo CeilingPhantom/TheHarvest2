@@ -22,7 +22,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: "../nez"
-        key: ${{ nez }}-${{ hashFiles("../nez/.git/ORIG_HEAD" }}
+        key: ${{ "nez" }}-${{ hashFiles("../nez/.git/ORIG_HEAD" }}
     - name: Install Nez
       if: steps.cache-nez.outputs.cache-hit != "true"
       run: git clone git@github.com:prime31/Nez.git ../nez
