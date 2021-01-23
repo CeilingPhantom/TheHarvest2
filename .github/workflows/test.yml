@@ -23,7 +23,7 @@ jobs:
         repository: prime31/Nez
         path: Nez
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore --ignore-failed-sources
     - name: Build
       run: msbuild
     - name: Test
