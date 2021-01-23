@@ -20,6 +20,7 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
+    - name: Install MonoGame
       run: dotnet add package MonoGame.Framework.DesktopGL --version 3.8.0.1641
     - name: Checkout Nez
       uses: actions/checkout@v2
