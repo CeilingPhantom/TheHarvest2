@@ -14,8 +14,8 @@ jobs:
     steps:
     - name: Checkout TheHarvest2
       uses: actions/checkout@v2
-    - name: Moving TheHarvest2 down 1 folder
-      run: mv . TheHarvest2
+      with:
+        path: TheHarvest2
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
