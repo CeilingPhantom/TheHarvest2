@@ -120,10 +120,6 @@
       <Project>{2ad57d43-ab70-44cf-a81d-8865d65fbdd4}</Project>
       <Name>Nez</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Nez\Nez.Portable\Nez.csproj">
-      <Project>{2ad57d43-ab70-44cf-a81d-8865d65fbdd4}</Project>
-      <Name>Nez</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
