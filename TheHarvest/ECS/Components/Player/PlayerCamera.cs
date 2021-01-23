@@ -18,7 +18,6 @@ namespace TheHarvest.ECS.Components
         VirtualButton zoomOutKeyInput = new VirtualButton();
         
         int prevScrollValue;
-        MouseState mouseState;
         float scrollZoomMultiplier = 3;
         
         float moveSpeedParam = 0;
@@ -47,8 +46,7 @@ namespace TheHarvest.ECS.Components
         public override void Initialize()
         {
             base.Initialize();
-            this.mouseState = Mouse.GetState();
-            this.prevScrollValue = this.mouseState.ScrollWheelValue;
+            this.prevScrollValue = Mouse.GetState().ScrollWheelValue;
         }
 
         public override void OnAddedToEntity()
@@ -100,20 +98,20 @@ namespace TheHarvest.ECS.Components
 
         void UpdateZoom()
         {
-            this.mouseState = Mouse.GetState();
-            if (this.zoomInKeyInput.IsDown || this.mouseState.ScrollWheelValue > this.prevScrollValue)
+            var mouseState = Mouse.GetState();
+            if (this.zoomInKeyInput.IsDown || mouseState.ScrollWheelValue > this.prevScrollValue)
             {
                 this.camera.ZoomIn(this.zoomSpeed * (this.zoomInKeyInput.IsDown ? 1 : this.scrollZoomMultiplier));
                 if (this.camera.Zoom != 1f)
                     this.moveSpeedParam -= this.moveSpeedParamShift;
             }
-            else if (this.zoomOutKeyInput.IsDown || this.mouseState.ScrollWheelValue < this.prevScrollValue)
+            else if (this.zoomOutKeyInput.IsDown || mouseState.ScrollWheelValue < this.prevScrollValue)
             {
                 this.camera.ZoomOut(this.zoomSpeed * (this.zoomOutKeyInput.IsDown ? 1 : this.scrollZoomMultiplier));
                 if (this.camera.Zoom != -1f)
                     this.moveSpeedParam += this.moveSpeedParamShift;
             }
-            this.prevScrollValue = this.mouseState.ScrollWheelValue;
+            this.prevScrollValue = mouseState.ScrollWheelValue;
         }
 
         public void SetZoom(float zoom)
@@ -122,6 +120,14 @@ namespace TheHarvest.ECS.Components
             this.camera.SetZoom(zoom);
             var diff = currZoom - this.camera.Zoom;
             this.moveSpeedParamShift += diff / this.zoomSpeed * this.moveSpeedParamShift;
+        }
+
+        public Vector2 MouseToTilePosition()
+        {
+            var pos = camera.MouseToWorldPoint();
+            var tileX = (int) Math.Floor(pos.X / Tile.Size);
+            var tileY = (int) Math.Floor(pos.Y / Tile.Size);
+            return new Vector2(tileX, tileY);
         }
     }
 }

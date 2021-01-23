@@ -1,4 +1,8 @@
+using System;
+using System.Xml.Linq;
+using Microsoft.Xna.Framework;
 using Nez.Textures;
+using Nez.Tiled;
 
 namespace TheHarvest.ECS.Components
 {

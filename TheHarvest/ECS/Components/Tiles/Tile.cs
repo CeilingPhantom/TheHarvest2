@@ -8,6 +8,41 @@ namespace TheHarvest.ECS.Components
     {
         Dirt,
         Grass,
+        Construct,
+        Field,
+        // crops
+        Blueberry1,
+        Blueberry2,
+        Blueberry3,
+        Carrot1,
+        Carrot2,
+        Carrot3,
+        Potato1,
+        Potato2,
+        Potato3,
+        Strawberry1,
+        Strawberry2,
+        Strawberry3,
+        Wheat1,
+        Wheat2,
+        Wheat3,
+        // animals
+        Chicken1,
+        Chicken2,
+        Chicken3,
+        Pig1,
+        Pig2,
+        Pig3,
+        // structures
+        Greenhouse1,
+        Greenhouse2,
+        Greenhouse3,
+        Shed1,
+        Shed2,
+        Shed3,
+        Silo1,
+        Silo2,
+        Silo3,
     }
     
     public abstract class Tile : Component, IUpdatable, IComparable<Tile>

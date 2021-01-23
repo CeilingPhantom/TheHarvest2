@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.2" tiledversion="1.3.2" name="tiles" tilewidth="32" tileheight="32" tilecount="90" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
- <tile id="90">
+ <tile id="90" type="blueberry1">
   <image width="32" height="32" source="../imgs/tiles/blueberry1_0.png"/>
   <animation>
    <frame tileid="90" duration="200"/>
@@ -16,7 +16,7 @@
  <tile id="92">
   <image width="32" height="32" source="../imgs/tiles/blueberry1_2.png"/>
  </tile>
- <tile id="93">
+ <tile id="93" type="blueberry2">
   <image width="32" height="32" source="../imgs/tiles/blueberry2_0.png"/>
   <animation>
    <frame tileid="93" duration="200"/>
@@ -31,7 +31,7 @@
  <tile id="95">
   <image width="32" height="32" source="../imgs/tiles/blueberry2_2.png"/>
  </tile>
- <tile id="96">
+ <tile id="96" type="blueberry3">
   <image width="32" height="32" source="../imgs/tiles/blueberry3_0.png"/>
   <animation>
    <frame tileid="96" duration="200"/>
@@ -46,7 +46,7 @@
  <tile id="98">
   <image width="32" height="32" source="../imgs/tiles/blueberry3_2.png"/>
  </tile>
- <tile id="99">
+ <tile id="99" type="carrot1">
   <image width="32" height="32" source="../imgs/tiles/carrot1_0.png"/>
   <animation>
    <frame tileid="99" duration="200"/>
@@ -61,7 +61,7 @@
  <tile id="101">
   <image width="32" height="32" source="../imgs/tiles/carrot1_2.png"/>
  </tile>
- <tile id="102">
+ <tile id="102" type="carrot2">
   <image width="32" height="32" source="../imgs/tiles/carrot2_0.png"/>
   <animation>
    <frame tileid="102" duration="200"/>
@@ -76,7 +76,7 @@
  <tile id="104">
   <image width="32" height="32" source="../imgs/tiles/carrot2_2.png"/>
  </tile>
- <tile id="105">
+ <tile id="105" type="carrot3">
   <image width="32" height="32" source="../imgs/tiles/carrot3_0.png"/>
   <animation>
    <frame tileid="105" duration="200"/>
@@ -91,7 +91,7 @@
  <tile id="107">
   <image width="32" height="32" source="../imgs/tiles/carrot3_2.png"/>
  </tile>
- <tile id="108">
+ <tile id="108" type="chicken1">
   <image width="32" height="32" source="../imgs/tiles/chickencoop1_0.png"/>
   <animation>
    <frame tileid="108" duration="200"/>
@@ -109,7 +109,7 @@
  <tile id="111">
   <image width="32" height="32" source="../imgs/tiles/chickencoop1_3.png"/>
  </tile>
- <tile id="112">
+ <tile id="112" type="chicken2">
   <image width="32" height="32" source="../imgs/tiles/chickencoop2_0.png"/>
   <animation>
    <frame tileid="112" duration="200"/>
@@ -127,7 +127,7 @@
  <tile id="115">
   <image width="32" height="32" source="../imgs/tiles/chickencoop2_3.png"/>
  </tile>
- <tile id="116">
+ <tile id="116" type="chicken3">
   <image width="32" height="32" source="../imgs/tiles/chickencoop3_0.png"/>
   <animation>
    <frame tileid="116" duration="200"/>
@@ -145,16 +145,16 @@
  <tile id="119">
   <image width="32" height="32" source="../imgs/tiles/chickencoop3_3.png"/>
  </tile>
- <tile id="120">
+ <tile id="120" type="construct">
   <image width="32" height="32" source="../imgs/tiles/construct0.png"/>
  </tile>
- <tile id="121">
+ <tile id="121" type="dirt">
   <image width="32" height="32" source="../imgs/tiles/dirt0.png"/>
  </tile>
- <tile id="122">
+ <tile id="122" type="field">
   <image width="32" height="32" source="../imgs/tiles/field0.png"/>
  </tile>
- <tile id="123">
+ <tile id="123" type="grass">
   <image width="32" height="32" source="../imgs/tiles/grass0_0.png"/>
   <animation>
    <frame tileid="123" duration="200"/>
@@ -169,13 +169,13 @@
  <tile id="125">
   <image width="32" height="32" source="../imgs/tiles/grass0_2.png"/>
  </tile>
- <tile id="126">
+ <tile id="126" type="greenhouse1">
   <image width="32" height="32" source="../imgs/tiles/greenhouse1_X.png"/>
  </tile>
- <tile id="127">
+ <tile id="127" type="greenhouse2">
   <image width="32" height="32" source="../imgs/tiles/greenhouse2_X.png"/>
  </tile>
- <tile id="128">
+ <tile id="128" type="greenhouse3">
   <image width="32" height="32" source="../imgs/tiles/greenhouse3_0.png"/>
   <animation>
    <frame tileid="128" duration="200"/>
@@ -193,7 +193,7 @@
  <tile id="131">
   <image width="32" height="32" source="../imgs/tiles/greenhouse3_3.png"/>
  </tile>
- <tile id="132">
+ <tile id="132" type="pig1">
   <image width="32" height="32" source="../imgs/tiles/pigpen1_0.png"/>
   <animation>
    <frame tileid="132" duration="200"/>
@@ -211,7 +211,7 @@
  <tile id="135">
   <image width="32" height="32" source="../imgs/tiles/pigpen1_3.png"/>
  </tile>
- <tile id="136">
+ <tile id="136" type="pig2">
   <image width="32" height="32" source="../imgs/tiles/pigpen2_0.png"/>
   <animation>
    <frame tileid="136" duration="200"/>
@@ -229,7 +229,7 @@
  <tile id="139">
   <image width="32" height="32" source="../imgs/tiles/pigpen2_3.png"/>
  </tile>
- <tile id="140">
+ <tile id="140" type="pig3">
   <image width="32" height="32" source="../imgs/tiles/pigpen3_0.png"/>
   <animation>
    <frame tileid="140" duration="200"/>
@@ -247,7 +247,7 @@
  <tile id="143">
   <image width="32" height="32" source="../imgs/tiles/pigpen3_3.png"/>
  </tile>
- <tile id="144">
+ <tile id="144" type="potato1">
   <image width="32" height="32" source="../imgs/tiles/potato1_0.png"/>
   <animation>
    <frame tileid="144" duration="200"/>
@@ -262,7 +262,7 @@
  <tile id="146">
   <image width="32" height="32" source="../imgs/tiles/potato1_2.png"/>
  </tile>
- <tile id="147">
+ <tile id="147" type="potato2">
   <image width="32" height="32" source="../imgs/tiles/potato2_0.png"/>
   <animation>
    <frame tileid="147" duration="200"/>
@@ -277,7 +277,7 @@
  <tile id="149">
   <image width="32" height="32" source="../imgs/tiles/potato2_2.png"/>
  </tile>
- <tile id="150">
+ <tile id="150" type="potato3">
   <image width="32" height="32" source="../imgs/tiles/potato3_0.png"/>
   <animation>
    <frame tileid="150" duration="200"/>
@@ -292,13 +292,13 @@
  <tile id="152">
   <image width="32" height="32" source="../imgs/tiles/potato3_2.png"/>
  </tile>
- <tile id="153">
+ <tile id="153" type="shed1">
   <image width="32" height="32" source="../imgs/tiles/shed1_X.png"/>
  </tile>
- <tile id="154">
+ <tile id="154" type="shed2">
   <image width="32" height="32" source="../imgs/tiles/shed2_X.png"/>
  </tile>
- <tile id="155">
+ <tile id="155" type="shed3">
   <image width="32" height="32" source="../imgs/tiles/shed3_0.png"/>
   <animation>
    <frame tileid="155" duration="200"/>
@@ -316,16 +316,16 @@
  <tile id="158">
   <image width="32" height="32" source="../imgs/tiles/shed3_3.png"/>
  </tile>
- <tile id="159">
+ <tile id="159" type="silo1">
   <image width="32" height="32" source="../imgs/tiles/silo1_X.png"/>
  </tile>
- <tile id="160">
+ <tile id="160" type="silo2">
   <image width="32" height="32" source="../imgs/tiles/silo2_X.png"/>
  </tile>
- <tile id="161">
+ <tile id="161" type="silo3">
   <image width="32" height="32" source="../imgs/tiles/silo3_X.png"/>
  </tile>
- <tile id="162">
+ <tile id="162" type="strawberry1">
   <image width="32" height="32" source="../imgs/tiles/strawberry1_0.png"/>
   <animation>
    <frame tileid="162" duration="200"/>
@@ -340,7 +340,7 @@
  <tile id="164">
   <image width="32" height="32" source="../imgs/tiles/strawberry1_2.png"/>
  </tile>
- <tile id="165">
+ <tile id="165" type="strawberry2">
   <image width="32" height="32" source="../imgs/tiles/strawberry2_0.png"/>
   <animation>
    <frame tileid="165" duration="200"/>
@@ -355,7 +355,7 @@
  <tile id="167">
   <image width="32" height="32" source="../imgs/tiles/strawberry2_2.png"/>
  </tile>
- <tile id="168">
+ <tile id="168" type="strawberry3">
   <image width="32" height="32" source="../imgs/tiles/strawberry3_0.png"/>
   <animation>
    <frame tileid="168" duration="200"/>
@@ -370,7 +370,7 @@
  <tile id="170">
   <image width="32" height="32" source="../imgs/tiles/strawberry3_2.png"/>
  </tile>
- <tile id="171">
+ <tile id="171" type="wheat1">
   <image width="32" height="32" source="../imgs/tiles/wheat1_0.png"/>
   <animation>
    <frame tileid="171" duration="200"/>
@@ -385,7 +385,7 @@
  <tile id="173">
   <image width="32" height="32" source="../imgs/tiles/wheat1_2.png"/>
  </tile>
- <tile id="174">
+ <tile id="174" type="wheat2">
   <image width="32" height="32" source="../imgs/tiles/wheat2_0.png"/>
   <animation>
    <frame tileid="174" duration="200"/>
@@ -400,7 +400,7 @@
  <tile id="176">
   <image width="32" height="32" source="../imgs/tiles/wheat2_2.png"/>
  </tile>
- <tile id="177">
+ <tile id="177" type="wheat3">
   <image width="32" height="32" source="../imgs/tiles/wheat3_0.png"/>
   <animation>
    <frame tileid="177" duration="200"/>

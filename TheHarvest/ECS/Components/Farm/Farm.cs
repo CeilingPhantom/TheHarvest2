@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework.Input;
 using Nez;
 
 using TheHarvest.ECS.Entities;
@@ -10,6 +11,7 @@ namespace TheHarvest.ECS.Components
     {
         public BoundlessSparseMatrix<TileEntity> Grid { get; } = new BoundlessSparseMatrix<TileEntity>();
         PlayerState playerState = PlayerState.Instance;
+        PlayerCamera playerCamera = PlayerCamera.Instance;
 
         FastList<TileEntity> initTileEntities = new FastList<TileEntity>();
 
@@ -19,6 +21,9 @@ namespace TheHarvest.ECS.Components
         public override void OnAddedToEntity()
         {
             base.OnAddedToEntity();
+            
+            this.PlaceTile(Tile.CreateTile(TileType.Grass, 0, 0));
+            
             this.AttachInitTileEntitiesToScene();
         }
 

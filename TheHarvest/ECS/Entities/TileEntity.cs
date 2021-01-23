@@ -8,11 +8,11 @@ namespace TheHarvest.ECS.Entities
 {
     public class TileEntity : Entity
     {
-        Tile tile;
+        public Tile Tile { get; private set; }
 
         public TileEntity(Tile tile) : base(tile.Type + Utils.RandomString(8))
         {
-            this.tile = tile;
+            this.Tile = tile;
             this.AddComponent(tile);
             this.AddComponent<SpriteAnimator>();
             this.UpdatePosition(tile.X, tile.Y);
@@ -21,8 +21,8 @@ namespace TheHarvest.ECS.Entities
         public void SetPosition(int x, int y)
         {
             // +0.5 since entity position is based around center
-            this.tile.X = x;
-            this.tile.Y = y;
+            this.Tile.X = x;
+            this.Tile.Y = y;
             this.UpdatePosition(x, y);
         }
 
