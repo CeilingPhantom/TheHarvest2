@@ -30,4 +30,4 @@ jobs:
       run: |
         dotnet restore
         msbuild
-        dotnet vstest TheHarvest.Tests\bin\Debug\TheHarvest.Tests.dll
+        dotnet vstest TheHarvest.Tests/bin/Debug/TheHarvest.Tests.dll
