@@ -25,9 +25,9 @@ jobs:
       with:
         repository: prime31/Nez
         path: Nez
-    - name: Restore dependencies
-      run: dotnet restore --ignore-failed-sources
-    - name: Build
-      run: msbuild
-    - name: Test
-      run: dotnet vstest TheHarvest.Tests\bin\Debug\TheHarvest.Tests.dll
+    - name: Restore, Build & Test
+      working-directory: TheHarvest2
+      run: |
+        dotnet restore
+        msbuild
+        dotnet vstest TheHarvest.Tests\bin\Debug\TheHarvest.Tests.dll
