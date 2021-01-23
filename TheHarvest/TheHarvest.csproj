@@ -60,6 +60,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
@@ -119,14 +120,17 @@
       <Project>{2ad57d43-ab70-44cf-a81d-8865d65fbdd4}</Project>
       <Name>Nez</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Nez\Nez.Portable\Nez.csproj">
+      <Project>{2ad57d43-ab70-44cf-a81d-8865d65fbdd4}</Project>
+      <Name>Nez</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
-
   <ItemGroup>
-    <None Include="Content\Tiled\**" CopyToOutputDirectory="PreserveNewest"/>
+    <None Include="Content\imgs\**" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Content\Tiled\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
