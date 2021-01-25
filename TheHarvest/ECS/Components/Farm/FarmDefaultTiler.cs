@@ -9,7 +9,7 @@ namespace TheHarvest.ECS.Components
     {
         Farm farm;
         
-        static string defaultTileType = DirtTile.TexturePath;
+        static string defaultTileType = "imgs/tiles/dirt0";
         Texture2D defaultTileTexture;
 
         PlayerCamera playerCamera = PlayerCamera.Instance;

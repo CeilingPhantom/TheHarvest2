@@ -9,7 +9,7 @@ namespace TheHarvest.ECS.Entities
     {
         public FarmEntity() : base()
         {
-            var farm = this.AddComponent(SaveFileManager.LoadedFarm);
+            var farm = this.AddComponent(SaveFileManager.Instance.LoadedFarm);
             this.AddComponent(new FarmDefaultTiler(farm));
         }
     }

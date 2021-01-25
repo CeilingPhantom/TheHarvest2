@@ -15,10 +15,10 @@ namespace TheHarvest.Tests.FileManagers
             var farm1In = new Farm();
             var tile1 = Tile.CreateTile(TileType.Dirt, 1, 2, 10);
             farm1In.PlaceTile(tile1);
-            SaveFileManager.Save("test1.dat", farm1In);
+            SaveFileManager.Instance.Save("test1.dat", farm1In);
 
-            SaveFileManager.Load("test1.dat");
-            var farm1Out = SaveFileManager.LoadedFarm;
+            SaveFileManager.Instance.Load("test1.dat");
+            var farm1Out = SaveFileManager.Instance.LoadedFarm;
             Assert.IsTrue(farm1Out.Grid.AllItems().Length == 1);
             Assert.IsTrue(farm1Out.Grid[1, 2] != null);
             Assert.IsTrue(farm1Out.Grid[1, 2].GetComponent<Tile>().CompareTo(tile1) == 0);
@@ -44,15 +44,15 @@ namespace TheHarvest.Tests.FileManagers
             farm2In.PlaceTile(tile3);
             var tile4 = Tile.CreateTile(TileType.Dirt, 1, 1);
             farm2In.PlaceTile(tile4);
-            SaveFileManager.Save("test2.dat", farm2In);
+            SaveFileManager.Instance.Save("test2.dat", farm2In);
 
-            SaveFileManager.Load("test2.dat");
+            SaveFileManager.Instance.Load("test2.dat");
             Assert.IsTrue(PlayerState.Instance.Money == 9999);
             Assert.IsTrue(PlayerState.Instance.TimeOfDay == 98765.4321f);
             Assert.IsTrue(PlayerState.Instance.Day == 21);
             Assert.IsTrue(PlayerState.Instance.Season == 2);
             Assert.IsTrue(PlayerState.Instance.Year == 202);
-            var farm2Out = SaveFileManager.LoadedFarm;
+            var farm2Out = SaveFileManager.Instance.LoadedFarm;
             Assert.IsTrue(farm2Out.Grid.AllItems().Length == 4);
             Assert.IsTrue(farm2Out.Grid[0, 0].GetComponent<Tile>().CompareTo(tile1) == 0);
             Assert.IsTrue(farm2Out.Grid[0, 1].GetComponent<Tile>().CompareTo(tile2) == 0);

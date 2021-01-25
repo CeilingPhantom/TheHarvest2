@@ -9,11 +9,17 @@ using TheHarvest.Scenes;
 
 namespace TheHarvest.FileManagers
 {
-    public static class SaveFileManager
+    public class SaveFileManager
     {
-        public static Farm LoadedFarm = null;
+        static readonly Lazy<SaveFileManager> lazy = new Lazy<SaveFileManager>(() => new SaveFileManager());
+        public static SaveFileManager Instance => lazy.Value;
 
-        public static void Load(string filename)
+        private SaveFileManager()
+        {}
+
+        public Farm LoadedFarm = null;
+
+        public void Load(string filename)
         {
             if (File.Exists(filename))
             {
@@ -23,29 +29,29 @@ namespace TheHarvest.FileManagers
                     LoadFarm(reader);
                 }
             }
-            if (LoadedFarm == null)
-                LoadedFarm = new Farm();
+            if (this.LoadedFarm == null)
+                this.LoadedFarm = new Farm();
         }
 
-        static void LoadPlayerState(BinaryReader reader)
+        void LoadPlayerState(BinaryReader reader)
         {
             var chunk = reader.ReadBytes(PlayerState.ChunkSize);
             if (chunk.Length > 0)
                 PlayerState.Instance.LoadFromBytes(chunk);
         }
 
-        static void LoadFarm(BinaryReader reader)
+        void LoadFarm(BinaryReader reader)
         {
-            LoadedFarm = new Farm();
+            this.LoadedFarm = new Farm();
             var chunk = reader.ReadBytes(Tile.ChunkSize);
             while (chunk.Length > 0)
             {
-                LoadedFarm.PlaceTile(Tile.CreateTile(chunk));
+                this.LoadedFarm.PlaceTile(Tile.CreateTile(chunk));
                 chunk = reader.ReadBytes(Tile.ChunkSize);
             }
         }
 
-        public static void Save(string filename="farm.dat", Farm farm=null)
+        public void Save(string filename="farm.dat", Farm farm=null)
         {
             using (BinaryWriter writer = new BinaryWriter(File.Open(filename, FileMode.Create)))
             {

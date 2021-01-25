@@ -45,6 +45,7 @@ namespace TheHarvest.ECS.Components
 
         public override void Update()
         {
+            base.Update();
             this.TimeOfDay += Time.DeltaTime;
         }
 

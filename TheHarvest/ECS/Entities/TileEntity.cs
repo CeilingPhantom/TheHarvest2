@@ -10,7 +10,7 @@ namespace TheHarvest.ECS.Entities
     {
         public Tile Tile { get; private set; }
 
-        public TileEntity(Tile tile) : base(tile.Type + Utils.RandomString(8))
+        public TileEntity(Tile tile) : base(tile.TileType + Utils.RandomString(8))
         {
             this.Tile = tile;
             this.AddComponent(tile);

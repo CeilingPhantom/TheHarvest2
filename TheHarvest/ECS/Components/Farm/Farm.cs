@@ -52,6 +52,7 @@ namespace TheHarvest.ECS.Components
         public override void Update()
         {
             // handle events
+            base.Update();
         }
 
         #region Event Processing

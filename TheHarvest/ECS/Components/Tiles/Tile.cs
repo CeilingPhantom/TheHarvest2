@@ -1,6 +1,7 @@
 using System;
 using Nez;
 using Nez.Sprites;
+using Nez.Textures;
 
 namespace TheHarvest.ECS.Components
 {
@@ -51,7 +52,7 @@ namespace TheHarvest.ECS.Components
         public static readonly float Size = 32;
 
         public Farm Farm { get; protected internal set; }
-        public TileType Type { get; }
+        public TileType TileType { get; }
         public int X { get; internal set; }
         public int Y { get; internal set; }
         public float CycleTime { get; internal set; }  // not for tile animation - that is managed by the sprite animator
@@ -59,10 +60,11 @@ namespace TheHarvest.ECS.Components
         public TileType AdvancingType { get; internal set; }
 
         protected SpriteAnimator SpriteAnimator;
+        static readonly string defaultAnimationName = "default";
 
         public Tile(TileType type, int x, int y, float cycleTime=0, bool isAdvancing=false, TileType advancingType=0)
         {
-            this.Type = type;
+            this.TileType = type;
             this.X = x;
             this.Y = y;
             this.CycleTime = cycleTime;
@@ -101,7 +103,7 @@ namespace TheHarvest.ECS.Components
         public byte[] ToBytes()
         {
             var bytes = new byte[Tile.ChunkSize];
-            bytes[0] = (byte) this.Type;
+            bytes[0] = (byte) this.TileType;
             BitConverter.GetBytes(this.X).CopyTo(bytes, 1);
             BitConverter.GetBytes(this.Y).CopyTo(bytes, 5);
             BitConverter.GetBytes(this.CycleTime).CopyTo(bytes, 9);
@@ -116,21 +118,40 @@ namespace TheHarvest.ECS.Components
             this.SpriteAnimator = this.Entity.GetComponent<SpriteAnimator>();
         }
 
-        public virtual void Update()
+        protected void SetSprite(Sprite sprite)
         {
-            //this.CycleTime += Time.DeltaTime;
+            this.SpriteAnimator.SetSprite(sprite);
         }
 
+        protected void SetAnimation(SpriteAnimation animation)
+        {
+            this.SpriteAnimator.AddAnimation(Tile.defaultAnimationName, animation);
+        }
+
+        protected void PlayAnimation()
+        {
+            this.SpriteAnimator.Play(Tile.defaultAnimationName);
+        }
+
+        public virtual void Update()
+        {
+            this.CycleTime += Time.DeltaTime;
+        }
+
+        /// <summary>
+        /// if calling this in Update(), make sure this is the last thing done before it returns
+        /// </summary>
         protected virtual void AdvanceTile()
         {
-
+            this.Farm.PlaceTile(Tile.CreateTile(this.AdvancingType, this.X, this.Y));
+            this.Entity.Destroy();
         }
 
         public int CompareTo(Tile other)
         {
             if (other == null)
                 return 1;
-            var TypeCmp = this.Type.CompareTo(other.Type);
+            var TypeCmp = this.TileType.CompareTo(other.TileType);
             if (TypeCmp != 0)
                 return TypeCmp;
             var XCmp = this.X.CompareTo(other.X);

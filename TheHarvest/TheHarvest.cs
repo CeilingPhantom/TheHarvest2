@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Nez;
 
+using TheHarvest.ECS.Components;
 using TheHarvest.Events;
 using TheHarvest.FileManagers;
 using TheHarvest.Scenes;
@@ -15,9 +16,8 @@ namespace TheHarvest
             base.Initialize();
             Window.AllowUserResizing = false;
 
-            SaveFileManager.Load("farm.dat");
-            TmxTilesetTileManager.Load();
-            TmxTilesetTileManager.tiletypeToTileId.Select(i => $"{i.Key}: {i.Value}").ToList().ForEach(s => System.Diagnostics.Debug.WriteLine(s));
+            SaveFileManager.Instance.Load("farm.dat");
+            TilesetSpriteManager.Instance.Load();
             EventManager.Instance.Initialize();
             Scene = FarmScene.Instance;
         }
