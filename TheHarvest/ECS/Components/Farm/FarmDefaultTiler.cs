@@ -3,13 +3,15 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Nez;
 
+using TheHarvest.FileManagers;
+
 namespace TheHarvest.ECS.Components
 {
     public class FarmDefaultTiler : RenderableComponent
     {
         Farm farm;
         
-        static string defaultTileType = "imgs/tiles/dirt0";
+        public static readonly TileType DefaultTileType = TileType.Dirt;
         Texture2D defaultTileTexture;
 
         PlayerCamera playerCamera = PlayerCamera.Instance;
@@ -23,7 +25,7 @@ namespace TheHarvest.ECS.Components
         public override void OnAddedToEntity()
         {
             base.OnAddedToEntity();
-            this.defaultTileTexture = this.Entity.Scene.Content.LoadTexture(FarmDefaultTiler.defaultTileType);
+            this.defaultTileTexture = TilesetSpriteManager.Instance.GetSprite(FarmDefaultTiler.DefaultTileType).Texture2D;
         }
 
         public override void Render(Batcher batcher, Camera camera)

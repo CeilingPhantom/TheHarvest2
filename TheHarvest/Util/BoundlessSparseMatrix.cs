@@ -8,10 +8,10 @@ namespace TheHarvest.Util
     {
         Dictionary<int, Dictionary<int, T>> matrix = new Dictionary<int, Dictionary<int, T>>();
 
-        int minX = 0;
-        int maxX = 0;
-        int minY = 0;
-        int maxY = 0;
+        int? minX = 0;
+        int? maxX = 0;
+        int? minY = 0;
+        int? maxY = 0;
 
         public T this[int x, int y]
         {
@@ -26,19 +26,19 @@ namespace TheHarvest.Util
                 if (!this.matrix.ContainsKey(x))
                     this.matrix[x] = new Dictionary<int, T>();
                 this.matrix[x][y] = value;
-                if (x < this.minX)
+                if (!this.minX.HasValue || x < this.minX)
                     this.minX = x;
-                else if (x > this.maxX)
+                if (!this.maxX.HasValue || x > this.maxX)
                     this.maxX = x;
-                if (y < this.minY)
+                if (!this.minY.HasValue || y < this.minY)
                     this.minY = y;
-                else if (y > this.maxY)
+                if (!this.minY.HasValue || y > this.maxY)
                     this.maxY = y;
             }
         }
 
-        public int Width => Math.Abs(this.maxX - this.minX);
-        public int Height => Math.Abs(this.maxY - this.minY);
+        public int Width => this.minX.HasValue ? Math.Abs(this.maxX.Value - this.minX.Value) : 0;
+        public int Height => this.minY.HasValue ? Math.Abs(this.maxY.Value - this.minY.Value) : 0;
 
         public BoundlessSparseMatrix()
         {}
@@ -48,17 +48,6 @@ namespace TheHarvest.Util
             for (var i = 0; i < initWidth; ++i)
                 for (var j = 0; j < initHeight; ++j)
                     this[i, j] = initVal();
-        }
-
-        void UpdateMinMaxXY()
-        {
-            this.minX = this.matrix.Keys.Min();
-            this.maxX = this.matrix.Keys.Max();
-            foreach (var xDict in this.matrix.Values)
-            {
-                this.minY = Math.Min(this.minY, xDict.Keys.Min());
-                this.maxY = Math.Max(this.maxY, xDict.Keys.Max());
-            }
         }
 
         public T[] AllItems()
@@ -79,6 +68,25 @@ namespace TheHarvest.Util
                 return true;
             }
             return false;
+        }
+
+        void UpdateMinMaxXY()
+        {
+            if (this.matrix.Keys.Count() == 0)
+            {
+                this.minX = null;
+                this.maxX = null;
+                this.minY = null;
+                this.maxY = null;
+                return;
+            }
+            this.minX = this.matrix.Keys.Min();
+            this.maxX = this.matrix.Keys.Max();
+            foreach (var xDict in this.matrix.Values)
+            {
+                this.minY = Math.Min(this.minY.Value, xDict.Keys.Min());
+                this.maxY = Math.Max(this.maxY.Value, xDict.Keys.Max());
+            }
         }
 
         public bool IsEmpty()

@@ -22,7 +22,7 @@ namespace TheHarvest.ECS.Components
         {
             base.OnAddedToEntity();
             
-            this.PlaceTile(Tile.CreateTile(TileType.Grass, 0, 0));
+            this.AddTile(Tile.CreateTile(TileType.Grass, 0, 0));
             
             this.AttachInitTileEntitiesToScene();
         }
@@ -34,7 +34,7 @@ namespace TheHarvest.ECS.Components
             this.initTileEntities.Clear();
         }
 
-        public TileEntity PlaceTile(Tile tile)
+        public TileEntity AddTile(Tile tile)
         {
             tile.Farm = this;
             var tileEntity = new TileEntity(tile);
@@ -44,6 +44,11 @@ namespace TheHarvest.ECS.Components
             else
                 this.initTileEntities.Add(tileEntity);
             return this.Grid[tile.X, tile.Y];
+        }
+
+        public void RemoveTile(Tile tile)
+        {
+            this.Grid.Remove(tile.X, tile.Y);
         }
 
         // public void EnableTileRender()

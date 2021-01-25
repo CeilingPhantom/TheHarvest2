@@ -143,7 +143,10 @@ namespace TheHarvest.ECS.Components
         /// </summary>
         protected virtual void AdvanceTile()
         {
-            this.Farm.PlaceTile(Tile.CreateTile(this.AdvancingType, this.X, this.Y));
+            if (this.AdvancingType != FarmDefaultTiler.DefaultTileType)
+                this.Farm.AddTile(Tile.CreateTile(this.AdvancingType, this.X, this.Y));
+            else
+                this.Farm.RemoveTile(this);
             this.Entity.Destroy();
         }
 
