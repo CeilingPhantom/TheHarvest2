@@ -9,6 +9,7 @@ namespace TheHarvest.Events
         #region Event Processing
 
         void ProcessEvent(AddMoneyEvent e);
+        void ProcessEvent(AddTileEvent e);
 
         #endregion
     }

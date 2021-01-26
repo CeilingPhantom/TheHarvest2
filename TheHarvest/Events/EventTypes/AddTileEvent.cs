@@ -1,12 +1,14 @@
+using TheHarvest.ECS.Components;
+
 namespace TheHarvest.Events
 {
-    public class AddMoneyEvent : IEvent
+    public class AddTileEvent : IEvent
     {
-        private float amount;
+        public Tile Tile;
 
-        public AddMoneyEvent(float amount)
+        public AddTileEvent(Tile tile)
         {
-            this.amount = amount;
+            this.Tile = tile;
         }
 
         public void Accept(IEventSubscriber subscriber)

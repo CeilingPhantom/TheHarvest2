@@ -28,6 +28,9 @@ namespace TheHarvest.Events
         public virtual void ProcessEvent(AddMoneyEvent e)
         {}
 
+        public virtual void ProcessEvent(AddTileEvent e)
+        {}
+
         #endregion
     }
 }

@@ -13,9 +13,13 @@ namespace TheHarvest.UI
         
         public TileWindow() : base("hello world", new WindowStyle())
         {
-            this.DebugAll();
+            //this.DebugAll();
+            this.SetBackground(new PrimitiveDrawable(Color.Aquamarine));
+            this.SetResizable(true);
+            this.SetResizeBorderSize(5);
             this.SetPosition(100, 100);
-            this.PadTop(10);
+            this.Top().Left();
+            this.Pad(10).PadTop(20);
         }
     }
 }

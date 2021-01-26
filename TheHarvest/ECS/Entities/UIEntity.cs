@@ -8,7 +8,7 @@ namespace TheHarvest.ECS.Entities
     {
         public UIEntity() : base("ui")
         {
-            this.AddComponent<TileUI>();
+            this.AddComponent<TileSelectorUI>();
         }
     }
 }

@@ -48,6 +48,8 @@ namespace TheHarvest.Events
 
         void SendEvent<T>(T e) where T : IEvent
         {
+            if (!this.groupDict.ContainsKey(e.GetType()))
+                return;
             for (var i = 0; i < this.groupDict[e.GetType()].Length; ++i)
                 this.groupDict[e.GetType()][i].SendEvent(e);
         }
