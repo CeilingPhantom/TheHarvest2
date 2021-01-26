@@ -51,6 +51,7 @@
     <Compile Include="FileManagers/**" />
     <Compile Include="NezExtensions/**" />
     <Compile Include="Scenes/**" />
+    <Compile Include="UI/**" />
     <Compile Include="Util/**" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

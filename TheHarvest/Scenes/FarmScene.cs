@@ -4,6 +4,7 @@ using Nez;
 using Nez.UI;
 
 using TheHarvest.ECS.Entities;
+using TheHarvest.UI;
 
 namespace TheHarvest.Scenes
 {
@@ -11,6 +12,8 @@ namespace TheHarvest.Scenes
     {
         static readonly Lazy<FarmScene> lazy = new Lazy<FarmScene>(() => new FarmScene());
         public static FarmScene Instance => lazy.Value;
+
+        public static readonly int UIRenderLayer = 999;
 
         private FarmScene() : base()
         {}
@@ -27,17 +30,9 @@ namespace TheHarvest.Scenes
             
             this.AddEntity(new FarmEntity());
 
-            var ui = this.CreateEntity("ui");
-            var canvas = ui.AddComponent<UICanvas>();
-            canvas.RenderLayer = 999;
-            var window = canvas.Stage.AddElement(new Window("hello world", new WindowStyle()));
-            //window.SetBackground(new PrimitiveDrawable(Color.Black));
-            AddRenderer(new ScreenSpaceRenderer(100, 999));
-            AddRenderer(new RenderLayerExcludeRenderer(0, 999));
-            window.DebugAll();
-            window.SetPosition(100, 100);
-            window.PadTop(10);
-            //window.AddElement(new Slider( 0, 1, 0.1f, false, SliderStyle.Create( Color.DarkGray, Color.LightYellow ) ));
+            var ui = this.AddEntity(new UIEntity());
+            this.AddRenderer(new ScreenSpaceRenderer(100, UIRenderLayer));
+            this.AddRenderer(new RenderLayerExcludeRenderer(0, UIRenderLayer));
         }
 
         

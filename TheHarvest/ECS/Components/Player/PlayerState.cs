@@ -5,7 +5,7 @@ using TheHarvest.Events;
 
 namespace TheHarvest.ECS.Components
 {
-    public class PlayerState : EventSubscribingUpdatableComponent
+    public class PlayerState : EventSubscribingComponent
     {
         static readonly Lazy<PlayerState> lazy = new Lazy<PlayerState>(() => new PlayerState());
         public static PlayerState Instance => lazy.Value;

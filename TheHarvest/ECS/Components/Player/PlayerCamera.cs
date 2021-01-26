@@ -10,7 +10,7 @@ namespace TheHarvest.ECS.Components
         static readonly Lazy<PlayerCamera> lazy = new Lazy<PlayerCamera>(() => new PlayerCamera());
         public static PlayerCamera Instance => lazy.Value;
 
-        Camera camera;
+        public Camera Camera;
         
         VirtualIntegerAxis xAxisInput = new VirtualIntegerAxis();
         VirtualIntegerAxis yAxisInput = new VirtualIntegerAxis();
@@ -25,7 +25,7 @@ namespace TheHarvest.ECS.Components
         float moveSpeedMultiplier = 10;
         float zoomSpeed = 0.01f;
 
-        public RectangleF Bounds => this.camera.Bounds;
+        public RectangleF Bounds => this.Camera.Bounds;
         public float Width => this.Bounds.Width;
         public float Height => this.Bounds.Height;
 
@@ -53,7 +53,7 @@ namespace TheHarvest.ECS.Components
         {
             base.OnAddedToEntity();
             this.SetupInput();
-            this.camera = this.Entity.Scene.Camera;
+            this.Camera = this.Entity.Scene.Camera;
         }
 
         void SetupInput()
@@ -101,14 +101,14 @@ namespace TheHarvest.ECS.Components
             var mouseState = Mouse.GetState();
             if (this.zoomInKeyInput.IsDown || mouseState.ScrollWheelValue > this.prevScrollValue)
             {
-                this.camera.ZoomIn(this.zoomSpeed * (this.zoomInKeyInput.IsDown ? 1 : this.scrollZoomMultiplier));
-                if (this.camera.Zoom != 1f)
+                this.Camera.ZoomIn(this.zoomSpeed * (this.zoomInKeyInput.IsDown ? 1 : this.scrollZoomMultiplier));
+                if (this.Camera.Zoom != 1f)
                     this.moveSpeedParam -= this.moveSpeedParamShift;
             }
             else if (this.zoomOutKeyInput.IsDown || mouseState.ScrollWheelValue < this.prevScrollValue)
             {
-                this.camera.ZoomOut(this.zoomSpeed * (this.zoomOutKeyInput.IsDown ? 1 : this.scrollZoomMultiplier));
-                if (this.camera.Zoom != -1f)
+                this.Camera.ZoomOut(this.zoomSpeed * (this.zoomOutKeyInput.IsDown ? 1 : this.scrollZoomMultiplier));
+                if (this.Camera.Zoom != -1f)
                     this.moveSpeedParam += this.moveSpeedParamShift;
             }
             this.prevScrollValue = mouseState.ScrollWheelValue;
@@ -116,15 +116,15 @@ namespace TheHarvest.ECS.Components
 
         public void SetZoom(float zoom)
         {
-            var currZoom = this.camera.Zoom;
-            this.camera.SetZoom(zoom);
-            var diff = currZoom - this.camera.Zoom;
+            var currZoom = this.Camera.Zoom;
+            this.Camera.SetZoom(zoom);
+            var diff = currZoom - this.Camera.Zoom;
             this.moveSpeedParamShift += diff / this.zoomSpeed * this.moveSpeedParamShift;
         }
 
         public Vector2 MouseToTilePosition()
         {
-            var pos = camera.MouseToWorldPoint();
+            var pos = Camera.MouseToWorldPoint();
             var tileX = (int) Math.Floor(pos.X / Tile.Size);
             var tileY = (int) Math.Floor(pos.Y / Tile.Size);
             return new Vector2(tileX, tileY);

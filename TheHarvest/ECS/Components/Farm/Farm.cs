@@ -7,7 +7,7 @@ using TheHarvest.Util;
 
 namespace TheHarvest.ECS.Components
 {
-    public class Farm : EventSubscribingUpdatableComponent
+    public class Farm : EventSubscribingComponent
     {
         public BoundlessSparseMatrix<TileEntity> Grid { get; } = new BoundlessSparseMatrix<TileEntity>();
         PlayerState playerState = PlayerState.Instance;

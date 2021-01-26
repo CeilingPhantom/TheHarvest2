@@ -11,6 +11,7 @@ namespace TheHarvest.ECS.Entities
         {
             var farm = this.AddComponent(SaveFileManager.Instance.LoadedFarm);
             this.AddComponent(new FarmDefaultTiler(farm));
+            this.AddComponent<TileHighlighter>();
         }
     }
 }
