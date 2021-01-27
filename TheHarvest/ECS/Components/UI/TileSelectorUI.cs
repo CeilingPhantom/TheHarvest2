@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Nez;
 using Nez.UI;
 
@@ -20,6 +19,7 @@ namespace TheHarvest.ECS.Components.UI
             this.RenderLayer = FarmScene.UIRenderLayer;
             this.window = this.Stage.AddElement(new TileWindow());
             this.AddTileSelections();
+            // TODO toggle edit mode button
         }
 
         void AddTileSelections()
@@ -63,7 +63,7 @@ namespace TheHarvest.ECS.Components.UI
         internal TileType TileType { get; private set; }
 
         internal TileSelectionButton(TileType tileType, ImageTextButtonStyle style) : 
-            base(Regex.Match(tileType.ToString(), @"[a-zA-z]+").Value, style)
+            base(Tile.BaseTileType(tileType), style)
         {
             this.TileType = tileType;
             this.Left().PadTop(TileSelectionButton.padY).PadBottom(TileSelectionButton.padY);

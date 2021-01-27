@@ -80,7 +80,7 @@ namespace TheHarvest.ECS.Components.Farm
         {
             if (this.Grid[x, y] != null) {
                 Tile tile = this.Grid[x, y].Tile;
-                if (tile.TileType == newTileType)
+                if (!IsTileReplaceable(tile.TileType, newTileType))
                     return null;
                 this.RemoveTile(tile);
                 tile.Entity.Destroy();
@@ -90,10 +90,16 @@ namespace TheHarvest.ECS.Components.Farm
             return null;
         }
 
-        /*
+        bool IsTileReplaceable(TileType oldTileType, TileType newTileType)
+        {
+            return !Tile.AreSameBaseTileType(oldTileType, newTileType) || 
+                Tile.TileTypeLevel(oldTileType) < Tile.TileTypeLevel(newTileType);
+        }
+
         void EnableTentativeGrid(bool enable)
-        {}
-        */
+        {
+            // TODO use tentative grid when adding / rming tiles
+        }
 
         public override void Update()
         {

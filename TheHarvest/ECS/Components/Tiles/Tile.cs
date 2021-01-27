@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using Nez;
 using Nez.Sprites;
 using Nez.Textures;
@@ -115,6 +116,24 @@ namespace TheHarvest.ECS.Components.Tiles
             BitConverter.GetBytes(this.IsAdvancing).CopyTo(bytes, 13);
             bytes[14] = (byte) this.AdvancingType;
             return bytes;
+        }
+
+        public static string BaseTileType(TileType tileType)
+        {
+            return Regex.Match(tileType.ToString(), @"[a-zA-z]+").Value;
+        }
+
+        public static int TileTypeLevel(TileType tileType)
+        {
+            var r = Regex.Match(tileType.ToString(), @"[0-9]$");
+            if (r.Success)
+                return int.Parse(r.Value);
+            return 0;
+        }
+
+        public static bool AreSameBaseTileType(TileType tileTypeA, TileType tileTypeB)
+        {
+            return Tile.BaseTileType(tileTypeA) == Tile.BaseTileType(tileTypeB);
         }
 
         public override void OnAddedToEntity()
