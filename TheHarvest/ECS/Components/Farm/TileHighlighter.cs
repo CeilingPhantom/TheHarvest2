@@ -1,7 +1,10 @@
 using Microsoft.Xna.Framework;
 using Nez;
 
-namespace TheHarvest.ECS.Components
+using TheHarvest.ECS.Components.Player;
+using TheHarvest.ECS.Components.Tiles;
+
+namespace TheHarvest.ECS.Components.Farm
 {
     public class TileHighlighter : RenderableComponent
     {

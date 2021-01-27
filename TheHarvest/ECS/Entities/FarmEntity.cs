@@ -1,6 +1,6 @@
 using Nez;
 
-using TheHarvest.ECS.Components;
+using TheHarvest.ECS.Components.Farm;
 using TheHarvest.FileManagers;
 
 namespace TheHarvest.ECS.Entities

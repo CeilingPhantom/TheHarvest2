@@ -8,7 +8,7 @@ using Nez.Sprites;
 using Nez.Textures;
 using Nez.Tiled;
 
-using TheHarvest.ECS.Components;
+using TheHarvest.ECS.Components.Tiles;
 
 namespace TheHarvest.FileManagers
 {

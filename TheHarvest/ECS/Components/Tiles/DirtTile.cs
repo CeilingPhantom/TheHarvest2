@@ -1,6 +1,6 @@
 using TheHarvest.FileManagers;
 
-namespace TheHarvest.ECS.Components
+namespace TheHarvest.ECS.Components.Tiles
 {
     public class DirtTile : Tile
     {

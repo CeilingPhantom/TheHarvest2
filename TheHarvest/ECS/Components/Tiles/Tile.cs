@@ -3,7 +3,9 @@ using Nez;
 using Nez.Sprites;
 using Nez.Textures;
 
-namespace TheHarvest.ECS.Components
+using TheHarvest.ECS.Components.Farm;
+
+namespace TheHarvest.ECS.Components.Tiles
 {
     public enum TileType : byte
     {
@@ -51,7 +53,7 @@ namespace TheHarvest.ECS.Components
         public static readonly int ChunkSize = 15;
         public static readonly float Size = 32;
 
-        public Farm Farm { get; protected internal set; }
+        public FarmGrid FarmGrid { get; protected internal set; }
         public TileType TileType { get; }
         public int X { get; internal set; }
         public int Y { get; internal set; }
@@ -82,6 +84,9 @@ namespace TheHarvest.ECS.Components
                     break;
                 case TileType.Grass:
                     tile = new GrassTile(x, y, cycleTime, isAdvancing, advancingType);
+                    break;
+                case TileType.Blueberry1:
+                    tile = new Blueberry1Tile(x, y, cycleTime, isAdvancing, advancingType);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type));
@@ -143,11 +148,7 @@ namespace TheHarvest.ECS.Components
         /// </summary>
         protected virtual void AdvanceTile()
         {
-            if (this.AdvancingType != FarmDefaultTiler.DefaultTileType)
-                this.Farm.AddTile(Tile.CreateTile(this.AdvancingType, this.X, this.Y));
-            else
-                this.Farm.RemoveTile(this);
-            this.Entity.Destroy();
+            this.FarmGrid.ReplaceTile(this, this.AdvancingType);
         }
 
         public int CompareTo(Tile other)

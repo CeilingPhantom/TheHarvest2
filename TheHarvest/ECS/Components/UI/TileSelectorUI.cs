@@ -1,15 +1,15 @@
-using Microsoft.Xna.Framework;
 using System.Text.RegularExpressions;
 using Nez;
 using Nez.UI;
 
-using TheHarvest.ECS.Components;
+using TheHarvest.ECS.Components.Player;
+using TheHarvest.ECS.Components.Tiles;
 using TheHarvest.Events;
 using TheHarvest.FileManagers;
 using TheHarvest.Scenes;
 using TheHarvest.UI;
 
-namespace TheHarvest.ECS.Components
+namespace TheHarvest.ECS.Components.UI
 {
     public class TileSelectorUI : UICanvas
     {
@@ -44,15 +44,16 @@ namespace TheHarvest.ECS.Components
         {
             var style = new ImageTextButtonStyle();
             style.ImageUp = new SpriteDrawable(TilesetSpriteManager.Instance.GetSprite(tileType));
-            var btn = new TileSelectionButton(tileType, style);
-            btn.OnClicked += b => System.Diagnostics.Debug.WriteLine(((TileSelectionButton) b).TileType);
-            return btn;
+            var button = new TileSelectionButton(tileType, style);
+            button.OnClicked += this.SelectTile;
+            return button;
         }
 
-        void BuyTile(Button b)
+        void SelectTile(Button button)
         {
+            System.Diagnostics.Debug.WriteLine(((TileSelectionButton) button).TileType);
             var p = PlayerCamera.Instance.MouseToTilePosition();
-            EventManager.Instance.Publish(new AddTileEvent(Tile.CreateTile(TileType.Grass, (int) p.X, (int) p.Y)));
+            EventManager.Instance.Publish(new TileSelectionEvent(((TileSelectionButton) button).TileType));
         }
     }
 

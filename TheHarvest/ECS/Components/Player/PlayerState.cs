@@ -3,7 +3,7 @@ using Nez;
 
 using TheHarvest.Events;
 
-namespace TheHarvest.ECS.Components
+namespace TheHarvest.ECS.Components.Player
 {
     public class PlayerState : EventSubscribingComponent
     {

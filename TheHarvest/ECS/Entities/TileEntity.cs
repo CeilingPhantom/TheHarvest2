@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Nez;
 using Nez.Sprites;
 
-using TheHarvest.ECS.Components;
+using TheHarvest.ECS.Components.Tiles;
 
 namespace TheHarvest.ECS.Entities
 {

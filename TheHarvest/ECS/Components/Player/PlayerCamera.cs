@@ -3,7 +3,9 @@ using Microsoft.Xna.Framework.Input;
 using Nez;
 using System;
 
-namespace TheHarvest.ECS.Components
+using TheHarvest.ECS.Components.Tiles;
+
+namespace TheHarvest.ECS.Components.Player
 {
     public class PlayerCamera : Component, IUpdatable
     {

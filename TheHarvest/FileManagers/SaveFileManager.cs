@@ -1,10 +1,9 @@
 using System;
 using System.IO;
-using System.Collections.Generic;
-using Nez;
 
-using TheHarvest.ECS.Entities;
-using TheHarvest.ECS.Components;
+using TheHarvest.ECS.Components.Farm;
+using TheHarvest.ECS.Components.Player;
+using TheHarvest.ECS.Components.Tiles;
 using TheHarvest.Scenes;
 
 namespace TheHarvest.FileManagers
@@ -17,7 +16,7 @@ namespace TheHarvest.FileManagers
         private SaveFileManager()
         {}
 
-        public Farm LoadedFarm = null;
+        public FarmGrid LoadedFarm = null;
 
         public void Load(string filename)
         {
@@ -30,7 +29,7 @@ namespace TheHarvest.FileManagers
                 }
             }
             if (this.LoadedFarm == null)
-                this.LoadedFarm = new Farm();
+                this.LoadedFarm = new FarmGrid();
         }
 
         void LoadPlayerState(BinaryReader reader)
@@ -42,7 +41,7 @@ namespace TheHarvest.FileManagers
 
         void LoadFarm(BinaryReader reader)
         {
-            this.LoadedFarm = new Farm();
+            this.LoadedFarm = new FarmGrid();
             var chunk = reader.ReadBytes(Tile.ChunkSize);
             while (chunk.Length > 0)
             {
@@ -51,14 +50,14 @@ namespace TheHarvest.FileManagers
             }
         }
 
-        public void Save(string filename="farm.dat", Farm farm=null)
+        public void Save(string filename="farm.dat", FarmGrid farm=null)
         {
             using (BinaryWriter writer = new BinaryWriter(File.Open(filename, FileMode.Create)))
             {
                 writer.Write(PlayerState.Instance.ToBytes());
                 // if not specified, get farm scene instance's farm
                 if (farm == null)
-                    farm = FarmScene.Instance.FindEntity("farm").GetComponent<Farm>();
+                    farm = FarmScene.Instance.FindEntity("farm").GetComponent<FarmGrid>();
                 foreach (var tileEntity in farm.Grid.AllItems())
                     writer.Write(tileEntity.GetComponent<Tile>().ToBytes());
             }

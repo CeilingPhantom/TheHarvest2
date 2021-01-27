@@ -30,7 +30,7 @@ namespace TheHarvest.Scenes
             
             this.AddEntity(new FarmEntity());
 
-            var ui = this.AddEntity(new UIEntity());
+            var ui = this.AddEntity(new TileSelectorUIEntity());
             this.AddRenderer(new ScreenSpaceRenderer(100, UIRenderLayer));
             this.AddRenderer(new RenderLayerExcludeRenderer(0, UIRenderLayer));
         }

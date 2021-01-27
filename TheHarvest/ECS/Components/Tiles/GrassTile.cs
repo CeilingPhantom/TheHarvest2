@@ -1,6 +1,6 @@
 using TheHarvest.FileManagers;
 
-namespace TheHarvest.ECS.Components
+namespace TheHarvest.ECS.Components.Tiles
 {
     public class GrassTile : Tile
     {
@@ -19,8 +19,10 @@ namespace TheHarvest.ECS.Components
         public override void Update()
         {
             base.Update();
+
             if (this.CycleTime >= 5)
                 this.AdvanceTile();
+            
         }
     }
 }

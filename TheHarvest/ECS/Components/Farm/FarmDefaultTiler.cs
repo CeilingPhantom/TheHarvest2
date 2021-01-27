@@ -3,13 +3,15 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Nez;
 
+using TheHarvest.ECS.Components.Player;
+using TheHarvest.ECS.Components.Tiles;
 using TheHarvest.FileManagers;
 
-namespace TheHarvest.ECS.Components
+namespace TheHarvest.ECS.Components.Farm
 {
     public class FarmDefaultTiler : RenderableComponent
     {
-        Farm farm;
+        FarmGrid farm;
         
         public static readonly TileType DefaultTileType = TileType.Dirt;
         Texture2D defaultTileTexture;
@@ -17,7 +19,7 @@ namespace TheHarvest.ECS.Components
         PlayerCamera playerCamera = PlayerCamera.Instance;
         public override RectangleF Bounds => this.playerCamera.Bounds;
 
-        public FarmDefaultTiler(Farm farm)
+        public FarmDefaultTiler(FarmGrid farm)
         {
             this.farm = farm;
         }

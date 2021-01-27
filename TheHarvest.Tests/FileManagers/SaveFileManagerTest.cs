@@ -1,7 +1,9 @@
 using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using TheHarvest.ECS.Components;
+using TheHarvest.ECS.Components.Farm;
+using TheHarvest.ECS.Components.Player;
+using TheHarvest.ECS.Components.Tiles;
 using TheHarvest.FileManagers;
 
 namespace TheHarvest.Tests.FileManagers
@@ -12,7 +14,7 @@ namespace TheHarvest.Tests.FileManagers
         [TestMethod]
         public void SaveAndLoadTest1()
         {
-            var farm1In = new Farm();
+            var farm1In = new FarmGrid();
             var tile1 = Tile.CreateTile(TileType.Dirt, 1, 2, 10);
             farm1In.AddTile(tile1);
             SaveFileManager.Instance.Save("test1.dat", farm1In);
@@ -35,7 +37,7 @@ namespace TheHarvest.Tests.FileManagers
             bytes[9] = 2;
             bytes[10] = 202;
             PlayerState.Instance.LoadFromBytes(bytes);
-            var farm2In = new Farm();
+            var farm2In = new FarmGrid();
             var tile1 = Tile.CreateTile(TileType.Dirt, 0, 0);
             farm2In.AddTile(tile1);
             var tile2 = Tile.CreateTile(TileType.Grass, 0, 1);

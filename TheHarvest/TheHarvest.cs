@@ -14,7 +14,7 @@ namespace TheHarvest
         protected override void Initialize()
         {
             base.Initialize();
-            Window.AllowUserResizing = false;
+            this.Window.AllowUserResizing = false;
 
             SaveFileManager.Instance.Load("farm.dat");
             TilesetSpriteManager.Instance.Load();
