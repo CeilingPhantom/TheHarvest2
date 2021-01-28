@@ -58,7 +58,7 @@ namespace TheHarvest.FileManagers
                 // if not specified, get farm scene instance's farm
                 if (farm == null)
                     farm = FarmScene.Instance.FindEntity("farm").GetComponent<FarmGrid>();
-                foreach (var tileEntity in farm.Grid.AllItems())
+                foreach (var tileEntity in farm.Grid.AllValues())
                     writer.Write(tileEntity.GetComponent<Tile>().ToBytes());
             }
         }

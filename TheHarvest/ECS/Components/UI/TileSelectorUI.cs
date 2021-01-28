@@ -18,8 +18,23 @@ namespace TheHarvest.ECS.Components.UI
         {
             this.RenderLayer = FarmScene.UIRenderLayer;
             this.window = this.Stage.AddElement(new TileWindow());
-            this.AddTileSelections();
+            this.SetEditButton();
             // TODO toggle edit mode button
+        }
+
+        void SetTileSelections()
+        {
+            this.window.Clear();
+            this.AddTileSelections();
+            this.AddApplyButton();
+            this.window.Pack();
+        }
+
+        void SetEditButton()
+        {
+            this.window.Clear();
+            this.AddEditButton();
+            this.window.Pack();
         }
 
         void AddTileSelections()
@@ -29,14 +44,35 @@ namespace TheHarvest.ECS.Components.UI
             this.AddTileSelection(TileType.Potato1);
             this.AddTileSelection(TileType.Strawberry1);
             this.AddTileSelection(TileType.Wheat1);
-
-            // important!
-            this.window.Pack();
         }
 
         void AddTileSelection(TileType tileType)
         {
             this.window.Add(CreateTileSelectionButton(tileType)).SetExpandX().SetFillX();
+            this.window.Row();
+        }
+
+        void AddEditButton()
+        {
+            var button = new TextButton("Edit", new TextButtonStyle());
+            button.OnClicked += b => 
+            {
+                EventManager.Instance.Publish(new EditFarmOnEvent());
+                this.SetTileSelections();
+            };
+            this.window.Add(button);
+            this.window.Row();
+        }
+
+        void AddApplyButton()
+        {
+            var button = new TextButton("Apply", new TextButtonStyle());
+            button.OnClicked += b => 
+            {
+                EventManager.Instance.Publish(new EditFarmOffEvent(true));
+                this.SetEditButton();
+            };
+            this.window.Add(button);
             this.window.Row();
         }
 

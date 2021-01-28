@@ -21,7 +21,7 @@ namespace TheHarvest.Tests.FileManagers
 
             SaveFileManager.Instance.Load("test1.dat");
             var farm1Out = SaveFileManager.Instance.LoadedFarm;
-            Assert.IsTrue(farm1Out.Grid.AllItems().Length == 1);
+            Assert.IsTrue(farm1Out.Grid.AllValues().Length == 1);
             Assert.IsTrue(farm1Out.Grid[1, 2] != null);
             Assert.IsTrue(farm1Out.Grid[1, 2].GetComponent<Tile>().CompareTo(tile1) == 0);
             Assert.IsTrue(farm1Out.Grid[0, 0] == null);
@@ -55,7 +55,7 @@ namespace TheHarvest.Tests.FileManagers
             Assert.IsTrue(PlayerState.Instance.Season == 2);
             Assert.IsTrue(PlayerState.Instance.Year == 202);
             var farm2Out = SaveFileManager.Instance.LoadedFarm;
-            Assert.IsTrue(farm2Out.Grid.AllItems().Length == 4);
+            Assert.IsTrue(farm2Out.Grid.AllValues().Length == 4);
             Assert.IsTrue(farm2Out.Grid[0, 0].GetComponent<Tile>().CompareTo(tile1) == 0);
             Assert.IsTrue(farm2Out.Grid[0, 1].GetComponent<Tile>().CompareTo(tile2) == 0);
             Assert.IsTrue(farm2Out.Grid[1, 0].GetComponent<Tile>().CompareTo(tile3) == 0);

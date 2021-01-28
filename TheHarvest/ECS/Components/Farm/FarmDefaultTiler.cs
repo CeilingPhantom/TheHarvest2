@@ -22,6 +22,7 @@ namespace TheHarvest.ECS.Components.Farm
         public FarmDefaultTiler(FarmGrid farm)
         {
             this.farm = farm;
+            this.RenderLayer = 99;
         }
 
         public override void OnAddedToEntity()
@@ -36,10 +37,7 @@ namespace TheHarvest.ECS.Components.Farm
             {
                 for (var y = this.playerCamera.TopLeftTileY; y < this.playerCamera.TopLeftTileY + this.playerCamera.HeightTiles; ++y)
                 {
-                    if (this.farm.Grid[x, y] == null)
-                    {
-                        batcher.Draw(this.defaultTileTexture, new Vector2(x, y) * Tile.Size);
-                    }
+                    batcher.Draw(this.defaultTileTexture, new Vector2(x, y) * Tile.Size);
                 }
             }
         }

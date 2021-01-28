@@ -5,7 +5,7 @@ namespace TheHarvest.UI
 {
     public class TileWindow : Window
     {
-        public TileWindow() : base("hello world", new WindowStyle())
+        public TileWindow() : base("", new WindowStyle())
         {
             //this.DebugAll();
             this.SetBackground(new PrimitiveDrawable(Color.Aquamarine));
@@ -13,7 +13,7 @@ namespace TheHarvest.UI
             //this.SetResizeBorderSize(5);
             this.SetPosition(100, 100);
             this.Top().Left();
-            this.Pad(10).PadTop(20);
+            this.Pad(10);
         }
     }
 }

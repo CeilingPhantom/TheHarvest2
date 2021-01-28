@@ -4,7 +4,7 @@ namespace TheHarvest.Events
 {
     public class TileSelectionEvent : IEvent
     {
-        public TileType TileType;
+        public TileType TileType { get; private set; }
 
         public TileSelectionEvent(TileType tileType)
         {

@@ -31,6 +31,12 @@ namespace TheHarvest.Events
         public virtual void ProcessEvent(TileSelectionEvent e)
         {}
 
+        public virtual void ProcessEvent(EditFarmOnEvent e)
+        {}
+
+        public virtual void ProcessEvent(EditFarmOffEvent e)
+        {}
+
         #endregion
     }
 }

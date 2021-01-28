@@ -13,14 +13,16 @@ namespace TheHarvest.ECS.Components.Tiles
             base.OnAddedToEntity();
             this.SetAnimation(TilesetSpriteManager.Instance.GetAnimation(this.TileType));
             this.PlayAnimation();
+
             this.AdvancingType = TileType.Dirt;
+            
         }
 
         public override void Update()
         {
             base.Update();
 
-            if (this.CycleTime >= 5)
+            if (this.CycleTime >= 4)
                 this.AdvanceTile();
             
         }

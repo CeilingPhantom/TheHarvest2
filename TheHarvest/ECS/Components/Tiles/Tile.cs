@@ -12,6 +12,7 @@ namespace TheHarvest.ECS.Components.Tiles
     {
         Dirt,
         Grass,
+        // Intermediate advancing tiles
         Construct,
         Field,
         // crops
@@ -62,8 +63,13 @@ namespace TheHarvest.ECS.Components.Tiles
         public bool IsAdvancing { get; internal set; }
         public TileType AdvancingType { get; internal set; }
 
+        public static readonly float CycleDuration = 5f;  // TODO replace
+
         protected SpriteAnimator SpriteAnimator;
         static readonly string defaultAnimationName = "default";
+
+        static readonly string[] AdvancesFromField = new string[] { "Blueberry", "Carrot", "Potato", "Strawberry", "Wheat" };
+        static readonly string[] AdvancesFromConstruct = new string[] { "Chicken", "Pig", "Greenhouse", "Shed", "Silo" };
 
         public Tile(TileType type, int x, int y, float cycleTime=0, bool isAdvancing=false, TileType advancingType=0)
         {
@@ -85,6 +91,9 @@ namespace TheHarvest.ECS.Components.Tiles
                     break;
                 case TileType.Grass:
                     tile = new GrassTile(x, y, cycleTime, isAdvancing, advancingType);
+                    break;
+                case TileType.Field:
+                    tile = new FieldTile(x, y, cycleTime, isAdvancing, advancingType);
                     break;
                 case TileType.Blueberry1:
                     tile = new Blueberry1Tile(x, y, cycleTime, isAdvancing, advancingType);
@@ -136,6 +145,15 @@ namespace TheHarvest.ECS.Components.Tiles
             return Tile.BaseTileType(tileTypeA) == Tile.BaseTileType(tileTypeB);
         }
 
+        public static TileType? AdvancesFrom(TileType tileType)
+        {
+            if (Tile.AdvancesFromField.Contains(Tile.BaseTileType(tileType)))
+                return TileType.Field;
+            if (Tile.AdvancesFromConstruct.Contains(Tile.BaseTileType(tileType)))
+                return TileType.Construct;
+            return null;
+        }
+
         public override void OnAddedToEntity()
         {
             base.OnAddedToEntity();
@@ -159,7 +177,17 @@ namespace TheHarvest.ECS.Components.Tiles
 
         public virtual void Update()
         {
+            this.UpdateCycleTime();
+            // if tile can advance
+            if (this.CycleTime > Tile.CycleDuration)
+                this.AdvanceTile();
+        }
+
+        void UpdateCycleTime()
+        {
             this.CycleTime += Time.DeltaTime;
+            if (!this.IsAdvancing)
+                this.CycleTime %= Tile.CycleDuration;
         }
 
         /// <summary>
@@ -167,7 +195,7 @@ namespace TheHarvest.ECS.Components.Tiles
         /// </summary>
         protected virtual void AdvanceTile()
         {
-            this.FarmGrid.ReplaceTile(this, this.AdvancingType);
+            this.FarmGrid.ReplaceTile(Tile.CreateTile(this.AdvancingType, this.X, this.Y));
         }
 
         public int CompareTo(Tile other)

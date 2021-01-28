@@ -12,25 +12,24 @@ namespace TheHarvest.ECS.Components.Farm
 {
     public class FarmGrid : EventSubscribingComponent
     {
-        public BoundlessSparseMatrix<TileEntity> Grid { get; } = new BoundlessSparseMatrix<TileEntity>();
+        public BoundlessSparseMatrix<TileEntity> Grid { get; private set; } = new BoundlessSparseMatrix<TileEntity>();
         PlayerState playerState = PlayerState.Instance;
         PlayerCamera playerCamera = PlayerCamera.Instance;
 
         FastList<TileEntity> initTileEntities = new FastList<TileEntity>();
 
-        TileHighlighter tileHighlighter;
-        TileType? currSelectedTileType = null;
-        BoundlessSparseMatrix<TileEntity> TentativeGrid;
+        TentativeFarmGrid tentativeFarmGrid;
 
         public FarmGrid() : base()
         {
-            EventManager.Instance.SubscribeTo<TileSelectionEvent>(this);
+            EventManager.Instance.SubscribeTo<EditFarmOnEvent>(this);
+            EventManager.Instance.SubscribeTo<EditFarmOffEvent>(this);
         }
 
         public override void OnAddedToEntity()
         {
             base.OnAddedToEntity();
-            this.tileHighlighter = this.GetComponent<TileHighlighter>();
+            this.tentativeFarmGrid = this.GetComponent<TentativeFarmGrid>();
             
             this.AddTile(Tile.CreateTile(TileType.Grass, 0, 0));
             
@@ -44,8 +43,12 @@ namespace TheHarvest.ECS.Components.Farm
             this.initTileEntities.Clear();
         }
 
+        #region Grid Manipulation
+
         public TileEntity AddTile(Tile tile)
         {
+            if (this.Grid[tile.X, tile.Y] != null)
+                return null;
             tile.FarmGrid = this;
             var tileEntity = new TileEntity(tile);
             this.Grid[tile.X, tile.Y] = tileEntity;
@@ -58,6 +61,7 @@ namespace TheHarvest.ECS.Components.Farm
 
         public void RemoveTile(Tile tile)
         {
+            tile.Entity.Destroy();
             this.Grid.Remove(tile.X, tile.Y);
         }
 
@@ -69,68 +73,67 @@ namespace TheHarvest.ECS.Components.Farm
             this.RemoveTile(tile);
         }
 
-        public TileEntity ReplaceTile(Tile tile, TileType newTileType)
+        public TileEntity ReplaceTile(Tile newTile)
         {
-            int x = tile.X;
-            int y = tile.Y;
-            return ReplaceTile(x, y, newTileType);
-        }
-
-        public TileEntity ReplaceTile(int x, int y, TileType newTileType)
-        {
+            int x = newTile.X;
+            int y = newTile.Y;
             if (this.Grid[x, y] != null) {
                 Tile tile = this.Grid[x, y].Tile;
-                if (!IsTileReplaceable(tile.TileType, newTileType))
-                    return null;
                 this.RemoveTile(tile);
-                tile.Entity.Destroy();
             }
-            if (newTileType != FarmDefaultTiler.DefaultTileType)
-                return this.AddTile(Tile.CreateTile(newTileType, x, y));
+            if (newTile.TileType != FarmDefaultTiler.DefaultTileType)
+                return this.AddTile(newTile);
             return null;
         }
 
-        bool IsTileReplaceable(TileType oldTileType, TileType newTileType)
+        public override void OnEnabled()
         {
-            return !Tile.AreSameBaseTileType(oldTileType, newTileType) || 
-                Tile.TileTypeLevel(oldTileType) < Tile.TileTypeLevel(newTileType);
+            // enable all tiles
+            foreach (var tileEntity in this.Grid.AllValues())
+                tileEntity.Enabled = true;
         }
 
-        void EnableTentativeGrid(bool enable)
+        public override void OnDisabled()
         {
-            // TODO use tentative grid when adding / rming tiles
+            // disable all tiles
+            foreach (var tileEntity in this.Grid.AllValues())
+                tileEntity.Enabled = false;
         }
+
+        void ApplyTentativeGridChanges()
+        {
+            foreach (var weakTile in this.tentativeFarmGrid.ChangesList)
+            {
+                // check if new tile requires intermediate advancing
+                var advancesFromTileType = Tile.AdvancesFrom(weakTile.TileType);
+                if (advancesFromTileType.HasValue)
+                    this.ReplaceTile(Tile.CreateTile(advancesFromTileType.Value, weakTile.X, weakTile.Y, 0, true, weakTile.TileType));
+                else
+                    this.ReplaceTile(Tile.CreateTile(weakTile.TileType, weakTile.X, weakTile.Y));
+            }
+        }
+
+        #endregion
 
         public override void Update()
         {
             // handle events
             base.Update();
-            if (this.currSelectedTileType.HasValue)
-            {
-                if (!this.tileHighlighter.Enabled)
-                    this.tileHighlighter.Enabled = true;
-                if (Mouse.GetState().LeftButton == ButtonState.Pressed)
-                {
-                    System.Diagnostics.Debug.WriteLine(this.currSelectedTileType);
-                    var p = this.playerCamera.MouseToTilePosition();
-                    System.Diagnostics.Debug.WriteLine(p);
-                    this.ReplaceTile((int) p.X, (int) p.Y, this.currSelectedTileType.Value);
-                }
-                else if (Mouse.GetState().RightButton == ButtonState.Pressed)
-                {
-                    this.currSelectedTileType = null;
-                    this.tileHighlighter.Enabled = false;
-                    System.Diagnostics.Debug.WriteLine("curr selected tile cleared");
-                }
-            }
         }
 
         #region Event Processing
 
-        public override void ProcessEvent(TileSelectionEvent e)
+        public override void ProcessEvent(EditFarmOnEvent e)
         {
-            //System.Diagnostics.Debug.WriteLine(e.TileType);
-            this.currSelectedTileType = e.TileType;
+            this.Enabled = false;
+            this.tentativeFarmGrid.Enabled = true;
+        }
+
+        public override void ProcessEvent(EditFarmOffEvent e)
+        {
+            // apply tentative changes
+            if (e.ApplyChanges)
+                this.ApplyTentativeGridChanges();
         }
 
         #endregion

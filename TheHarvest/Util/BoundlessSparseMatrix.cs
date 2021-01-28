@@ -50,7 +50,7 @@ namespace TheHarvest.Util
                     this[i, j] = initVal();
         }
 
-        public T[] AllItems()
+        public T[] AllValues()
         {
             var all = new List<T>();
             foreach (var i in this.matrix)
