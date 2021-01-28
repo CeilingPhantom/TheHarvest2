@@ -78,8 +78,8 @@ namespace TheHarvest.ECS.Components.Farm
                 if (Mouse.GetState().LeftButton == ButtonState.Pressed)
                 {
                     var p = this.playerCamera.MouseToTilePosition();
-                    System.Diagnostics.Debug.WriteLine(p);
-                    System.Diagnostics.Debug.WriteLine(this.currSelectedTileType);
+                    //System.Diagnostics.Debug.WriteLine(p);
+                    //System.Diagnostics.Debug.WriteLine(this.currSelectedTileType);
                     this.AddTile(this.currSelectedTileType.Value, (int) p.X, (int) p.Y, false);
                 }
                 else if (Mouse.GetState().RightButton == ButtonState.Pressed)
