@@ -4,11 +4,12 @@ using TheHarvest.ECS.Components.UI;
 
 namespace TheHarvest.ECS.Entities
 {
-    public class TileSelectorUIEntity : Entity
+    public class UIEntity : Entity
     {
-        public TileSelectorUIEntity() : base("ui")
+        public UIEntity() : base("ui")
         {
             this.AddComponent<TileSelectorUI>();
+            this.AddComponent<PlayerStateUI>();
         }
     }
 }

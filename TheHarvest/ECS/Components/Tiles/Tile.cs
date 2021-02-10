@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Nez;
 using Nez.Sprites;
@@ -55,14 +56,16 @@ namespace TheHarvest.ECS.Components.Tiles
         public static readonly int ChunkSize = sizeof(TileType) * 2 + sizeof(int) * 2 + sizeof(float) + sizeof(bool);  // 15
         public static readonly float Size = 32;
 
+        static Dictionary<TileType, int> tileCosts = new Dictionary<TileType, int>();
+
         public FarmGrid FarmGrid { get; protected internal set; }
         public TileType TileType { get; }
-        public int X { get; internal set; }
-        public int Y { get; internal set; }
+        public int X { get; protected internal set; }
+        public int Y { get; protected internal set; }
         public int Cost { get; private set; }
-        public bool IsAdvancing { get; internal set; }
-        public TileType AdvancingType { get; internal set; }
-        public float CycleTime { get; internal set; }  // not for tile animation - that is managed by the sprite animator
+        public bool IsAdvancing { get; protected set; }
+        public TileType AdvancingType { get; protected set; }
+        public float CycleTime { get; protected set; }  // not for tile animation - that is managed by the sprite animator
 
         public static readonly float CycleDuration = 5f;  // TODO replace
 
@@ -158,7 +161,10 @@ namespace TheHarvest.ECS.Components.Tiles
 
         public static int GetCost(TileType tileType)
         {
-            return Tile.CreateTile(tileType, 0, 0).Cost;
+            if (!Tile.tileCosts.ContainsKey(tileType)) {
+                Tile.tileCosts[tileType] = Tile.CreateTile(tileType, 0, 0).Cost;
+            }
+            return Tile.tileCosts[tileType];
         }
 
         public override void OnAddedToEntity()

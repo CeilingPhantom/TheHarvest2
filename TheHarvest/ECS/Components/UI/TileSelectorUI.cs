@@ -1,25 +1,23 @@
-using Nez;
 using Nez.UI;
 
 using TheHarvest.ECS.Components.Player;
 using TheHarvest.ECS.Components.Tiles;
 using TheHarvest.Events;
 using TheHarvest.FileManagers;
-using TheHarvest.Scenes;
 using TheHarvest.UI;
 
 namespace TheHarvest.ECS.Components.UI
 {
-    public class TileSelectorUI : UICanvas
+    public class TileSelectorUI : BaseUI
     {
-        TileWindow window;
+        BaseWindow window;
 
         public TileSelectorUI() : base()
         {
-            this.RenderLayer = FarmScene.UIRenderLayer;
-            this.window = this.Stage.AddElement(new TileWindow());
+            this.window = this.Stage.AddElement(new BaseWindow());
             this.SetEditButton();
-            // TODO toggle edit mode button
+
+            this.window.SetPosition(100, 100);
         }
 
         void SetTileSelections()
@@ -79,16 +77,13 @@ namespace TheHarvest.ECS.Components.UI
                 this.SetEditButton();
             };
 
-            var t = new Table();
-            t.DebugAll();
-            this.window.Add(t).GrowX();
-            var a = t.Add(applyButton).SetPrefHeight(t.GetWidth() / 2).GrowX().Center();
-            var c = t.Add(cancelButton).SetPrefHeight(t.GetWidth() / 2).GrowX().Center();
-            t.Pack();
-            a.SetPrefHeight(t.GetWidth() / 2);
-            c.SetPrefHeight(t.GetWidth() / 2);
-            System.Diagnostics.Debug.WriteLine(a.GetElementWidth());
-            System.Diagnostics.Debug.WriteLine(c.GetElementWidth());
+            var buttonsSubTable = new Table();
+            this.window.Add(buttonsSubTable).GrowX();
+            var applyButtonCell = buttonsSubTable.Add(applyButton).SetPrefHeight(buttonsSubTable.GetWidth() / 2).GrowX().Center();
+            var cancelButtonCell = buttonsSubTable.Add(cancelButton).SetPrefHeight(buttonsSubTable.GetWidth() / 2).GrowX().Center();
+            buttonsSubTable.Pack();
+            applyButtonCell.SetElementWidth(buttonsSubTable.GetWidth() / 2);
+            cancelButtonCell.SetElementWidth(buttonsSubTable.GetWidth() / 2);
             this.window.Row();
         }
 

@@ -19,7 +19,6 @@ namespace TheHarvest.ECS.Components.Farm
         PlayerCamera playerCamera = PlayerCamera.Instance;
         TileHighlighter tileHighlighter;
         TileType? currSelectedTileType = null;
-        int totalCost = 0;
         BoundlessSparseMatrix<bool> changes;
         public List<WeakTile> ChangesList { get; private set; } = new List<WeakTile>();
 
@@ -96,13 +95,13 @@ namespace TheHarvest.ECS.Components.Farm
 
         TileEntity AddTile(TileType tileType, int x, int y, bool isInit=false)
         {
-            this.RemoveTile(x, y);
-            if (isInit || this.totalCost + Tile.GetCost(tileType) <= this.playerState.Money) {
+            if (isInit || this.playerState.Money >= Tile.GetCost(tileType)) {
+                this.RemoveTile(x, y);
                 this.grid[x, y] = new TileEntity(new WeakTile(tileType, x, y));
                 this.Entity.Scene.AddEntity(this.grid[x, y]);
                 // if it is a change in tiletype
                 if (!isInit) {
-                    this.totalCost += Tile.GetCost(tileType);
+                    EventManager.Instance.Publish(new AddMoneyEvent(-Tile.GetCost(tileType)));
                     this.changes[x, y] = this.farm.Grid[x, y] == null || this.GetFutureTileType(this.farm.Grid[x, y].Tile) != tileType;
                 }
             }
@@ -113,7 +112,7 @@ namespace TheHarvest.ECS.Components.Farm
         {
             if (this.grid[x, y] != null)
             {
-                this.totalCost -= this.grid[x, y].Tile.Cost;
+                EventManager.Instance.Publish(new AddMoneyEvent(-Tile.GetCost(this.grid[x, y].Tile.TileType)));
                 this.grid[x, y].Destroy();
                 this.grid.Remove(x, y);
             }

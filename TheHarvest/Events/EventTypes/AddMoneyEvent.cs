@@ -2,9 +2,9 @@ namespace TheHarvest.Events
 {
     public class AddMoneyEvent : IEvent
     {
-        public float Amount { get; private set; }
+        public int Amount { get; }
 
-        public AddMoneyEvent(float amount)
+        public AddMoneyEvent(int amount)
         {
             this.Amount = amount;
         }

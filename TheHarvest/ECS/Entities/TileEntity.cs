@@ -20,7 +20,6 @@ namespace TheHarvest.ECS.Entities
 
         public void SetPosition(int x, int y)
         {
-            // +0.5 since entity position is based around center
             this.Tile.X = x;
             this.Tile.Y = y;
             this.UpdatePosition(x, y);
@@ -28,6 +27,7 @@ namespace TheHarvest.ECS.Entities
 
         public void UpdatePosition(int x, int y)
         {
+            // +0.5 since entity position is based around center
             this.SetPosition(new Vector2(x + 0.5f, y + 0.5f) * Tile.Size);
         }
     }
