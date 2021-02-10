@@ -26,7 +26,7 @@ namespace TheHarvest.ECS.Components.UI
         {
             this.window.Clear();
             this.AddTileSelections();
-            this.AddApplyButton();
+            this.AddApplyCancelButtons();
             this.window.Pack();
         }
 
@@ -48,7 +48,7 @@ namespace TheHarvest.ECS.Components.UI
 
         void AddTileSelection(TileType tileType)
         {
-            this.window.Add(CreateTileSelectionButton(tileType)).SetExpandX().SetFillX();
+            this.window.Add(CreateTileSelectionButton(tileType)).GrowX();
             this.window.Row();
         }
 
@@ -64,15 +64,31 @@ namespace TheHarvest.ECS.Components.UI
             this.window.Row();
         }
 
-        void AddApplyButton()
+        void AddApplyCancelButtons()
         {
-            var button = new TextButton("Apply", new TextButtonStyle());
-            button.OnClicked += b => 
+            var applyButton = new TextButton("Apply", new TextButtonStyle());
+            applyButton.OnClicked += b => 
             {
                 EventManager.Instance.Publish(new EditFarmOffEvent(true));
                 this.SetEditButton();
             };
-            this.window.Add(button);
+            var cancelButton = new TextButton("Cancel", new TextButtonStyle());
+            cancelButton.OnClicked += b => 
+            {
+                EventManager.Instance.Publish(new EditFarmOffEvent(false));
+                this.SetEditButton();
+            };
+
+            var t = new Table();
+            t.DebugAll();
+            this.window.Add(t).GrowX();
+            var a = t.Add(applyButton).SetPrefHeight(t.GetWidth() / 2).GrowX().Center();
+            var c = t.Add(cancelButton).SetPrefHeight(t.GetWidth() / 2).GrowX().Center();
+            t.Pack();
+            a.SetPrefHeight(t.GetWidth() / 2);
+            c.SetPrefHeight(t.GetWidth() / 2);
+            System.Diagnostics.Debug.WriteLine(a.GetElementWidth());
+            System.Diagnostics.Debug.WriteLine(c.GetElementWidth());
             this.window.Row();
         }
 
@@ -103,6 +119,8 @@ namespace TheHarvest.ECS.Components.UI
         {
             this.TileType = tileType;
             this.Left().PadTop(TileSelectionButton.padY).PadBottom(TileSelectionButton.padY);
+            this.GetLabelCell().SetPadLeft(3);
+            this.Pack();
         }
     }
 }

@@ -12,7 +12,7 @@ namespace TheHarvest.ECS.Components.Tiles
     {
         Dirt,
         Grass,
-        // Intermediate advancing tiles
+        // intermediate advancing tiles
         Construct,
         Field,
         // crops
@@ -52,16 +52,17 @@ namespace TheHarvest.ECS.Components.Tiles
     
     public abstract class Tile : Component, IUpdatable, IComparable<Tile>
     {
-        public static readonly int ChunkSize = 15;
+        public static readonly int ChunkSize = sizeof(TileType) * 2 + sizeof(int) * 2 + sizeof(float) + sizeof(bool);  // 15
         public static readonly float Size = 32;
 
         public FarmGrid FarmGrid { get; protected internal set; }
         public TileType TileType { get; }
         public int X { get; internal set; }
         public int Y { get; internal set; }
-        public float CycleTime { get; internal set; }  // not for tile animation - that is managed by the sprite animator
+        public int Cost { get; private set; }
         public bool IsAdvancing { get; internal set; }
         public TileType AdvancingType { get; internal set; }
+        public float CycleTime { get; internal set; }  // not for tile animation - that is managed by the sprite animator
 
         public static readonly float CycleDuration = 5f;  // TODO replace
 
@@ -71,32 +72,33 @@ namespace TheHarvest.ECS.Components.Tiles
         static readonly string[] AdvancesFromField = new string[] { "Blueberry", "Carrot", "Potato", "Strawberry", "Wheat" };
         static readonly string[] AdvancesFromConstruct = new string[] { "Chicken", "Pig", "Greenhouse", "Shed", "Silo" };
 
-        public Tile(TileType type, int x, int y, float cycleTime=0, bool isAdvancing=false, TileType advancingType=0)
+        public Tile(TileType type, int x, int y, int cost=0, bool isAdvancing=false, TileType advancingType=0, float cycleTime=0)
         {
             this.TileType = type;
             this.X = x;
             this.Y = y;
-            this.CycleTime = cycleTime;
+            this.Cost = cost;
             this.IsAdvancing = isAdvancing;
             this.AdvancingType = advancingType;
+            this.CycleTime = cycleTime;
         }
 
-        public static Tile CreateTile(TileType type, int x, int y, float cycleTime=0, bool isAdvancing=false, TileType advancingType=0)
+        public static Tile CreateTile(TileType type, int x, int y, bool isAdvancing=false, TileType advancingType=0, float cycleTime=0)
         {
             Tile tile;
             switch(type)
             {
                 case TileType.Dirt:
-                    tile = new DirtTile(x, y, cycleTime, isAdvancing, advancingType);
+                    tile = new DirtTile(x, y, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Grass:
-                    tile = new GrassTile(x, y, cycleTime, isAdvancing, advancingType);
+                    tile = new GrassTile(x, y, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Field:
-                    tile = new FieldTile(x, y, cycleTime, isAdvancing, advancingType);
+                    tile = new FieldTile(x, y, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Blueberry1:
-                    tile = new Blueberry1Tile(x, y, cycleTime, isAdvancing, advancingType);
+                    tile = new Blueberry1Tile(x, y, isAdvancing, advancingType, cycleTime);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type));
@@ -109,10 +111,10 @@ namespace TheHarvest.ECS.Components.Tiles
             var type = (TileType) byteInput[0];
             var x = BitConverter.ToInt32(byteInput, 1);
             var y = BitConverter.ToInt32(byteInput, 5);
-            var cycleTime = BitConverter.ToSingle(byteInput, 9);
-            var isAdvancing = BitConverter.ToBoolean(byteInput, 13);
-            var advancingType = (TileType) byteInput[14];
-            return CreateTile(type, x, y, cycleTime, isAdvancing, advancingType);
+            var isAdvancing = BitConverter.ToBoolean(byteInput, 9);
+            var advancingType = (TileType) byteInput[10];
+            var cycleTime = BitConverter.ToSingle(byteInput, 11);
+            return CreateTile(type, x, y, isAdvancing, advancingType, cycleTime);
         }
 
         public byte[] ToBytes()
@@ -121,9 +123,9 @@ namespace TheHarvest.ECS.Components.Tiles
             bytes[0] = (byte) this.TileType;
             BitConverter.GetBytes(this.X).CopyTo(bytes, 1);
             BitConverter.GetBytes(this.Y).CopyTo(bytes, 5);
-            BitConverter.GetBytes(this.CycleTime).CopyTo(bytes, 9);
-            BitConverter.GetBytes(this.IsAdvancing).CopyTo(bytes, 13);
-            bytes[14] = (byte) this.AdvancingType;
+            BitConverter.GetBytes(this.IsAdvancing).CopyTo(bytes, 9);
+            bytes[10] = (byte) this.AdvancingType;
+            BitConverter.GetBytes(this.CycleTime).CopyTo(bytes, 11);
             return bytes;
         }
 
@@ -152,6 +154,11 @@ namespace TheHarvest.ECS.Components.Tiles
             if (Tile.AdvancesFromConstruct.Contains(Tile.BaseTileType(tileType)))
                 return TileType.Construct;
             return null;
+        }
+
+        public static int GetCost(TileType tileType)
+        {
+            return Tile.CreateTile(tileType, 0, 0).Cost;
         }
 
         public override void OnAddedToEntity()

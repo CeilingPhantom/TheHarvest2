@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework;
 using System;
 using Nez;
 
@@ -38,24 +38,41 @@ namespace TheHarvest.ECS.Components.Farm
 
         private void AttachInitTileEntitiesToScene()
         {
-            for (var i = 0; i < this.initTileEntities.Length; ++i)
+            for (var i = 0; i < this.initTileEntities.Length; ++i) {
                 this.Entity.Scene.AddEntity(this.initTileEntities[i]);
+            }
             this.initTileEntities.Clear();
         }
 
-        #region Grid Manipulation
+        #region Grid Accessors and Manipulation
+
+        public Tile GetTile(int x, int y)
+        {
+            if (this.Grid[x, y] == null) {
+                return null;
+            }
+            return this.Grid[x, y].Tile;
+        }
+
+        public Tile GetTile(Vector2 pos)
+        {
+            return this.GetTile((int) pos.X, (int) pos.Y);
+        }
 
         public TileEntity AddTile(Tile tile)
         {
-            if (this.Grid[tile.X, tile.Y] != null)
+            if (this.Grid[tile.X, tile.Y] != null) {
                 return null;
+            }
             tile.FarmGrid = this;
             var tileEntity = new TileEntity(tile);
             this.Grid[tile.X, tile.Y] = tileEntity;
-            if (this.Entity != null && this.Entity.Scene != null)
+            if (this.Entity != null && this.Entity.Scene != null) {
                 this.Entity.Scene.AddEntity(tileEntity);
-            else
+            }
+            else {
                 this.initTileEntities.Add(tileEntity);
+            }
             return this.Grid[tile.X, tile.Y];
         }
 
@@ -67,8 +84,9 @@ namespace TheHarvest.ECS.Components.Farm
 
         public void RemoveTile(int x, int y)
         {
-            if (this.Grid[x, y] == null)
+            if (this.Grid[x, y] == null) {
                 return;
+            }
             Tile tile = this.Grid[x, y].Tile;
             this.RemoveTile(tile);
         }
@@ -81,39 +99,44 @@ namespace TheHarvest.ECS.Components.Farm
                 Tile tile = this.Grid[x, y].Tile;
                 this.RemoveTile(tile);
             }
-            if (newTile.TileType != FarmDefaultTiler.DefaultTileType)
+            if (newTile.TileType != FarmDefaultTiler.DefaultTileType) {
                 return this.AddTile(newTile);
+            }
             return null;
-        }
-
-        public override void OnEnabled()
-        {
-            // enable all tiles
-            foreach (var tileEntity in this.Grid.AllValues())
-                tileEntity.Enabled = true;
-        }
-
-        public override void OnDisabled()
-        {
-            // disable all tiles
-            foreach (var tileEntity in this.Grid.AllValues())
-                tileEntity.Enabled = false;
         }
 
         void ApplyTentativeGridChanges()
         {
             foreach (var weakTile in this.tentativeFarmGrid.ChangesList)
             {
-                // check if new tile requires intermediate advancing
+                // check if new tile requires intermediate advancing before turning into that tile type
                 var advancesFromTileType = Tile.AdvancesFrom(weakTile.TileType);
-                if (advancesFromTileType.HasValue)
-                    this.ReplaceTile(Tile.CreateTile(advancesFromTileType.Value, weakTile.X, weakTile.Y, 0, true, weakTile.TileType));
-                else
+                if (advancesFromTileType.HasValue) {
+                    this.ReplaceTile(Tile.CreateTile(advancesFromTileType.Value, weakTile.X, weakTile.Y, true, weakTile.TileType, 0));
+                }
+                else {
                     this.ReplaceTile(Tile.CreateTile(weakTile.TileType, weakTile.X, weakTile.Y));
+                }
             }
         }
 
         #endregion
+
+        public override void OnEnabled()
+        {
+            // enable all tiles
+            foreach (var tileEntity in this.Grid.AllValues()) {
+                tileEntity.Enabled = true;
+            }
+        }
+
+        public override void OnDisabled()
+        {
+            // disable all tiles
+            foreach (var tileEntity in this.Grid.AllValues()) {
+                tileEntity.Enabled = false;
+            }
+        }
 
         public override void Update()
         {
@@ -132,8 +155,9 @@ namespace TheHarvest.ECS.Components.Farm
         public override void ProcessEvent(EditFarmOffEvent e)
         {
             // apply tentative changes
-            if (e.ApplyChanges)
+            if (e.ApplyChanges) {
                 this.ApplyTentativeGridChanges();
+            }
         }
 
         #endregion

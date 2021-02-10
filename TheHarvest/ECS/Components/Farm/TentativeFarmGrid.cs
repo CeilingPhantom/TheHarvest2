@@ -15,9 +15,11 @@ namespace TheHarvest.ECS.Components.Farm
     {
         FarmGrid farm;
         BoundlessSparseMatrix<TileEntity> grid;
+        PlayerState playerState = PlayerState.Instance;
         PlayerCamera playerCamera = PlayerCamera.Instance;
         TileHighlighter tileHighlighter;
         TileType? currSelectedTileType = null;
+        int totalCost = 0;
         BoundlessSparseMatrix<bool> changes;
         public List<WeakTile> ChangesList { get; private set; } = new List<WeakTile>();
 
@@ -47,7 +49,7 @@ namespace TheHarvest.ECS.Components.Farm
                 var tile = tileEntity.Tile;
                 // add "weak" clone/representation of existing tile
                 var tileType = this.GetFutureTileType(tile);
-                this.AddTile(tileType, tile.X, tile.Y);
+                this.AddTile(tileType, tile.X, tile.Y, true);
             }
         }
 
@@ -56,7 +58,7 @@ namespace TheHarvest.ECS.Components.Farm
             if (this.grid != null)
             {
                 this.GetChanges();
-                // disable all weak tiles
+                // destroy all weak tiles
                 foreach (var tileEntity in this.grid.AllValues())
                 {
                     tileEntity.Destroy();
@@ -80,7 +82,7 @@ namespace TheHarvest.ECS.Components.Farm
                     var p = this.playerCamera.MouseToTilePosition();
                     //System.Diagnostics.Debug.WriteLine(p);
                     //System.Diagnostics.Debug.WriteLine(this.currSelectedTileType);
-                    this.AddTile(this.currSelectedTileType.Value, (int) p.X, (int) p.Y, false);
+                    this.AddTile(this.currSelectedTileType.Value, (int) p.X, (int) p.Y);
                 }
                 else if (Mouse.GetState().RightButton == ButtonState.Pressed)
                 {
@@ -92,15 +94,17 @@ namespace TheHarvest.ECS.Components.Farm
 
         #region Grid Manipulation
 
-        TileEntity AddTile(TileType tileType, int x, int y, bool isInit=true)
+        TileEntity AddTile(TileType tileType, int x, int y, bool isInit=false)
         {
             this.RemoveTile(x, y);
-            this.grid[x, y] = new TileEntity(new WeakTile(tileType, x, y));
-            this.Entity.Scene.AddEntity(this.grid[x, y]);
-            // if it is a change in tiletype
-            if (!isInit)
-            {
-                this.changes[x, y] = this.farm.Grid[x, y] == null || this.GetFutureTileType(this.farm.Grid[x, y].Tile) != tileType;
+            if (isInit || this.totalCost + Tile.GetCost(tileType) <= this.playerState.Money) {
+                this.grid[x, y] = new TileEntity(new WeakTile(tileType, x, y));
+                this.Entity.Scene.AddEntity(this.grid[x, y]);
+                // if it is a change in tiletype
+                if (!isInit) {
+                    this.totalCost += Tile.GetCost(tileType);
+                    this.changes[x, y] = this.farm.Grid[x, y] == null || this.GetFutureTileType(this.farm.Grid[x, y].Tile) != tileType;
+                }
             }
             return this.grid[x, y];
         }
@@ -109,6 +113,7 @@ namespace TheHarvest.ECS.Components.Farm
         {
             if (this.grid[x, y] != null)
             {
+                this.totalCost -= this.grid[x, y].Tile.Cost;
                 this.grid[x, y].Destroy();
                 this.grid.Remove(x, y);
             }

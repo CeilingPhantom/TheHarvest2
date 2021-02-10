@@ -20,10 +20,8 @@ namespace TheHarvest.ECS.Components.Player
         VirtualButton zoomOutKeyInput = new VirtualButton();
         
         int prevScrollValue;
-        float scrollZoomMultiplier = 3;
+        float scrollZoomMultiplier = 8;
         
-        float moveSpeedParam = 0;
-        float moveSpeedParamShift = 0.01f;
         float moveSpeedMultiplier = 10;
         float zoomSpeed = 0.01f;
 
@@ -62,14 +60,18 @@ namespace TheHarvest.ECS.Components.Player
         {
             this.xAxisInput.AddKeyboardKeys(VirtualInput.OverlapBehavior.CancelOut, Keys.Left, Keys.Right);
             this.yAxisInput.AddKeyboardKeys(VirtualInput.OverlapBehavior.CancelOut, Keys.Up, Keys.Down);
+            
+            this.xAxisInput.AddKeyboardKeys(VirtualInput.OverlapBehavior.CancelOut, Keys.A, Keys.D);
+            this.yAxisInput.AddKeyboardKeys(VirtualInput.OverlapBehavior.CancelOut, Keys.W, Keys.S);
+
             this.zoomInKeyInput.AddKeyboardKey(Keys.Add);
             this.zoomOutKeyInput.AddKeyboardKey(Keys.Subtract);
         }
 
         public void Update()
         {
-            this.UpdateMovement();
             this.UpdateZoom();
+            this.UpdateMovement();
         }
 
         void UpdateMovement()
@@ -89,8 +91,8 @@ namespace TheHarvest.ECS.Components.Player
 
         float CalcMoveSpeed()
         {
-            // rate of change in speed slows down significantly as camera approaches min/max zoom
-            return (float) ((2 * Math.Atan(this.moveSpeedParam) / Math.PI) + 1) * this.moveSpeedMultiplier;
+            // move speed of camera is relative to zoom
+            return (float) (-this.Camera.Zoom / 2 + 1) * this.moveSpeedMultiplier;
         }
 
         public void SetPosition(Vector2 position)
@@ -104,24 +106,17 @@ namespace TheHarvest.ECS.Components.Player
             if (this.zoomInKeyInput.IsDown || mouseState.ScrollWheelValue > this.prevScrollValue)
             {
                 this.Camera.ZoomIn(this.zoomSpeed * (this.zoomInKeyInput.IsDown ? 1 : this.scrollZoomMultiplier));
-                if (this.Camera.Zoom != 1f)
-                    this.moveSpeedParam -= this.moveSpeedParamShift;
             }
             else if (this.zoomOutKeyInput.IsDown || mouseState.ScrollWheelValue < this.prevScrollValue)
             {
                 this.Camera.ZoomOut(this.zoomSpeed * (this.zoomOutKeyInput.IsDown ? 1 : this.scrollZoomMultiplier));
-                if (this.Camera.Zoom != -1f)
-                    this.moveSpeedParam += this.moveSpeedParamShift;
             }
             this.prevScrollValue = mouseState.ScrollWheelValue;
         }
 
         public void SetZoom(float zoom)
         {
-            var currZoom = this.Camera.Zoom;
             this.Camera.SetZoom(zoom);
-            var diff = currZoom - this.Camera.Zoom;
-            this.moveSpeedParamShift += diff / this.zoomSpeed * this.moveSpeedParamShift;
         }
 
         public Vector2 MouseToTilePosition()

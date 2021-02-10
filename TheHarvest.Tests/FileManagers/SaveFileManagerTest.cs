@@ -15,16 +15,16 @@ namespace TheHarvest.Tests.FileManagers
         public void SaveAndLoadTest1()
         {
             var farm1In = new FarmGrid();
-            var tile1 = Tile.CreateTile(TileType.Dirt, 1, 2, 10);
+            var tile1 = Tile.CreateTile(TileType.Dirt, 1, 2, true, TileType.Blueberry1, 10);
             farm1In.AddTile(tile1);
             SaveFileManager.Instance.Save("test1.dat", farm1In);
 
             SaveFileManager.Instance.Load("test1.dat");
             var farm1Out = SaveFileManager.Instance.LoadedFarm;
             Assert.IsTrue(farm1Out.Grid.AllValues().Length == 1);
-            Assert.IsTrue(farm1Out.Grid[1, 2] != null);
-            Assert.IsTrue(farm1Out.Grid[1, 2].GetComponent<Tile>().CompareTo(tile1) == 0);
-            Assert.IsTrue(farm1Out.Grid[0, 0] == null);
+            Assert.IsTrue(farm1Out.GetTile(1, 2) != null);
+            Assert.IsTrue(farm1Out.GetTile(1, 2).CompareTo(tile1) == 0);
+            Assert.IsTrue(farm1Out.GetTile(0, 0) == null);
         }
 
         [TestMethod]
@@ -56,10 +56,10 @@ namespace TheHarvest.Tests.FileManagers
             Assert.IsTrue(PlayerState.Instance.Year == 202);
             var farm2Out = SaveFileManager.Instance.LoadedFarm;
             Assert.IsTrue(farm2Out.Grid.AllValues().Length == 4);
-            Assert.IsTrue(farm2Out.Grid[0, 0].GetComponent<Tile>().CompareTo(tile1) == 0);
-            Assert.IsTrue(farm2Out.Grid[0, 1].GetComponent<Tile>().CompareTo(tile2) == 0);
-            Assert.IsTrue(farm2Out.Grid[1, 0].GetComponent<Tile>().CompareTo(tile3) == 0);
-            Assert.IsTrue(farm2Out.Grid[1, 1].GetComponent<Tile>().CompareTo(tile4) == 0);
+            Assert.IsTrue(farm2Out.GetTile(0, 0).CompareTo(tile1) == 0);
+            Assert.IsTrue(farm2Out.GetTile(0, 1).CompareTo(tile2) == 0);
+            Assert.IsTrue(farm2Out.GetTile(1, 0).CompareTo(tile3) == 0);
+            Assert.IsTrue(farm2Out.GetTile(1, 1).CompareTo(tile4) == 0);
         }
     }
 }
