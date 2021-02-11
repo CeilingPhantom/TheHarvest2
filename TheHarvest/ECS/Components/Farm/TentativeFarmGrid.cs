@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using Nez;
 
 using TheHarvest.ECS.Entities;
@@ -8,10 +6,11 @@ using TheHarvest.ECS.Components.Player;
 using TheHarvest.ECS.Components.Tiles;
 using TheHarvest.Events;
 using TheHarvest.Util;
+using TheHarvest.Util.Input;
 
 namespace TheHarvest.ECS.Components.Farm
 {
-    public class TentativeFarmGrid : EventSubscribingComponent
+    public class TentativeFarmGrid : EventSubscribingComponent, IInputable
     {
         FarmGrid farm;
         BoundlessSparseMatrix<TileEntity> grid;
@@ -22,8 +21,12 @@ namespace TheHarvest.ECS.Components.Farm
         BoundlessSparseMatrix<bool> changes;
         public List<WeakTile> ChangesList { get; private set; } = new List<WeakTile>();
 
+        int inputPriority = 0;
+
         public TentativeFarmGrid(FarmGrid farm)
         {
+            InputManager.Instance.Register(this, this.inputPriority);
+
             this.Enabled = false;
 
             this.farm = farm;
@@ -72,18 +75,26 @@ namespace TheHarvest.ECS.Components.Farm
 
             if (this.currSelectedTileType.HasValue)
             {
-                if (!this.tileHighlighter.Enabled)
+                // need to check if mouse click collides with any UI
+                if (InputManager.Instance.CanAcceptInput(this.inputPriority))
                 {
-                    this.tileHighlighter.Enabled = true;
+                    if (!this.tileHighlighter.Enabled)
+                    {
+                        this.tileHighlighter.Enabled = true;
+                    }
+                    if (Input.LeftMouseButtonDown)
+                    {
+                        var p = this.playerCamera.MouseToTilePosition();
+                        this.AddTile(this.currSelectedTileType.Value, (int) p.X, (int) p.Y);
+                    }
                 }
-                if (Mouse.GetState().LeftButton == ButtonState.Pressed)
+                else
                 {
-                    var p = this.playerCamera.MouseToTilePosition();
-                    //System.Diagnostics.Debug.WriteLine(p);
-                    //System.Diagnostics.Debug.WriteLine(this.currSelectedTileType);
-                    this.AddTile(this.currSelectedTileType.Value, (int) p.X, (int) p.Y);
+                    this.tileHighlighter.Enabled = false;
                 }
-                else if (Mouse.GetState().RightButton == ButtonState.Pressed)
+
+                // clear selected tile regardless of where click occurs
+                if (Input.RightMouseButtonPressed)
                 {
                     this.currSelectedTileType = null;
                     this.tileHighlighter.Enabled = false;
@@ -95,12 +106,14 @@ namespace TheHarvest.ECS.Components.Farm
 
         TileEntity AddTile(TileType tileType, int x, int y, bool isInit=false)
         {
-            if (isInit || this.playerState.Money >= Tile.GetCost(tileType)) {
+            if (isInit || this.playerState.Money >= Tile.GetCost(tileType))
+            {
                 this.RemoveTile(x, y);
                 this.grid[x, y] = new TileEntity(new WeakTile(tileType, x, y));
                 this.Entity.Scene.AddEntity(this.grid[x, y]);
                 // if it is a change in tiletype
-                if (!isInit) {
+                if (!isInit)
+                {
                     EventManager.Instance.Publish(new AddMoneyEvent(-Tile.GetCost(tileType)));
                     this.changes[x, y] = this.farm.Grid[x, y] == null || this.GetFutureTileType(this.farm.Grid[x, y].Tile) != tileType;
                 }
@@ -133,6 +146,12 @@ namespace TheHarvest.ECS.Components.Farm
 
         #endregion
 
+        TileType GetFutureTileType(Tile tile)
+        {
+            // use the tile that it will advance into, if it exists
+            return tile.IsAdvancing ? tile.AdvancingType : tile.TileType;
+        }
+
         #region Event Processing
 
         public override void ProcessEvent(TileSelectionEvent e)
@@ -151,10 +170,14 @@ namespace TheHarvest.ECS.Components.Farm
 
         #endregion
 
-        TileType GetFutureTileType(Tile tile)
+        #region IInputable
+
+        public bool InputCollision()
         {
-            // use the tile that it will advance into, if it exists
-            return tile.IsAdvancing ? tile.AdvancingType : tile.TileType;
+            // grid takes up whole window anyways
+            return true;
         }
+
+        #endregion
     }
 }

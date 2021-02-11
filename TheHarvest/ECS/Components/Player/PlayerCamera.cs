@@ -79,13 +79,21 @@ namespace TheHarvest.ECS.Components.Player
             var motion = Vector2.Zero;
             var moveSpeed = CalcMoveSpeed();
             if (this.xAxisInput.Value < 0)
+            {
                 motion.X = -moveSpeed;
+            }
             else if (this.xAxisInput > 0)
+            {
                 motion.X = moveSpeed;
+            }
             if (this.yAxisInput.Value < 0)
+            {
                 motion.Y = -moveSpeed;
+            }
             else if (this.yAxisInput > 0)
+            {
                 motion.Y = moveSpeed;
+            }
             this.Entity.Position += motion;
         }
 

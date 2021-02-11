@@ -5,6 +5,7 @@ using TheHarvest.ECS.Components;
 using TheHarvest.Events;
 using TheHarvest.FileManagers;
 using TheHarvest.Scenes;
+using TheHarvest.Util.Input;
 
 namespace TheHarvest
 {
@@ -19,6 +20,7 @@ namespace TheHarvest
             SaveFileManager.Instance.Load("farm.dat");
             TilesetSpriteManager.Instance.Load();
             EventManager.Instance.Initialize();
+            InputManager.Instance.Initialize();
             Scene = FarmScene.Instance;
         }
     }

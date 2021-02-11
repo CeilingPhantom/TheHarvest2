@@ -102,6 +102,25 @@ namespace TheHarvest.ECS.Components.UI
             var p = PlayerCamera.Instance.MouseToTilePosition();
             EventManager.Instance.Publish(new TileSelectionEvent(((TileSelectionButton) button).TileType));
         }
+
+        #region IInputable
+
+        public override bool InputCollision()
+        {
+            var mousePos = this.Stage.GetMousePosition();
+            if (mousePos.X >= this.window.GetX() && 
+                mousePos.Y >= this.window.GetY() && 
+                mousePos.X < this.window.GetX() + this.window.GetWidth() && 
+                mousePos.Y < this.window.GetY() + this.window.GetHeight() 
+                || 
+                this.window.IsDragging())
+            {
+                return true;
+            }
+            return false;
+        }
+
+        #endregion
     }
 
     internal class TileSelectionButton : ImageTextButton

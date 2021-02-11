@@ -24,10 +24,12 @@ namespace TheHarvest.ECS.Components.Player
             }
             private set
             {
-                if (this.isTentativeState) {
+                if (this.isTentativeState)
+                {
                     this.tentativeMoney = value;
                 }
-                else {
+                else
+                {
                     this.money = value;
                 }
             }
@@ -42,6 +44,7 @@ namespace TheHarvest.ECS.Components.Player
             EventManager.Instance.SubscribeTo<AddMoneyEvent>(this);
             EventManager.Instance.SubscribeTo<EditFarmOnEvent>(this);
             EventManager.Instance.SubscribeTo<EditFarmOffEvent>(this);
+            
             this.money = 15;
         }
 
@@ -87,7 +90,8 @@ namespace TheHarvest.ECS.Components.Player
         public override void ProcessEvent(EditFarmOffEvent e)
         {
             this.isTentativeState = false;
-            if (e.ApplyChanges) {
+            if (e.ApplyChanges)
+            {
                 this.money = this.tentativeMoney;
             }
         }

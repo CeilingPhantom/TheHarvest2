@@ -38,7 +38,8 @@ namespace TheHarvest.ECS.Components.Farm
 
         private void AttachInitTileEntitiesToScene()
         {
-            for (var i = 0; i < this.initTileEntities.Length; ++i) {
+            for (var i = 0; i < this.initTileEntities.Length; ++i)
+            {
                 this.Entity.Scene.AddEntity(this.initTileEntities[i]);
             }
             this.initTileEntities.Clear();
@@ -48,7 +49,8 @@ namespace TheHarvest.ECS.Components.Farm
 
         public Tile GetTile(int x, int y)
         {
-            if (this.Grid[x, y] == null) {
+            if (this.Grid[x, y] == null)
+            {
                 return null;
             }
             return this.Grid[x, y].Tile;
@@ -67,7 +69,8 @@ namespace TheHarvest.ECS.Components.Farm
             tile.FarmGrid = this;
             var tileEntity = new TileEntity(tile);
             this.Grid[tile.X, tile.Y] = tileEntity;
-            if (this.Entity != null && this.Entity.Scene != null) {
+            if (this.Entity != null && this.Entity.Scene != null)
+            {
                 this.Entity.Scene.AddEntity(tileEntity);
             }
             else {
@@ -84,7 +87,8 @@ namespace TheHarvest.ECS.Components.Farm
 
         public void RemoveTile(int x, int y)
         {
-            if (this.Grid[x, y] == null) {
+            if (this.Grid[x, y] == null)
+            {
                 return;
             }
             Tile tile = this.Grid[x, y].Tile;
@@ -95,11 +99,13 @@ namespace TheHarvest.ECS.Components.Farm
         {
             int x = newTile.X;
             int y = newTile.Y;
-            if (this.Grid[x, y] != null) {
+            if (this.Grid[x, y] != null)
+            {
                 Tile tile = this.Grid[x, y].Tile;
                 this.RemoveTile(tile);
             }
-            if (newTile.TileType != FarmDefaultTiler.DefaultTileType) {
+            if (newTile.TileType != FarmDefaultTiler.DefaultTileType)
+            {
                 return this.AddTile(newTile);
             }
             return null;
@@ -111,10 +117,12 @@ namespace TheHarvest.ECS.Components.Farm
             {
                 // check if new tile requires intermediate advancing before turning into that tile type
                 var advancesFromTileType = Tile.AdvancesFrom(weakTile.TileType);
-                if (advancesFromTileType.HasValue) {
+                if (advancesFromTileType.HasValue)
+                {
                     this.ReplaceTile(Tile.CreateTile(advancesFromTileType.Value, weakTile.X, weakTile.Y, true, weakTile.TileType, 0));
                 }
-                else {
+                else
+                {
                     this.ReplaceTile(Tile.CreateTile(weakTile.TileType, weakTile.X, weakTile.Y));
                 }
             }
@@ -125,7 +133,8 @@ namespace TheHarvest.ECS.Components.Farm
         public override void OnEnabled()
         {
             // enable all tiles
-            foreach (var tileEntity in this.Grid.AllValues()) {
+            foreach (var tileEntity in this.Grid.AllValues())
+            {
                 tileEntity.Enabled = true;
             }
         }
@@ -133,7 +142,8 @@ namespace TheHarvest.ECS.Components.Farm
         public override void OnDisabled()
         {
             // disable all tiles
-            foreach (var tileEntity in this.Grid.AllValues()) {
+            foreach (var tileEntity in this.Grid.AllValues())
+            {
                 tileEntity.Enabled = false;
             }
         }
@@ -155,7 +165,8 @@ namespace TheHarvest.ECS.Components.Farm
         public override void ProcessEvent(EditFarmOffEvent e)
         {
             // apply tentative changes
-            if (e.ApplyChanges) {
+            if (e.ApplyChanges)
+            {
                 this.ApplyTentativeGridChanges();
             }
         }

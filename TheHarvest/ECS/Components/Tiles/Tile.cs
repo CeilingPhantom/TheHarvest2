@@ -140,9 +140,7 @@ namespace TheHarvest.ECS.Components.Tiles
         public static int TileTypeLevel(TileType tileType)
         {
             var r = Regex.Match(tileType.ToString(), @"[0-9]$");
-            if (r.Success)
-                return int.Parse(r.Value);
-            return 0;
+            return r.Success ? int.Parse(r.Value) : 0;
         }
 
         public static bool AreSameBaseTileType(TileType tileTypeA, TileType tileTypeB)
@@ -153,15 +151,20 @@ namespace TheHarvest.ECS.Components.Tiles
         public static TileType? AdvancesFrom(TileType tileType)
         {
             if (Tile.AdvancesFromField.Contains(Tile.BaseTileType(tileType)))
+            {
                 return TileType.Field;
+            }
             if (Tile.AdvancesFromConstruct.Contains(Tile.BaseTileType(tileType)))
+            {
                 return TileType.Construct;
+            }
             return null;
         }
 
         public static int GetCost(TileType tileType)
         {
-            if (!Tile.tileCosts.ContainsKey(tileType)) {
+            if (!Tile.tileCosts.ContainsKey(tileType))
+            {
                 Tile.tileCosts[tileType] = Tile.CreateTile(tileType, 0, 0).Cost;
             }
             return Tile.tileCosts[tileType];
@@ -193,14 +196,18 @@ namespace TheHarvest.ECS.Components.Tiles
             this.UpdateCycleTime();
             // if tile can advance
             if (this.CycleTime > Tile.CycleDuration)
+            {
                 this.AdvanceTile();
+            }
         }
 
         void UpdateCycleTime()
         {
             this.CycleTime += Time.DeltaTime;
             if (!this.IsAdvancing)
+            {
                 this.CycleTime %= Tile.CycleDuration;
+            }
         }
 
         /// <summary>
@@ -214,21 +221,33 @@ namespace TheHarvest.ECS.Components.Tiles
         public int CompareTo(Tile other)
         {
             if (other == null)
+            {
                 return 1;
+            }
             var TypeCmp = this.TileType.CompareTo(other.TileType);
             if (TypeCmp != 0)
+            {
                 return TypeCmp;
+            }
             var XCmp = this.X.CompareTo(other.X);
             if (XCmp != 0)
+            {
                 return XCmp;
+            }
             var YCmp = this.Y.CompareTo(other.Y);
             if (YCmp != 0)
+            {
                 return YCmp;
+            }
             var CycleTimeCmp = this.CycleTime.CompareTo(other.CycleTime);
             if (CycleTimeCmp != 0)
+            {
                 return CycleTimeCmp;
+            }
             if (this.IsAdvancing != other.IsAdvancing)
+            {
                 return this.IsAdvancing.CompareTo(other.IsAdvancing);
+            }
             return this.AdvancingType.CompareTo(other.AdvancingType);
         }
     }

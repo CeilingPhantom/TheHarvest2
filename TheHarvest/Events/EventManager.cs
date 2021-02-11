@@ -24,7 +24,9 @@ namespace TheHarvest.Events
         void RegisterEventGroup<T>() where T : IEvent
         {
             if (!this.groupDict.ContainsKey(typeof(T)))
+            {
                 this.groupDict.Add(typeof(T), new FastList<IEventSubscriber>());
+            }
         }
 
         public void SubscribeTo<T>(params IEventSubscriber[] subscribers) where T : IEvent
@@ -40,18 +42,23 @@ namespace TheHarvest.Events
 
         public override void Update()
         {
-            base.Update();
             for (var i = 0; i < this.nextFrameEvents.Length; ++i)
+            {
                 SendEvent(this.nextFrameEvents[i]);
+            }
             this.nextFrameEvents.Clear();
         }
 
         void SendEvent<T>(T e) where T : IEvent
         {
             if (!this.groupDict.ContainsKey(e.GetType()))
+            {
                 return;
+            }
             for (var i = 0; i < this.groupDict[e.GetType()].Length; ++i)
+            {
                 this.groupDict[e.GetType()][i].SendEvent(e);
+            }
         }
     }
 }
