@@ -3,6 +3,7 @@ using Nez.UI;
 
 using TheHarvest.ECS.Components.Player;
 using TheHarvest.UI;
+using TheHarvest.Util.Input;
 
 namespace TheHarvest.ECS.Components.UI
 {
@@ -15,8 +16,12 @@ namespace TheHarvest.ECS.Components.UI
         Label moneyLabel;
         Label timeLabel;
 
+        static readonly int inputPriority = 90;
+
         public PlayerStateUI() : base()
         {
+            InputManager.Instance.Register(this, PlayerStateUI.inputPriority);
+
             this.window = this.Stage.AddElement(new BaseWindow());
             this.AddMoneyLabel();
             this.AddTimeLabel();
@@ -52,7 +57,10 @@ namespace TheHarvest.ECS.Components.UI
 
         public override void Update()
         {
-            base.Update();
+            if (InputManager.Instance.CanAcceptInput(PlayerStateUI.inputPriority))
+            {
+                base.Update();
+            }
             UpdateMoneyLabel();
             UpdateTimeLabel();
         }

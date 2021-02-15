@@ -7,12 +7,10 @@ namespace TheHarvest.ECS.Components.UI
 {
     public abstract class BaseUI : UICanvas, IInputable
     {
-        public static readonly int InputPriority = 99;
-
         public BaseUI() : base()
         {
             this.RenderLayer = FarmScene.UIRenderLayer;
-            InputManager.Instance.Register(this, InputPriority);
+            // remember to register subclasses to input manager
         }
 
         #region IInputable

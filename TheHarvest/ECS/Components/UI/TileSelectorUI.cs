@@ -5,6 +5,7 @@ using TheHarvest.ECS.Components.Tiles;
 using TheHarvest.Events;
 using TheHarvest.FileManagers;
 using TheHarvest.UI;
+using TheHarvest.Util.Input;
 
 namespace TheHarvest.ECS.Components.UI
 {
@@ -12,8 +13,12 @@ namespace TheHarvest.ECS.Components.UI
     {
         BaseWindow window;
 
+        static readonly int inputPriority = 91;
+
         public TileSelectorUI() : base()
         {
+            InputManager.Instance.Register(this, TileSelectorUI.inputPriority);
+
             this.window = this.Stage.AddElement(new BaseWindow());
             this.SetEditButton();
 
@@ -101,6 +106,14 @@ namespace TheHarvest.ECS.Components.UI
             System.Diagnostics.Debug.WriteLine(((TileSelectionButton) button).TileType);
             var p = PlayerCamera.Instance.MouseToTilePosition();
             EventManager.Instance.Publish(new TileSelectionEvent(((TileSelectionButton) button).TileType));
+        }
+
+        public override void Update()
+        {
+            if (InputManager.Instance.CanAcceptInput(TileSelectorUI.inputPriority))
+            {
+                base.Update();
+            }
         }
 
         #region IInputable

@@ -8,8 +8,8 @@ namespace TheHarvest.ECS.Entities
     {
         public UIEntity() : base("ui")
         {
-            this.AddComponent<TileSelectorUI>();
             this.AddComponent<PlayerStateUI>();
+            this.AddComponent<TileSelectorUI>();
         }
     }
 }

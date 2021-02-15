@@ -21,11 +21,11 @@ namespace TheHarvest.ECS.Components.Farm
         BoundlessSparseMatrix<bool> changes;
         public List<WeakTile> ChangesList { get; private set; } = new List<WeakTile>();
 
-        int inputPriority = 0;
+        static readonly int inputPriority = 0;
 
         public TentativeFarmGrid(FarmGrid farm)
         {
-            InputManager.Instance.Register(this, this.inputPriority);
+            InputManager.Instance.Register(this, TentativeFarmGrid.inputPriority);
 
             this.Enabled = false;
 
@@ -75,30 +75,36 @@ namespace TheHarvest.ECS.Components.Farm
 
             if (this.currSelectedTileType.HasValue)
             {
-                // need to check if mouse click collides with any UI
-                if (InputManager.Instance.CanAcceptInput(this.inputPriority))
-                {
-                    if (!this.tileHighlighter.Enabled)
-                    {
-                        this.tileHighlighter.Enabled = true;
-                    }
-                    if (Input.LeftMouseButtonDown)
-                    {
-                        var p = this.playerCamera.MouseToTilePosition();
-                        this.AddTile(this.currSelectedTileType.Value, (int) p.X, (int) p.Y);
-                    }
-                }
-                else
-                {
-                    this.tileHighlighter.Enabled = false;
-                }
+                this.ProcessInput();
+            }
+            else
+            {
+                this.tileHighlighter.Enabled = false;
+            }
+        }
 
-                // clear selected tile regardless of where click occurs
-                if (Input.RightMouseButtonPressed)
+        void ProcessInput()
+        {
+            // need to check if mouse click collides with any UI
+            if (InputManager.Instance.CanAcceptInput(TentativeFarmGrid.inputPriority))
+            {
+                this.tileHighlighter.Enabled = true;
+                if (Input.LeftMouseButtonDown)
                 {
-                    this.currSelectedTileType = null;
-                    this.tileHighlighter.Enabled = false;
+                    var p = this.playerCamera.MouseToTilePosition();
+                    this.AddTile(this.currSelectedTileType.Value, (int) p.X, (int) p.Y);
                 }
+            }
+            else
+            {
+                this.tileHighlighter.Enabled = false;
+            }
+
+            // clear selected tile regardless of where click occurs
+            if (Input.RightMouseButtonPressed)
+            {
+                this.currSelectedTileType = null;
+                this.tileHighlighter.Enabled = false;
             }
         }
 
@@ -166,6 +172,7 @@ namespace TheHarvest.ECS.Components.Farm
         {
             this.Enabled = false;
             this.farm.Enabled = true;
+            this.currSelectedTileType = null;
         }
 
         #endregion
