@@ -29,14 +29,18 @@ namespace TheHarvest.FileManagers
                 }
             }
             if (this.LoadedFarm == null)
+            {
                 this.LoadedFarm = new FarmGrid();
+            }
         }
 
         void LoadPlayerState(BinaryReader reader)
         {
             var chunk = reader.ReadBytes(PlayerState.ChunkSize);
             if (chunk.Length > 0)
+            {
                 PlayerState.Instance.LoadFromBytes(chunk);
+            }
         }
 
         void LoadFarm(BinaryReader reader)
@@ -57,9 +61,13 @@ namespace TheHarvest.FileManagers
                 writer.Write(PlayerState.Instance.ToBytes());
                 // if not specified, get farm scene instance's farm
                 if (farm == null)
+                {
                     farm = FarmScene.Instance.FindEntity("farm").GetComponent<FarmGrid>();
+                }
                 foreach (var tileEntity in farm.Grid.AllValues())
+                {
                     writer.Write(tileEntity.GetComponent<Tile>().ToBytes());
+                }
             }
         }
     }

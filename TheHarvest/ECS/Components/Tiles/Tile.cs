@@ -13,6 +13,9 @@ namespace TheHarvest.ECS.Components.Tiles
     {
         Dirt,
         Grass,
+        // utility tiletypes - these cannot be created
+        Destruct,
+        Upgrade,
         // intermediate advancing tiles
         Construct,
         Field,
@@ -137,10 +140,27 @@ namespace TheHarvest.ECS.Components.Tiles
             return Regex.Match(tileType.ToString(), @"[a-zA-z]+").Value;
         }
 
-        public static int TileTypeLevel(TileType tileType)
+        public static int GetTileTypeLevel(TileType tileType)
         {
             var r = Regex.Match(tileType.ToString(), @"[0-9]$");
             return r.Success ? int.Parse(r.Value) : 0;
+        }
+
+        public static bool GetUpgradedTileType(TileType tileType, out TileType upgradedTiletype)
+        {
+            if (tileType > TileType.Field && Tile.GetTileTypeLevel(tileType) < 3)
+            {
+                upgradedTiletype = Tile.GetCorrespondingTileType(Tile.BaseTileType(tileType), Tile.GetTileTypeLevel(tileType) + 1);
+                return true;
+            }
+            upgradedTiletype = tileType;
+            return false;
+        }
+
+        static TileType GetCorrespondingTileType(string baseTileType, int level)
+        {
+            var tileTypeStr = $"{baseTileType}{level}";
+            return (TileType) Enum.Parse(typeof(TileType), tileTypeStr);
         }
 
         public static bool AreSameBaseTileType(TileType tileTypeA, TileType tileTypeB)
@@ -168,6 +188,20 @@ namespace TheHarvest.ECS.Components.Tiles
                 Tile.tileCosts[tileType] = Tile.CreateTile(tileType, 0, 0).Cost;
             }
             return Tile.tileCosts[tileType];
+        }
+
+        public static bool GetUpgradeCost(TileType currTiletype, TileType upgradedTiletype, out int upgradeCost)
+        {
+            upgradeCost = 0;
+            if (Tile.AreSameBaseTileType(currTiletype, upgradedTiletype))
+            {
+                if (Tile.GetTileTypeLevel(currTiletype) < Tile.GetTileTypeLevel(upgradedTiletype))
+                {
+                    upgradeCost = Tile.GetCost(upgradedTiletype) - Tile.GetCost(currTiletype);
+                    return true;
+                }
+            }
+            return false;
         }
 
         public override void OnAddedToEntity()

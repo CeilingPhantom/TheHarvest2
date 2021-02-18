@@ -92,7 +92,34 @@ namespace TheHarvest.ECS.Components.Farm
                 if (Input.LeftMouseButtonDown)
                 {
                     var p = this.playerCamera.MouseToTilePosition();
-                    this.AddTile(this.currSelectedTileType.Value, (int) p.X, (int) p.Y);
+                    var x = (int) p.X;
+                    var y = (int) p.Y;
+                    if (this.currSelectedTileType.Value == TileType.Destruct)
+                    {
+                        this.RemoveTile(x, y);
+                    }
+                    else if (this.currSelectedTileType.Value == TileType.Upgrade)
+                    {
+                        TileType upgradedTiletype;
+                        int upgradeCost;
+                        if (Tile.GetUpgradedTileType(this.currSelectedTileType.Value, out upgradedTiletype) &&
+                            Tile.GetUpgradeCost(this.currSelectedTileType.Value, upgradedTiletype, out upgradeCost) &&
+                            this.playerState.Money >= upgradeCost)
+                        {
+                            this.AddTile(upgradedTiletype, x, y);
+                        }
+                    }
+                    // add new tile only if no existing tile or new tile is of different type
+                    else if ((this.farm.Grid[x, y] == null || 
+                        !Tile.AreSameBaseTileType(this.GetFutureTileType(this.farm.Grid[x, y].Tile), this.currSelectedTileType.Value))
+                        && 
+                        (this.grid[x, y] == null || 
+                        !Tile.AreSameBaseTileType(this.grid[x, y].Tile.TileType, this.currSelectedTileType.Value)) 
+                        && 
+                        this.playerState.Money >= Tile.GetCost(this.currSelectedTileType.Value))
+                    {
+                        this.AddTile(this.currSelectedTileType.Value, x, y);
+                    }
                 }
             }
             else
@@ -112,17 +139,18 @@ namespace TheHarvest.ECS.Components.Farm
 
         TileEntity AddTile(TileType tileType, int x, int y, bool isInit=false)
         {
-            if (isInit || this.playerState.Money >= Tile.GetCost(tileType))
+            if (isInit)
+            {
+                this.grid[x, y] = new TileEntity(new WeakTile(tileType, x, y));
+                this.Entity.Scene.AddEntity(this.grid[x, y]);
+            }
+            else if (this.playerState.Money >= Tile.GetCost(tileType))
             {
                 this.RemoveTile(x, y);
                 this.grid[x, y] = new TileEntity(new WeakTile(tileType, x, y));
                 this.Entity.Scene.AddEntity(this.grid[x, y]);
-                // if it is a change in tiletype
-                if (!isInit)
-                {
-                    EventManager.Instance.Publish(new AddMoneyEvent(-Tile.GetCost(tileType)));
-                    this.changes[x, y] = this.farm.Grid[x, y] == null || this.GetFutureTileType(this.farm.Grid[x, y].Tile) != tileType;
-                }
+                EventManager.Instance.Publish(new AddMoneyEvent(-Tile.GetCost(tileType)));
+                this.changes[x, y] = true;
             }
             return this.grid[x, y];
         }

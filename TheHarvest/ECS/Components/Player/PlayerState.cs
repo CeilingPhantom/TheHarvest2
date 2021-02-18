@@ -7,6 +7,14 @@ namespace TheHarvest.ECS.Components.Player
 {
     public class PlayerState : EventSubscribingComponent
     {
+        public enum Seasons : byte
+        {
+            Spring,
+            Summer,
+            Fall,
+            Winter,
+        }
+
         static readonly Lazy<PlayerState> lazy = new Lazy<PlayerState>(() => new PlayerState());
         public static PlayerState Instance => lazy.Value;
 
@@ -36,7 +44,7 @@ namespace TheHarvest.ECS.Components.Player
         }
         public float TimeOfDay { get; private set; }  // time in seconds
         public byte Day { get; private set; }
-        public byte Season { get; private set; }
+        public Seasons Season { get; private set; }
         public byte Year { get; private set; }
 
         PlayerState() : base()
@@ -45,7 +53,7 @@ namespace TheHarvest.ECS.Components.Player
             EventManager.Instance.SubscribeTo<EditFarmOnEvent>(this);
             EventManager.Instance.SubscribeTo<EditFarmOffEvent>(this);
             
-            this.money = 15;
+            this.money = 1000;
         }
 
         public void LoadFromBytes(byte[] bytes)
@@ -53,7 +61,7 @@ namespace TheHarvest.ECS.Components.Player
             this.money = BitConverter.ToInt32(bytes, 0);
             this.TimeOfDay = BitConverter.ToSingle(bytes, 4);
             this.Day = bytes[8];
-            this.Season = bytes[9];
+            this.Season = (Seasons) bytes[9];
             this.Year = bytes[10];
         }
 
@@ -63,7 +71,7 @@ namespace TheHarvest.ECS.Components.Player
             BitConverter.GetBytes(this.money).CopyTo(bytes, 0);
             BitConverter.GetBytes(this.TimeOfDay).CopyTo(bytes, 4);
             bytes[8] = this.Day;
-            bytes[9] = this.Season;
+            bytes[9] = (byte) this.Season;
             bytes[10] = this.Year;
             return bytes;
         }

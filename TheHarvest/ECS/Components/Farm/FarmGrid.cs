@@ -73,7 +73,8 @@ namespace TheHarvest.ECS.Components.Farm
             {
                 this.Entity.Scene.AddEntity(tileEntity);
             }
-            else {
+            else
+            {
                 this.initTileEntities.Add(tileEntity);
             }
             return this.Grid[tile.X, tile.Y];

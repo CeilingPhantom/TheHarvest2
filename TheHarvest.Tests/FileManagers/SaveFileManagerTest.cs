@@ -52,7 +52,7 @@ namespace TheHarvest.Tests.FileManagers
             Assert.IsTrue(PlayerState.Instance.Money == 9999);
             Assert.IsTrue(PlayerState.Instance.TimeOfDay == 98765.4321f);
             Assert.IsTrue(PlayerState.Instance.Day == 21);
-            Assert.IsTrue(PlayerState.Instance.Season == 2);
+            Assert.IsTrue((byte) PlayerState.Instance.Season == 2);
             Assert.IsTrue(PlayerState.Instance.Year == 202);
             var farm2Out = SaveFileManager.Instance.LoadedFarm;
             Assert.IsTrue(farm2Out.Grid.AllValues().Length == 4);
