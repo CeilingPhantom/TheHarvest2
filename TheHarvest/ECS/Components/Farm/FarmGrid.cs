@@ -116,15 +116,24 @@ namespace TheHarvest.ECS.Components.Farm
         {
             foreach (var weakTile in this.tentativeFarmGrid.ChangesList)
             {
-                // check if new tile requires intermediate advancing before turning into that tile type
-                var advancesFromTileType = Tile.AdvancesFrom(weakTile.TileType);
-                if (advancesFromTileType.HasValue)
+                // if tile was set to be removed
+                if (weakTile.TileType == TileType.Destruct)
                 {
-                    this.ReplaceTile(Tile.CreateTile(advancesFromTileType.Value, weakTile.X, weakTile.Y, true, weakTile.TileType, 0));
+                    this.RemoveTile(weakTile.X, weakTile.Y);
                 }
+                // else new tile set
                 else
                 {
-                    this.ReplaceTile(Tile.CreateTile(weakTile.TileType, weakTile.X, weakTile.Y));
+                    // check if new tile requires intermediate advancing before turning into that tile type
+                    var advancesFromTileType = Tile.AdvancesFrom(weakTile.TileType);
+                    if (advancesFromTileType.HasValue)
+                    {
+                        this.ReplaceTile(Tile.CreateTile(advancesFromTileType.Value, weakTile.X, weakTile.Y, true, weakTile.TileType, 0));
+                    }
+                    else
+                    {
+                        this.ReplaceTile(Tile.CreateTile(weakTile.TileType, weakTile.X, weakTile.Y));
+                    }
                 }
             }
         }
@@ -134,9 +143,15 @@ namespace TheHarvest.ECS.Components.Farm
         public override void OnEnabled()
         {
             // enable all tiles
-            foreach (var tileEntity in this.Grid.AllValues())
+            // only if not coming out of tentative farm grid
+            // this fixes removed tiles still showing for 1 tick
+            // after applying tentative changes
+            if (!this.tentativeFarmGrid.Enabled)
             {
-                tileEntity.Enabled = true;
+                foreach (var tileEntity in this.Grid.AllValues())
+                {
+                    tileEntity.Enabled = true;
+                }
             }
         }
 
@@ -170,6 +185,8 @@ namespace TheHarvest.ECS.Components.Farm
             {
                 this.ApplyTentativeGridChanges();
             }
+            // call this to truly reenable the grid
+            OnEnabled();
         }
 
         #endregion

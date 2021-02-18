@@ -6,6 +6,7 @@ using Nez.Sprites;
 using Nez.Textures;
 
 using TheHarvest.ECS.Components.Farm;
+using TheHarvest.FileManagers;
 
 namespace TheHarvest.ECS.Components.Tiles
 {
@@ -105,6 +106,18 @@ namespace TheHarvest.ECS.Components.Tiles
                     break;
                 case TileType.Blueberry1:
                     tile = new Blueberry1Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
+                case TileType.Carrot1:
+                    tile = new Carrot1Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
+                case TileType.Potato1:
+                    tile = new Potato1Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
+                case TileType.Strawberry1:
+                    tile = new Strawberry1Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
+                case TileType.Wheat1:
+                    tile = new Wheat1Tile(x, y, isAdvancing, advancingType, cycleTime);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type));
@@ -206,8 +219,16 @@ namespace TheHarvest.ECS.Components.Tiles
 
         public override void OnAddedToEntity()
         {
-            base.OnAddedToEntity();
             this.SpriteAnimator = this.Entity.GetComponent<SpriteAnimator>();
+            if (TilesetSpriteManager.Instance.HasAnimation(this.TileType))
+            {
+                this.SetAnimation(TilesetSpriteManager.Instance.GetAnimation(this.TileType));
+                this.PlayAnimation();
+            }
+            else
+            {
+                this.SetSprite(TilesetSpriteManager.Instance.GetSprite(this.TileType));
+            }
         }
 
         protected void SetSprite(Sprite sprite)

@@ -159,15 +159,33 @@ namespace TheHarvest.ECS.Components.Farm
         {
             if (this.grid[x, y] != null)
             {
-                EventManager.Instance.Publish(new AddMoneyEvent(-Tile.GetCost(this.grid[x, y].Tile.TileType)));
+                EventManager.Instance.Publish(new AddMoneyEvent(Tile.GetCost(this.grid[x, y].Tile.TileType)));
                 this.grid[x, y].Destroy();
                 this.grid.Remove(x, y);
+                this.changes[x, y] = true;
             }
         }
 
         void GetChanges()
         {
             this.ChangesList.Clear();
+            foreach (var change in this.changes.AllValuesWithPos())
+            {
+                var val = change.Val;
+                var x = change.X;
+                var y = change.Y;
+                if (val)
+                {
+                    if (this.grid[x, y] != null)
+                    {
+                        this.ChangesList.Add((WeakTile) this.grid[x, y].Tile);
+                    }
+                    else
+                    {
+                        this.ChangesList.Add(new WeakTile(TileType.Destruct, x, y));
+                    }
+                }
+            }
             foreach (var tileEntity in this.grid.AllValues())
             {
                 var tile = (WeakTile) tileEntity.Tile;
@@ -198,8 +216,8 @@ namespace TheHarvest.ECS.Components.Farm
 
         public override void ProcessEvent(EditFarmOffEvent e)
         {
-            this.Enabled = false;
             this.farm.Enabled = true;
+            this.Enabled = false;
             this.currSelectedTileType = null;
         }
 

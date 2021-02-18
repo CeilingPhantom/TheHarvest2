@@ -47,6 +47,7 @@ namespace TheHarvest.ECS.Components.UI
             this.AddTileSelection(TileType.Potato1);
             this.AddTileSelection(TileType.Strawberry1);
             this.AddTileSelection(TileType.Wheat1);
+            this.AddTileSelection(TileType.Destruct);
         }
 
         void AddTileSelection(TileType tileType)
@@ -147,6 +148,7 @@ namespace TheHarvest.ECS.Components.UI
             this.TileType = tileType;
             this.Left().PadTop(TileSelectionButton.padY).PadBottom(TileSelectionButton.padY);
             this.GetLabelCell().SetPadLeft(3);
+            this.GetImage().SetScale(2);
             this.Pack();
         }
     }

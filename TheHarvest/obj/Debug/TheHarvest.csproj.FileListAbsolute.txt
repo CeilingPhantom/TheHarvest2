@@ -228,3 +228,5 @@ C:\Users\james\Documents\theharvest2\TheHarvest\obj\Debug\TheHarvest.csproj.Core
 C:\Users\james\Documents\theharvest2\TheHarvest\obj\Debug\TheHarvest.csproj.CopyComplete
 C:\Users\james\Documents\theharvest2\TheHarvest\obj\Debug\TheHarvest.exe
 C:\Users\james\Documents\theharvest2\TheHarvest\obj\Debug\TheHarvest.pdb
+C:\Users\james\Documents\theharvest2\TheHarvest\bin\DesktopGL\AnyCPU\Debug\Content\imgs\tiles\destruct.xnb
+C:\Users\james\Documents\theharvest2\TheHarvest\bin\DesktopGL\AnyCPU\Debug\Content\imgs\tiles\destruct.png

@@ -1,3 +1,5 @@
+using Nez.Sprites;
+
 using TheHarvest.FileManagers;
 
 namespace TheHarvest.ECS.Components.Tiles
@@ -10,7 +12,7 @@ namespace TheHarvest.ECS.Components.Tiles
 
         public override void OnAddedToEntity()
         {
-            base.OnAddedToEntity();
+            this.SpriteAnimator = this.Entity.GetComponent<SpriteAnimator>();
             this.SetSprite(TilesetSpriteManager.Instance.GetSprite(this.TileType));
         }
 

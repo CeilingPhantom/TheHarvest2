@@ -64,6 +64,21 @@ namespace TheHarvest.Util
             return all.ToArray();
         }
 
+        public (T Val, int X, int Y)[] AllValuesWithPos()
+        {
+            var all = new List<(T ValueTuple, int X, int Y)>();
+            foreach (var i in this.matrix)
+            {
+                var x = i.Key;
+                foreach(var j in i.Value)
+                {
+                    var y = j.Key;
+                    all.Add((j.Value, x, y));
+                }
+            }
+            return all.ToArray();
+        }
+
         public bool Remove(int x, int y)
         {
             if (this.matrix.ContainsKey(x) && this.matrix[x].Remove(y))
