@@ -47,6 +47,7 @@ namespace TheHarvest.ECS.Components.UI
             this.AddTileSelection(TileType.Potato1);
             this.AddTileSelection(TileType.Strawberry1);
             this.AddTileSelection(TileType.Wheat1);
+            this.AddTileSelection(TileType.Upgrade);
             this.AddTileSelection(TileType.Destruct);
         }
 

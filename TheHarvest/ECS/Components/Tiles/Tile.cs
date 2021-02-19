@@ -107,17 +107,47 @@ namespace TheHarvest.ECS.Components.Tiles
                 case TileType.Blueberry1:
                     tile = new Blueberry1Tile(x, y, isAdvancing, advancingType, cycleTime);
                     break;
+                case TileType.Blueberry2:
+                    tile = new Blueberry2Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
+                case TileType.Blueberry3:
+                    tile = new Blueberry3Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
                 case TileType.Carrot1:
                     tile = new Carrot1Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
+                case TileType.Carrot2:
+                    tile = new Carrot2Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
+                case TileType.Carrot3:
+                    tile = new Carrot3Tile(x, y, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Potato1:
                     tile = new Potato1Tile(x, y, isAdvancing, advancingType, cycleTime);
                     break;
+                case TileType.Potato2:
+                    tile = new Potato2Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
+                case TileType.Potato3:
+                    tile = new Potato3Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
                 case TileType.Strawberry1:
                     tile = new Strawberry1Tile(x, y, isAdvancing, advancingType, cycleTime);
                     break;
+                case TileType.Strawberry2:
+                    tile = new Strawberry2Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
+                case TileType.Strawberry3:
+                    tile = new Strawberry3Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
                 case TileType.Wheat1:
                     tile = new Wheat1Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
+                case TileType.Wheat2:
+                    tile = new Wheat2Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
+                case TileType.Wheat3:
+                    tile = new Wheat3Tile(x, y, isAdvancing, advancingType, cycleTime);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type));

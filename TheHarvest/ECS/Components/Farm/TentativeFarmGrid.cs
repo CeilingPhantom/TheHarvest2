@@ -100,13 +100,14 @@ namespace TheHarvest.ECS.Components.Farm
                     }
                     else if (this.currSelectedTileType.Value == TileType.Upgrade)
                     {
-                        TileType upgradedTiletype;
+                        TileType upgradedTileType;
                         int upgradeCost;
-                        if (Tile.GetUpgradedTileType(this.currSelectedTileType.Value, out upgradedTiletype) &&
-                            Tile.GetUpgradeCost(this.currSelectedTileType.Value, upgradedTiletype, out upgradeCost) &&
+                        if (this.farm.Grid[x, y] != null && 
+                            Tile.GetUpgradedTileType(this.farm.Grid[x, y].Tile.TileType, out upgradedTileType) && 
+                            Tile.GetUpgradeCost(this.farm.Grid[x, y].Tile.TileType, upgradedTileType, out upgradeCost) && 
                             this.playerState.Money >= upgradeCost)
                         {
-                            this.AddTile(upgradedTiletype, x, y);
+                            this.AddTile(upgradedTileType, x, y);
                         }
                     }
                     // add new tile only if no existing tile or new tile is of different type
@@ -216,6 +217,7 @@ namespace TheHarvest.ECS.Components.Farm
 
         public override void ProcessEvent(EditFarmOffEvent e)
         {
+            // this order of enabling is important
             this.farm.Enabled = true;
             this.Enabled = false;
             this.currSelectedTileType = null;
