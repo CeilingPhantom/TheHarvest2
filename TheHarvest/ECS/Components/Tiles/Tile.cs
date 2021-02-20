@@ -18,8 +18,9 @@ namespace TheHarvest.ECS.Components.Tiles
         Destruct,
         Upgrade,
         // intermediate advancing tiles
-        Construct,
         Field,
+        Construct,
+        // tiles that advance from field
         // crops
         Blueberry1,
         Blueberry2,
@@ -36,6 +37,8 @@ namespace TheHarvest.ECS.Components.Tiles
         Wheat1,
         Wheat2,
         Wheat3,
+
+        // tiles that advances from construct
         // animals
         Chicken1,
         Chicken2,
@@ -75,9 +78,6 @@ namespace TheHarvest.ECS.Components.Tiles
 
         protected SpriteAnimator SpriteAnimator;
         static readonly string defaultAnimationName = "default";
-
-        static readonly string[] AdvancesFromField = new string[] { "Blueberry", "Carrot", "Potato", "Strawberry", "Wheat" };
-        static readonly string[] AdvancesFromConstruct = new string[] { "Chicken", "Pig", "Greenhouse", "Shed", "Silo" };
 
         public Tile(TileType type, int x, int y, int cost=0, bool isAdvancing=false, TileType advancingType=0, float cycleTime=0)
         {
@@ -213,11 +213,11 @@ namespace TheHarvest.ECS.Components.Tiles
 
         public static TileType? AdvancesFrom(TileType tileType)
         {
-            if (Tile.AdvancesFromField.Contains(Tile.BaseTileType(tileType)))
+            if (tileType >= TileType.Blueberry1 && tileType <= TileType.Wheat3)
             {
                 return TileType.Field;
             }
-            if (Tile.AdvancesFromConstruct.Contains(Tile.BaseTileType(tileType)))
+            if (tileType >= TileType.Chicken1 && tileType <= TileType.Silo3)
             {
                 return TileType.Construct;
             }

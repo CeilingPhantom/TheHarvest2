@@ -21,6 +21,9 @@ namespace TheHarvest.ECS.Components.Farm
         BoundlessSparseMatrix<bool> changes;
         public List<WeakTile> ChangesList { get; private set; } = new List<WeakTile>();
 
+        // so tiles only get upgraded once per mousedown
+        HashSet<(int x, int y)> currMouseDownUpgraded = new HashSet<(int x, int y)>();
+
         static readonly int inputPriority = 0;
 
         public TentativeFarmGrid(FarmGrid farm)
@@ -102,11 +105,22 @@ namespace TheHarvest.ECS.Components.Farm
                     {
                         TileType upgradedTileType;
                         int upgradeCost;
-                        if (this.farm.Grid[x, y] != null && 
-                            Tile.GetUpgradedTileType(this.farm.Grid[x, y].Tile.TileType, out upgradedTileType) && 
-                            Tile.GetUpgradeCost(this.farm.Grid[x, y].Tile.TileType, upgradedTileType, out upgradeCost) && 
+                        // upgradeable if grid's existing (future) tile can be upgraded to it
+                        // or current tentative tile can be upgraded to it
+                        if (!this.currMouseDownUpgraded.Contains((x, y)) && 
+                            (
+                                (this.farm.Grid[x, y] != null && 
+                                Tile.GetUpgradedTileType(this.GetFutureTileType(this.farm.Grid[x, y].Tile), out upgradedTileType) && 
+                                Tile.GetUpgradeCost(this.GetFutureTileType(this.farm.Grid[x, y].Tile), upgradedTileType, out upgradeCost))
+                                ||
+                                (this.grid[x, y] != null && 
+                                Tile.GetUpgradedTileType(this.grid[x, y].Tile.TileType, out upgradedTileType) && 
+                                Tile.GetUpgradeCost(this.grid[x, y].Tile.TileType, upgradedTileType, out upgradeCost))
+                            ) 
+                            && 
                             this.playerState.Money >= upgradeCost)
                         {
+                            this.currMouseDownUpgraded.Add((x, y));
                             this.AddTile(upgradedTileType, x, y);
                         }
                     }
@@ -122,6 +136,13 @@ namespace TheHarvest.ECS.Components.Farm
                         this.AddTile(this.currSelectedTileType.Value, x, y);
                     }
                 }
+                else
+                {
+                    if (this.currSelectedTileType.Value == TileType.Upgrade)
+                    {
+                        this.currMouseDownUpgraded.Clear();
+                    }
+                }
             }
             else
             {
@@ -131,6 +152,10 @@ namespace TheHarvest.ECS.Components.Farm
             // clear selected tile regardless of where click occurs
             if (Input.RightMouseButtonPressed)
             {
+                if (this.currSelectedTileType.Value == TileType.Upgrade)
+                {
+                    this.currMouseDownUpgraded.Clear();
+                }
                 this.currSelectedTileType = null;
                 this.tileHighlighter.Enabled = false;
             }
