@@ -22,8 +22,8 @@ namespace TheHarvest.ECS.Components.Player
         int prevScrollValue;
         float scrollZoomMultiplier = 8;
         
-        float moveSpeedMultiplier = 10;
-        float zoomSpeed = 0.01f;
+        float moveSpeedMultiplier = 5;
+        float zoomSpeed = 0.008f;
 
         public RectangleF Bounds => this.Camera.Bounds;
         public float Width => this.Bounds.Width;

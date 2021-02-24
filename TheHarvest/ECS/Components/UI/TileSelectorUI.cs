@@ -49,6 +49,9 @@ namespace TheHarvest.ECS.Components.UI
             this.AddTileSelection(TileType.Wheat1);
             this.AddTileSelection(TileType.Upgrade);
             this.AddTileSelection(TileType.Destruct);
+            this.AddTileSelection(TileType.Reset);
+            this.AddTileSelection(TileType.Undo);
+            this.AddTileSelection(TileType.Redo);
         }
 
         void AddTileSelection(TileType tileType)
@@ -62,9 +65,9 @@ namespace TheHarvest.ECS.Components.UI
             var button = new TextButton("Edit", new TextButtonStyle());
             button.OnClicked += b => 
             {
-                EventManager.Instance.Publish(new EditFarmOnEvent());
+                EventManager.Instance.Publish(new TentativeFarmGridOnEvent());
                 this.SetTileSelections();
-                // TODO undo and redo buttons
+                // TODO reset, undo, redo tile buttons
             };
             this.window.Add(button);
             this.window.Row();
@@ -75,13 +78,13 @@ namespace TheHarvest.ECS.Components.UI
             var applyButton = new TextButton("Apply", new TextButtonStyle());
             applyButton.OnClicked += b => 
             {
-                EventManager.Instance.Publish(new EditFarmOffEvent(true));
+                EventManager.Instance.Publish(new TentativeFarmGridOffEvent(true));
                 this.SetEditButton();
             };
             var cancelButton = new TextButton("Cancel", new TextButtonStyle());
             cancelButton.OnClicked += b => 
             {
-                EventManager.Instance.Publish(new EditFarmOffEvent(false));
+                EventManager.Instance.Publish(new TentativeFarmGridOffEvent(false));
                 this.SetEditButton();
             };
 

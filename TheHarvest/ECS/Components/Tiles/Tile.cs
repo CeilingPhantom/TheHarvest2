@@ -12,11 +12,17 @@ namespace TheHarvest.ECS.Components.Tiles
 {
     public enum TileType : byte
     {
-        Dirt,
-        Grass,
-        // utility tiletypes - these cannot be created
+        // utility tiletypes for tile selection ui - these cannot be created
         Destruct,
         Upgrade,
+        Reset,
+        ResetAll,
+        Undo,
+        Redo,
+        
+        // basic, nothing-special-about-them tiles
+        Dirt,
+        Grass,
         // intermediate advancing tiles
         Field,
         Construct,
@@ -79,7 +85,7 @@ namespace TheHarvest.ECS.Components.Tiles
         protected SpriteAnimator SpriteAnimator;
         static readonly string defaultAnimationName = "default";
 
-        public Tile(TileType type, int x, int y, int cost=0, bool isAdvancing=false, TileType advancingType=0, float cycleTime=0)
+        public Tile(TileType type, int x, int y, int cost=0, bool isAdvancing=false, TileType advancingType=TileType.Dirt, float cycleTime=0)
         {
             this.TileType = type;
             this.X = x;
@@ -90,7 +96,7 @@ namespace TheHarvest.ECS.Components.Tiles
             this.CycleTime = cycleTime;
         }
 
-        public static Tile CreateTile(TileType type, int x, int y, bool isAdvancing=false, TileType advancingType=0, float cycleTime=0)
+        public static Tile CreateTile(TileType type, int x, int y, bool isAdvancing=false, TileType advancingType=TileType.Dirt, float cycleTime=0)
         {
             Tile tile;
             switch(type)
@@ -211,6 +217,12 @@ namespace TheHarvest.ECS.Components.Tiles
             return Tile.BaseTileType(tileTypeA) == Tile.BaseTileType(tileTypeB);
         }
 
+        public static TileType GetFutureTileType(Tile tile)
+        {
+            // use the tile that it will advance into, if it exists
+            return tile.IsAdvancing ? tile.AdvancingType : tile.TileType;
+        }
+
         public static TileType? AdvancesFrom(TileType tileType)
         {
             if (tileType >= TileType.Blueberry1 && tileType <= TileType.Wheat3)
@@ -300,7 +312,7 @@ namespace TheHarvest.ECS.Components.Tiles
         /// </summary>
         protected virtual void AdvanceTile()
         {
-            this.FarmGrid.ReplaceTile(Tile.CreateTile(this.AdvancingType, this.X, this.Y));
+            this.FarmGrid.AddTile(Tile.CreateTile(this.AdvancingType, this.X, this.Y));
         }
 
         public int CompareTo(Tile other)

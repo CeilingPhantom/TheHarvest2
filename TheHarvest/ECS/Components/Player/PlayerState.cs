@@ -50,8 +50,8 @@ namespace TheHarvest.ECS.Components.Player
         PlayerState() : base()
         {
             EventManager.Instance.SubscribeTo<AddMoneyEvent>(this);
-            EventManager.Instance.SubscribeTo<EditFarmOnEvent>(this);
-            EventManager.Instance.SubscribeTo<EditFarmOffEvent>(this);
+            EventManager.Instance.SubscribeTo<TentativeFarmGridOnEvent>(this);
+            EventManager.Instance.SubscribeTo<TentativeFarmGridOffEvent>(this);
             
             this.money = 1000;
         }
@@ -89,13 +89,13 @@ namespace TheHarvest.ECS.Components.Player
             this.Money += e.Amount;
         }
 
-        public override void ProcessEvent(EditFarmOnEvent e)
+        public override void ProcessEvent(TentativeFarmGridOnEvent e)
         {
             this.isTentativeState = true;
             this.tentativeMoney = this.money;
         }
 
-        public override void ProcessEvent(EditFarmOffEvent e)
+        public override void ProcessEvent(TentativeFarmGridOffEvent e)
         {
             this.isTentativeState = false;
             if (e.ApplyChanges)

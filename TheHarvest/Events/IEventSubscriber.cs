@@ -10,8 +10,10 @@ namespace TheHarvest.Events
 
         void ProcessEvent(AddMoneyEvent e);
         void ProcessEvent(TileSelectionEvent e);
-        void ProcessEvent(EditFarmOnEvent e);
-        void ProcessEvent(EditFarmOffEvent e);
+        void ProcessEvent(TentativeFarmGridOnEvent e);
+        void ProcessEvent(TentativeFarmGridOffEvent e);
+        void ProcessEvent(TentativeFarmGridUndo e);
+        void ProcessEvent(TentativeFarmGridRedo e);
 
         #endregion
     }

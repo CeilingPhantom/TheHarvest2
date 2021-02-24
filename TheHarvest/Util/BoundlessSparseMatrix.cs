@@ -8,10 +8,10 @@ namespace TheHarvest.Util
     {
         Dictionary<int, Dictionary<int, T>> matrix = new Dictionary<int, Dictionary<int, T>>();
 
-        public int? minX { get; private set; } = 0;
-        public int? maxX { get; private set; } = 0;
-        public int? minY { get; private set; } = 0;
-        public int? maxY { get; private set; } = 0;
+        public int? minX { get; private set; }
+        public int? maxX { get; private set; }
+        public int? minY { get; private set; }
+        public int? maxY { get; private set; }
 
         public T this[int x, int y]
         {
@@ -115,6 +115,15 @@ namespace TheHarvest.Util
         public bool IsEmpty()
         {
             return this.matrix.Count == 0;
+        }
+
+        public void Clear()
+        {
+            this.matrix = new Dictionary<int, Dictionary<int, T>>();
+            this.minX = null;
+            this.maxX = null;
+            this.minY = null;
+            this.maxY = null;
         }
     }
 }

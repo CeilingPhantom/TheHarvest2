@@ -1,9 +1,8 @@
-
 namespace TheHarvest.Events
 {
-    public class EditFarmOnEvent : IEvent
+    public class TentativeFarmGridRedo : IEvent
     {
-        public EditFarmOnEvent()
+        public TentativeFarmGridRedo()
         {}
 
         public void Accept(IEventSubscriber subscriber)

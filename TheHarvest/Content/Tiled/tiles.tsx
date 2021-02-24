@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.2" tiledversion="1.3.2" name="tiles" tilewidth="32" tileheight="32" tilecount="92" columns="0">
+<tileset version="1.2" tiledversion="1.3.2" name="tiles" tilewidth="32" tileheight="32" tilecount="93" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="90" type="blueberry1">
   <image width="32" height="32" source="../imgs/tiles/blueberry1_0.png"/>
@@ -414,11 +414,5 @@
  </tile>
  <tile id="179">
   <image width="32" height="32" source="../imgs/tiles/wheat3_2.png"/>
- </tile>
- <tile id="180" type="destruct">
-  <image width="32" height="32" source="../imgs/tiles/destruct.png"/>
- </tile>
- <tile id="181" type="upgrade">
-  <image width="32" height="32" source="../imgs/tiles/upgrade.png"/>
  </tile>
 </tileset>

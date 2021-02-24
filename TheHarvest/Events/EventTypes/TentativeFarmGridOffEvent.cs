@@ -1,10 +1,10 @@
 namespace TheHarvest.Events
 {
-    public class EditFarmOffEvent : IEvent
+    public class TentativeFarmGridOffEvent : IEvent
     {
         public bool ApplyChanges { get; private set; }
 
-        public EditFarmOffEvent(bool ApplyChanges)
+        public TentativeFarmGridOffEvent(bool ApplyChanges)
         {
             this.ApplyChanges = ApplyChanges;
         }

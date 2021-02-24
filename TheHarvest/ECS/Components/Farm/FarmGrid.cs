@@ -22,8 +22,8 @@ namespace TheHarvest.ECS.Components.Farm
 
         public FarmGrid() : base()
         {
-            EventManager.Instance.SubscribeTo<EditFarmOnEvent>(this);
-            EventManager.Instance.SubscribeTo<EditFarmOffEvent>(this);
+            EventManager.Instance.SubscribeTo<TentativeFarmGridOnEvent>(this);
+            EventManager.Instance.SubscribeTo<TentativeFarmGridOffEvent>(this);
         }
 
         public override void OnAddedToEntity()
@@ -63,19 +63,20 @@ namespace TheHarvest.ECS.Components.Farm
 
         public TileEntity AddTile(Tile tile)
         {
-            if (this.Grid[tile.X, tile.Y] != null) {
-                return null;
-            }
-            tile.FarmGrid = this;
-            var tileEntity = new TileEntity(tile);
-            this.Grid[tile.X, tile.Y] = tileEntity;
-            if (this.Entity != null && this.Entity.Scene != null)
+            this.RemoveTile(tile.X, tile.Y);
+            if (tile.TileType != FarmDefaultTiler.DefaultTileType)
             {
-                this.Entity.Scene.AddEntity(tileEntity);
-            }
-            else
-            {
-                this.initTileEntities.Add(tileEntity);
+                tile.FarmGrid = this;
+                var tileEntity = new TileEntity(tile);
+                this.Grid[tile.X, tile.Y] = tileEntity;
+                if (this.Entity != null && this.Entity.Scene != null)
+                {
+                    this.Entity.Scene.AddEntity(tileEntity);
+                }
+                else
+                {
+                    this.initTileEntities.Add(tileEntity);
+                }
             }
             return this.Grid[tile.X, tile.Y];
         }
@@ -96,25 +97,9 @@ namespace TheHarvest.ECS.Components.Farm
             this.RemoveTile(tile);
         }
 
-        public TileEntity ReplaceTile(Tile newTile)
-        {
-            int x = newTile.X;
-            int y = newTile.Y;
-            if (this.Grid[x, y] != null)
-            {
-                Tile tile = this.Grid[x, y].Tile;
-                this.RemoveTile(tile);
-            }
-            if (newTile.TileType != FarmDefaultTiler.DefaultTileType)
-            {
-                return this.AddTile(newTile);
-            }
-            return null;
-        }
-
         void ApplyTentativeGridChanges()
         {
-            foreach (var weakTile in this.tentativeFarmGrid.ChangesList)
+            foreach (var weakTile in this.tentativeFarmGrid.AppliedChanges)
             {
                 // if tile was set to be removed
                 if (weakTile.TileType == TileType.Destruct)
@@ -128,11 +113,11 @@ namespace TheHarvest.ECS.Components.Farm
                     var advancesFromTileType = Tile.AdvancesFrom(weakTile.TileType);
                     if (advancesFromTileType.HasValue)
                     {
-                        this.ReplaceTile(Tile.CreateTile(advancesFromTileType.Value, weakTile.X, weakTile.Y, true, weakTile.TileType, 0));
+                        this.AddTile(Tile.CreateTile(advancesFromTileType.Value, weakTile.X, weakTile.Y, true, weakTile.TileType, 0));
                     }
                     else
                     {
-                        this.ReplaceTile(Tile.CreateTile(weakTile.TileType, weakTile.X, weakTile.Y));
+                        this.AddTile(Tile.CreateTile(weakTile.TileType, weakTile.X, weakTile.Y));
                     }
                 }
             }
@@ -172,13 +157,13 @@ namespace TheHarvest.ECS.Components.Farm
 
         #region Event Processing
 
-        public override void ProcessEvent(EditFarmOnEvent e)
+        public override void ProcessEvent(TentativeFarmGridOnEvent e)
         {
             this.Enabled = false;
             this.tentativeFarmGrid.Enabled = true;
         }
 
-        public override void ProcessEvent(EditFarmOffEvent e)
+        public override void ProcessEvent(TentativeFarmGridOffEvent e)
         {
             // apply tentative changes
             if (e.ApplyChanges)
