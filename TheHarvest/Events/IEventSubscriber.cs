@@ -12,8 +12,8 @@ namespace TheHarvest.Events
         void ProcessEvent(TileSelectionEvent e);
         void ProcessEvent(TentativeFarmGridOnEvent e);
         void ProcessEvent(TentativeFarmGridOffEvent e);
-        void ProcessEvent(TentativeFarmGridUndo e);
-        void ProcessEvent(TentativeFarmGridRedo e);
+        void ProcessEvent(TentativeFarmGridUndoEvent e);
+        void ProcessEvent(TentativeFarmGridRedoEvent e);
 
         #endregion
     }

@@ -23,6 +23,8 @@ namespace TheHarvest.ECS.Components.UI
             this.SetEditButton();
 
             this.window.SetPosition(100, 100);
+
+            this.window.DebugAll();
         }
 
         void SetTileSelections()
@@ -42,22 +44,30 @@ namespace TheHarvest.ECS.Components.UI
 
         void AddTileSelections()
         {
-            this.AddTileSelection(TileType.Blueberry1);
-            this.AddTileSelection(TileType.Carrot1);
-            this.AddTileSelection(TileType.Potato1);
-            this.AddTileSelection(TileType.Strawberry1);
-            this.AddTileSelection(TileType.Wheat1);
             this.AddTileSelection(TileType.Upgrade);
+            this.AddTileSelection(TileType.Blueberry1);
+            this.window.Row();
+
             this.AddTileSelection(TileType.Destruct);
+            this.AddTileSelection(TileType.Carrot1);
+            this.window.Row();
+
             this.AddTileSelection(TileType.Reset);
-            this.AddTileSelection(TileType.Undo);
-            this.AddTileSelection(TileType.Redo);
+            this.AddTileSelection(TileType.Potato1);
+            this.window.Row();
+
+            this.AddUndoButton();
+            this.AddTileSelection(TileType.Strawberry1);
+            this.window.Row();
+
+            this.AddRedoButton();
+            this.AddTileSelection(TileType.Wheat1);
+            this.window.Row();
         }
 
         void AddTileSelection(TileType tileType)
         {
             this.window.Add(CreateTileSelectionButton(tileType)).GrowX();
-            this.window.Row();
         }
 
         void AddEditButton()
@@ -89,7 +99,8 @@ namespace TheHarvest.ECS.Components.UI
             };
 
             var buttonsSubTable = new Table();
-            this.window.Add(buttonsSubTable).GrowX();
+            buttonsSubTable.PadTop(5).PadBottom(5);
+            this.window.Add(buttonsSubTable).GrowX().SetColspan(this.window.GetColumns());
             var applyButtonCell = buttonsSubTable.Add(applyButton).SetPrefHeight(buttonsSubTable.GetWidth() / 2).GrowX().Center();
             var cancelButtonCell = buttonsSubTable.Add(cancelButton).SetPrefHeight(buttonsSubTable.GetWidth() / 2).GrowX().Center();
             buttonsSubTable.Pack();
@@ -109,9 +120,37 @@ namespace TheHarvest.ECS.Components.UI
 
         void SelectTile(Button button)
         {
-            System.Diagnostics.Debug.WriteLine(((TileSelectionButton) button).TileType);
-            var p = PlayerCamera.Instance.MouseToTilePosition();
             EventManager.Instance.Publish(new TileSelectionEvent(((TileSelectionButton) button).TileType));
+        }
+        
+        TileSelectionButton AddUndoButton()
+        {
+            var style = new ImageTextButtonStyle();
+            style.ImageUp = new SpriteDrawable(TilesetSpriteManager.Instance.GetSprite("undo"));
+            var button = new TileSelectionButton("Undo", style);
+            button.OnClicked += this.Undo;
+            this.window.Add(button).GrowX();
+            return button;
+        }
+
+        void Undo(Button button)
+        {
+            EventManager.Instance.Publish(new TentativeFarmGridUndoEvent());
+        }
+
+        TileSelectionButton AddRedoButton()
+        {
+            var style = new ImageTextButtonStyle();
+            style.ImageUp = new SpriteDrawable(TilesetSpriteManager.Instance.GetSprite("redo"));
+            var button = new TileSelectionButton("Redo", style);
+            button.OnClicked += this.Redo;
+            this.window.Add(button).GrowX();
+            return button;
+        }
+
+        void Redo(Button button)
+        {
+            EventManager.Instance.Publish(new TentativeFarmGridRedoEvent());
         }
 
         public override void Update()
@@ -144,17 +183,22 @@ namespace TheHarvest.ECS.Components.UI
 
     internal class TileSelectionButton : ImageTextButton
     {
-        static readonly int padY = 5;
+        static readonly int pad = 5;
         internal TileType TileType { get; private set; }
 
-        internal TileSelectionButton(TileType tileType, ImageTextButtonStyle style) : 
-            base(Tile.BaseTileType(tileType), style)
+        internal TileSelectionButton(string tileName, ImageTextButtonStyle style) : 
+            base(tileName, style)
         {
-            this.TileType = tileType;
-            this.Left().PadTop(TileSelectionButton.padY).PadBottom(TileSelectionButton.padY);
+            this.Left().Pad(TileSelectionButton.pad);
             this.GetLabelCell().SetPadLeft(3);
             this.GetImage().SetScale(2);
             this.Pack();
+        }
+
+        internal TileSelectionButton(TileType tileType, ImageTextButtonStyle style) : 
+            this(Tile.BaseTileType(tileType), style)
+        {
+            this.TileType = tileType;
         }
     }
 }

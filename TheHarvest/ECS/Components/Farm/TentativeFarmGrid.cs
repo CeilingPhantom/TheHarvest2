@@ -47,6 +47,8 @@ namespace TheHarvest.ECS.Components.Farm
                 this.Positions[pos] = originalTileType;
             }
         }
+        // dummy node as the first node in the linked list
+        MouseDownChanges dummyChange = new MouseDownChanges();
         LinkedListNode<MouseDownChanges> currChangesNode;
         MouseDownChanges currChanges;
         LinkedList<MouseDownChanges> changeLog = new LinkedList<MouseDownChanges>();
@@ -63,6 +65,8 @@ namespace TheHarvest.ECS.Components.Farm
             EventManager.Instance.SubscribeTo<TileSelectionEvent>(this);
             EventManager.Instance.SubscribeTo<TentativeFarmGridOnEvent>(this);
             EventManager.Instance.SubscribeTo<TentativeFarmGridOffEvent>(this);
+            EventManager.Instance.SubscribeTo<TentativeFarmGridUndoEvent>(this);
+            EventManager.Instance.SubscribeTo<TentativeFarmGridRedoEvent>(this);
         }
 
         public override void OnAddedToEntity()
@@ -84,6 +88,7 @@ namespace TheHarvest.ECS.Components.Farm
                 this.AddTile(tileType, tile.X, tile.Y, true);
             }
             this.changeLog.Clear();
+            this.currChangesNode = this.changeLog.AddFirst(dummyChange);
         }
 
         public override void OnDisabled()
@@ -116,6 +121,8 @@ namespace TheHarvest.ECS.Components.Farm
 
         void ProcessInput()
         {
+            // TODO rectangle selecting multiple tiles
+
             // need to check if mouse click collides with any UI
             if (InputManager.Instance.CanAcceptInput(TentativeFarmGrid.inputPriority))
             {
@@ -171,26 +178,19 @@ namespace TheHarvest.ECS.Components.Farm
                 this.tileHighlighter.Enabled = false;
             }
 
+            // add change to log when left click released, wherever it occurs
             if (Input.LeftMouseButtonReleased)
             {
-                // add change to log
-                if (this.currChangesNode == null)
+                // remove all nodes after this
+                while (this.currChangesNode.Next != null)
                 {
-                    this.currChangesNode = this.changeLog.AddFirst(this.currChanges);
+                    this.changeLog.Remove(this.currChangesNode.Next);
                 }
-                else
-                {
-                    while (this.currChangesNode.Next != null)
-                    {
-                        this.changeLog.Remove(this.currChangesNode.Next);
-                    }
-                    this.currChangesNode = this.changeLog.AddAfter(this.currChangesNode, this.currChanges);
-                }
+                this.currChangesNode = this.changeLog.AddLast(this.currChanges);
                 this.currChanges = new MouseDownChanges(this.currSelectedTileType.Value);
             }
 
-            // treat event as a mouseup event, but also 
-            // clear selected tile regardless of where click occurs
+            // clear selected tile regardless of where right click occurs
             if (Input.RightMouseButtonPressed)
             {
                 this.currSelectedTileType = null;
@@ -243,6 +243,11 @@ namespace TheHarvest.ECS.Components.Farm
 
         #region Changelogs and Related
 
+        bool IsDummyChange(MouseDownChanges changes)
+        {
+            return changes.Positions == null;
+        }
+
         // call this when adding a new change, 
         // i.e. want to set a changes grid at x, y to be true
         void AddChange(int x, int y, TileType originalTileType)
@@ -293,7 +298,7 @@ namespace TheHarvest.ECS.Components.Farm
 
         void Undo()
         {
-            if (this.currChangesNode != null)
+            if (!IsDummyChange(this.currChangesNode.Value))
             {
                 foreach (var entry in this.currChangesNode.Value.Positions)
                 {
@@ -309,7 +314,7 @@ namespace TheHarvest.ECS.Components.Farm
 
         void Redo()
         {
-            if (this.currChangesNode != null && this.currChangesNode.Next != null)
+            if (this.currChangesNode.Next != null)
             {
                 this.currChangesNode = this.currChangesNode.Next;
                 var tileType = this.currChangesNode.Value.TileType;
@@ -340,12 +345,12 @@ namespace TheHarvest.ECS.Components.Farm
             this.currSelectedTileType = null;
         }
 
-        public override void ProcessEvent(TentativeFarmGridUndo e)
+        public override void ProcessEvent(TentativeFarmGridUndoEvent e)
         {
             this.Undo();
         }
 
-        public override void ProcessEvent(TentativeFarmGridRedo e)
+        public override void ProcessEvent(TentativeFarmGridRedoEvent e)
         {
             this.Redo();
         }
