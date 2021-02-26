@@ -235,7 +235,8 @@ namespace TheHarvest.ECS.Components.Farm
             this.RemoveTile(x, y);
             if (this.farm.Grid[x, y] != null)
             {
-                this.AddTile(this.farm.GetTile(x, y).TileType, x, y, true);
+                var tileType = Tile.GetFutureTileType(this.farm.GetTile(x, y));
+                this.AddTile(tileType, x, y);
             }
         }
 
