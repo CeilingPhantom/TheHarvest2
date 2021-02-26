@@ -16,7 +16,7 @@ namespace TheHarvest.ECS.Components.Tiles
         Destruct,
         Upgrade,
         Reset,
-        ResetAll,
+        ResetAll,  // TODO
         Undo,
         Redo,
         

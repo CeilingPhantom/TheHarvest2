@@ -46,6 +46,11 @@ namespace TheHarvest.ECS.Components.Farm
             {
                 this.Positions[pos] = originalTileType;
             }
+
+            public bool IsEmpty()
+            {
+                return this.Positions.Count == 0;
+            }
         }
         // dummy node as the first node in the linked list
         MouseDownChanges dummyChange = new MouseDownChanges();
@@ -137,27 +142,26 @@ namespace TheHarvest.ECS.Components.Farm
                         var originalTileType = this.grid[x, y] != null ? this.grid[x, y].Tile.TileType : FarmDefaultTiler.DefaultTileType;
                         if (this.currSelectedTileType.Value == TileType.Destruct)
                         {
-                            this.RemoveTile(x, y);
-                            this.AddChange(x, y, originalTileType);
+                            if (this.RemoveTile(x, y))
+                            {
+                                this.AddChange(x, y, originalTileType);
+                            }
                         }
                         else if (this.currSelectedTileType.Value == TileType.Upgrade)
                         {
-                            TileType upgradedTileType;
-                            int upgradeCost;
-                            if (this.grid[x, y] != null && 
-                                Tile.GetUpgradedTileType(this.grid[x, y].Tile.TileType, out upgradedTileType) && 
-                                Tile.GetUpgradeCost(this.grid[x, y].Tile.TileType, upgradedTileType, out upgradeCost) && 
-                                this.playerState.Money >= upgradeCost)
+                            if (this.UpgradeTile(x, y))
                             {
-                                this.AddTile(upgradedTileType, x, y);
                                 this.AddChange(x, y, originalTileType);
                             }
                         }
                         else if (this.currSelectedTileType.Value == TileType.Reset)
                         {
-                            this.ResetTile(x, y);
-                            this.AddChange(x, y, originalTileType);
+                            if (this.ResetTile(x, y))
+                            {
+                                this.AddChange(x, y, originalTileType);
+                            }
                         }
+                        // else selected an actual (non utility) tile
                         // add new tile only if no existing tile or new tile is of different type
                         else if ((this.farm.Grid[x, y] == null || 
                             !Tile.AreSameBaseTileType(Tile.GetFutureTileType(this.farm.Grid[x, y].Tile), this.currSelectedTileType.Value))
@@ -179,7 +183,7 @@ namespace TheHarvest.ECS.Components.Farm
             }
 
             // add change to log when left click released, wherever it occurs
-            if (Input.LeftMouseButtonReleased)
+            if (Input.LeftMouseButtonReleased && !this.currChanges.IsEmpty())
             {
                 // remove all nodes after this
                 while (this.currChangesNode.Next != null)
@@ -220,24 +224,48 @@ namespace TheHarvest.ECS.Components.Farm
             return this.grid[x, y];
         }
 
-        void RemoveTile(int x, int y)
+        bool RemoveTile(int x, int y)
         {
             if (this.grid[x, y] != null)
             {
                 EventManager.Instance.Publish(new AddMoneyEvent(Tile.GetCost(this.grid[x, y].Tile.TileType)));
                 this.grid[x, y].Destroy();
                 this.grid.Remove(x, y);
+                return true;
             }
+            return false;
         }
 
-        void ResetTile(int x, int y)
+        bool UpgradeTile(int x, int y)
         {
-            this.RemoveTile(x, y);
-            if (this.farm.Grid[x, y] != null)
+            TileType upgradedTileType;
+            int upgradeCost;
+            if (this.grid[x, y] != null && 
+                Tile.GetUpgradedTileType(this.grid[x, y].Tile.TileType, out upgradedTileType) && 
+                Tile.GetUpgradeCost(this.grid[x, y].Tile.TileType, upgradedTileType, out upgradeCost) && 
+                this.playerState.Money >= upgradeCost)
             {
-                var tileType = Tile.GetFutureTileType(this.farm.GetTile(x, y));
-                this.AddTile(tileType, x, y);
+                this.AddTile(upgradedTileType, x, y);
+                return true;
             }
+            return false;
+        }
+
+        bool ResetTile(int x, int y)
+        {
+            // reset only if current tile is not same as tentative tile
+            if (!(this.farm.Grid[x, y] == null && this.grid[x, y] == null || 
+                this.farm.Grid[x, y] != null && this.grid[x, y] != null && this.farm.Grid[x, y].Tile.TileType == this.grid[x, y].Tile.TileType))
+            {
+                this.RemoveTile(x, y);
+                if (this.farm.Grid[x, y] != null)
+                {
+                    var tileType = Tile.GetFutureTileType(this.farm.GetTile(x, y));
+                    this.AddTile(tileType, x, y);
+                }
+                return true;
+            }
+            return false;
         }
 
         #endregion
@@ -253,17 +281,20 @@ namespace TheHarvest.ECS.Components.Farm
         // i.e. want to set a changes grid at x, y to be true
         void AddChange(int x, int y, TileType originalTileType)
         {
-            this.currChanges.AddPosition(x, y, originalTileType);
-            // no change if the objects in both the tentative and actual grids are the same
-            if ((this.grid[x, y] == null && this.farm.Grid[x, y] == null) 
-                || 
-                (this.grid[x, y] != null && this.farm.Grid[x, y] != null && this.grid[x, y].Tile.TileType == Tile.GetFutureTileType(this.farm.Grid[x, y].Tile)))
+            if (this.currChanges.TileType != originalTileType)
             {
-                this.allChanges[x, y] = false;
-            }
-            else
-            {
-                this.allChanges[x, y] = true;
+                this.currChanges.AddPosition(x, y, originalTileType);
+                // no change if the objects in both the tentative and actual grids are the same
+                if ((this.grid[x, y] == null && this.farm.Grid[x, y] == null) 
+                    || 
+                    (this.grid[x, y] != null && this.farm.Grid[x, y] != null && this.grid[x, y].Tile.TileType == Tile.GetFutureTileType(this.farm.Grid[x, y].Tile)))
+                {
+                    this.allChanges[x, y] = false;
+                }
+                else
+                {
+                    this.allChanges[x, y] = true;
+                }
             }
         }
 
@@ -323,7 +354,11 @@ namespace TheHarvest.ECS.Components.Farm
                 {
                     var x = (int) pos.X;
                     var y = (int) pos.Y;
-                    if (tileType == TileType.Upgrade)
+                    if (tileType == TileType.Destruct)
+                    {
+                        this.RemoveTile(x, y);
+                    }
+                    else if (tileType == TileType.Upgrade)
                     {
                         TileType upgradedTileType;
                         int upgradeCost;
