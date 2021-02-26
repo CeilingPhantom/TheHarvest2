@@ -195,6 +195,11 @@ namespace TheHarvest.ECS.Components.Tiles
             return r.Success ? int.Parse(r.Value) : 0;
         }
 
+        public static bool IsUtilityTileType(TileType tileType)
+        {
+            return tileType < TileType.Dirt;
+        }
+
         public static bool GetUpgradedTileType(TileType tileType, out TileType upgradedTiletype)
         {
             if (tileType > TileType.Field && Tile.GetTileTypeLevel(tileType) < 3)

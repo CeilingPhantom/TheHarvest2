@@ -323,7 +323,26 @@ namespace TheHarvest.ECS.Components.Farm
                 {
                     var x = (int) pos.X;
                     var y = (int) pos.Y;
-                    this.AddTile(tileType, x, y);
+                    if (tileType == TileType.Upgrade)
+                    {
+                        TileType upgradedTileType;
+                        int upgradeCost;
+                        if (this.grid[x, y] != null && 
+                            Tile.GetUpgradedTileType(this.grid[x, y].Tile.TileType, out upgradedTileType) && 
+                            Tile.GetUpgradeCost(this.grid[x, y].Tile.TileType, upgradedTileType, out upgradeCost) && 
+                            this.playerState.Money >= upgradeCost)
+                        {
+                            this.AddTile(upgradedTileType, x, y);
+                        }
+                    }
+                    else if (tileType == TileType.Reset)
+                    {
+                        this.ResetTile(x, y);
+                    }
+                    else
+                    {
+                        this.AddTile(tileType, x, y);
+                    }
                 }
             }
         }
