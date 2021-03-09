@@ -12,17 +12,18 @@ using TheHarvest.Util.Input;
 
 namespace TheHarvest.ECS.Components.Farm
 {
-    public class TentativeFarmGrid : EventSubscribingComponent, IInputable
+    public class TentativeFarmGrid : Grid, IInputable
     {
         FarmGrid farm;
-        BoundlessSparseMatrix<TileEntity> grid;
+        BoundlessSparseMatrix<Dictionary<Structure.StructureBuffs, int>> tileBuffsCountGrid = new BoundlessSparseMatrix<Dictionary<Structure.StructureBuffs, int>>();
         PlayerState playerState = PlayerState.Instance;
         PlayerCamera playerCamera = PlayerCamera.Instance;
         TileHighlighter tileHighlighter;
         TileType? currSelectedTileType = null;
         
-        BoundlessSparseMatrix<bool> allChanges;
-        public List<WeakTile> AppliedChanges { get; private set; } = new List<WeakTile>();
+        BoundlessSparseMatrix<bool> allTileChanges = new BoundlessSparseMatrix<bool>();
+        // TODO dont use weak tiles, and just detach entity from tentative and attach to farm
+        public List<WeakTile> AppliedTileChanges { get; private set; } = new List<WeakTile>();
         
         // to ensure that tiles are only manipulated once per mousedown
         struct MouseDownChanges
@@ -60,7 +61,7 @@ namespace TheHarvest.ECS.Components.Farm
 
         static readonly int inputPriority = 0;
 
-        public TentativeFarmGrid(FarmGrid farm)
+        public TentativeFarmGrid(FarmGrid farm) : base()
         {
             InputManager.Instance.Register(this, TentativeFarmGrid.inputPriority);
 
@@ -83,14 +84,14 @@ namespace TheHarvest.ECS.Components.Farm
         public override void OnEnabled()
         {
             // init grid for new tentative changes
-            this.grid = new BoundlessSparseMatrix<TileEntity>();
-            this.allChanges = new BoundlessSparseMatrix<bool>();
-            foreach (var tileEntity in this.farm.Grid.AllValues())
+            this.TileGrid = new BoundlessSparseMatrix<TileEntity>();
+            this.tileBuffsCountGrid = new BoundlessSparseMatrix<Dictionary<Structure.StructureBuffs, int>>();
+            this.allTileChanges = new BoundlessSparseMatrix<bool>();
+            foreach (var tile in this.farm.AllTiles())
             {
-                var tile = tileEntity.Tile;
                 // add "weak" clone/representation of existing tile
                 var tileType = Tile.GetFutureTileType(tile);
-                this.AddTile(tileType, tile.X, tile.Y, true);
+                this.AddTile(new WeakTile(tileType, tile.X, tile.Y), true);
             }
             this.changeLog.Clear();
             this.currChangesNode = this.changeLog.AddFirst(dummyChange);
@@ -98,11 +99,11 @@ namespace TheHarvest.ECS.Components.Farm
 
         public override void OnDisabled()
         {
-            if (this.grid != null)
+            if (this.TileGrid != null)
             {
                 this.UpdateChangeList();
                 // destroy all weak tiles
-                foreach (var tileEntity in this.grid.AllValues())
+                foreach (var tileEntity in this.TileGrid.AllValues())
                 {
                     tileEntity.Destroy();
                 }
@@ -139,7 +140,7 @@ namespace TheHarvest.ECS.Components.Farm
                     {
                         var x = (int) pos.X;
                         var y = (int) pos.Y;
-                        var originalTileType = this.grid[x, y] != null ? this.grid[x, y].Tile.TileType : FarmDefaultTiler.DefaultTileType;
+                        var originalTileType = this.TileGrid[x, y] != null ? this.TileGrid[x, y].Tile.TileType : FarmDefaultTiler.DefaultTileType;
                         if (this.currSelectedTileType.Value == TileType.Destruct)
                         {
                             if (this.RemoveTile(x, y))
@@ -163,16 +164,26 @@ namespace TheHarvest.ECS.Components.Farm
                         }
                         // else selected an actual (non utility) tile
                         // add new tile only if no existing tile or new tile is of different type
-                        else if ((this.farm.Grid[x, y] == null || 
-                            !Tile.AreSameBaseTileType(Tile.GetFutureTileType(this.farm.Grid[x, y].Tile), this.currSelectedTileType.Value))
-                            && 
-                            (this.grid[x, y] == null || 
-                            !Tile.AreSameBaseTileType(this.grid[x, y].Tile.TileType, this.currSelectedTileType.Value)) 
-                            && 
-                            this.playerState.Money >= Tile.GetCost(this.currSelectedTileType.Value))
+                        // and tile is placeable
+                        // TODO better way to determine if existing tentative tile should be directly replaceable
+                        else
                         {
-                            this.AddTile(this.currSelectedTileType.Value, x, y);
-                            this.AddChange(x, y, originalTileType);
+                            var tmpTile = Tile.CreateTile(this.currSelectedTileType.Value, x, y);
+                            // whether or not a tile is placeable may depend on surrounding tiles
+                            tmpTile.Grid = this;
+                            if ((this.farm.GetTile(x, y) == null || 
+                                !Tile.AreSameBaseTileType(Tile.GetFutureTileType(this.farm.GetTile(x, y)), this.currSelectedTileType.Value))
+                                && 
+                                (this.TileGrid[x, y] == null || 
+                                !Tile.AreSameBaseTileType(this.TileGrid[x, y].Tile.TileType, this.currSelectedTileType.Value)) 
+                                && 
+                                tmpTile.IsPlaceable() 
+                                && 
+                                this.playerState.Money >= tmpTile.Cost)
+                            {
+                                this.AddTile(new WeakTile(this.currSelectedTileType.Value, x, y));
+                                this.AddChange(x, y, originalTileType);
+                            }
                         }
                     }
                 }
@@ -204,48 +215,110 @@ namespace TheHarvest.ECS.Components.Farm
 
         #region Grid Manipulation & Related Helpers
 
-        TileEntity AddTile(TileType tileType, int x, int y, bool isInit=false)
+        public override TileEntity AddTile(Tile tile, bool isInit=false)
         {
+            var tileType = tile.TileType;
+            var x = tile.X;
+            var y = tile.Y;
+            tile.Grid = this;
             if (isInit)
             {
-                this.grid[x, y] = new TileEntity(new WeakTile(tileType, x, y));
-                this.Entity.Scene.AddEntity(this.grid[x, y]);
+                this.TileGrid[x, y] = new TileEntity(tile);
+                this.Entity.Scene.AddEntity(this.TileGrid[x, y]);
             }
             else
             {
                 this.RemoveTile(x, y);
                 if (tileType != FarmDefaultTiler.DefaultTileType)
                 {
-                    this.grid[x, y] = new TileEntity(new WeakTile(tileType, x, y));
-                    this.Entity.Scene.AddEntity(this.grid[x, y]);
+                    this.TileGrid[x, y] = new TileEntity(tile);
+                    this.Entity.Scene.AddEntity(this.TileGrid[x, y]);
                     EventManager.Instance.Publish(new AddMoneyEvent(-Tile.GetCost(tileType)));
                 }
             }
-            return this.grid[x, y];
+            if (Tile.GetTileTypeGroup(tileType) == TileTypeGroup.Structure)
+            {
+                var tmpStructure = (Structure) Tile.CreateTile(tileType, x, y);
+                this.AddTileBuffs(tmpStructure);
+            }
+            return this.TileGrid[x, y];
         }
 
-        bool RemoveTile(int x, int y)
+        void AddTileBuffs(Structure structure)
         {
-            if (this.grid[x, y] != null)
+            foreach (var pos in structure.GetBuffedTilePositions())
             {
-                EventManager.Instance.Publish(new AddMoneyEvent(Tile.GetCost(this.grid[x, y].Tile.TileType)));
-                this.grid[x, y].Destroy();
-                this.grid.Remove(x, y);
+                if (this.tileBuffsCountGrid[pos.X, pos.Y] == null)
+                {
+                    this.tileBuffsCountGrid[pos.X, pos.Y] = new Dictionary<Structure.StructureBuffs, int>();
+                }
+                foreach (var buff in structure.BuffsList)
+                {
+                    this.tileBuffsCountGrid[pos.X, pos.Y].TryGetValue(buff, out int val);
+                    this.tileBuffsCountGrid[pos.X, pos.Y][buff] = val + 1;
+                }
+            }
+        }
+
+        public override bool RemoveTile(int x, int y)
+        {
+            if (this.TileGrid[x, y] != null)
+            {
+                var tileType = this.TileGrid[x, y].Tile.TileType;
+                EventManager.Instance.Publish(new AddMoneyEvent(Tile.GetCost(tileType)));
+                this.TileGrid[x, y].Destroy();
+                this.TileGrid.Remove(x, y);
+                if (Tile.GetTileTypeGroup(tileType) == TileTypeGroup.Structure)
+                {
+                    var tmpStructure = (Structure) Tile.CreateTile(tileType, x, y);
+                    this.RemoveTileBuffs(tmpStructure);
+                    this.RemoveInvalidTiles(tmpStructure);
+                }
                 return true;
             }
             return false;
+        }
+
+        void RemoveTileBuffs(Structure structure)
+        {
+            foreach (var pos in structure.GetBuffedTilePositions())
+            {
+                foreach (var buff in structure.BuffsList)
+                {
+                    this.tileBuffsCountGrid[pos.X, pos.Y][buff] -= 1;
+                }
+            }
+        }
+
+        void RemoveInvalidTiles(Structure structure)
+        {
+            foreach (var pos in structure.GetBuffedTilePositions())
+            {
+                var x = pos.X;
+                var y = pos.Y;
+                if (this.TileGrid[x, y] != null)
+                {
+                    var tmpTile = Tile.CreateTile(this.TileGrid[x, y].Tile.TileType, x, y);
+                    // whether or not a tile is placeable may depend on surrounding tiles
+                    tmpTile.Grid = this;
+                    if (!tmpTile.IsPlaceable())
+                    {
+                        this.RemoveTile(x, y);
+                    }
+                }
+            }
         }
 
         bool UpgradeTile(int x, int y)
         {
             TileType upgradedTileType;
             int upgradeCost;
-            if (this.grid[x, y] != null && 
-                Tile.GetUpgradedTileType(this.grid[x, y].Tile.TileType, out upgradedTileType) && 
-                Tile.GetUpgradeCost(this.grid[x, y].Tile.TileType, upgradedTileType, out upgradeCost) && 
+            if (this.TileGrid[x, y] != null && 
+                Tile.GetUpgradedTileType(this.TileGrid[x, y].Tile.TileType, out upgradedTileType) && 
+                Tile.GetUpgradeCost(this.TileGrid[x, y].Tile.TileType, upgradedTileType, out upgradeCost) && 
                 this.playerState.Money >= upgradeCost)
             {
-                this.AddTile(upgradedTileType, x, y);
+                this.AddTile(new WeakTile(upgradedTileType, x, y));
                 return true;
             }
             return false;
@@ -254,18 +327,36 @@ namespace TheHarvest.ECS.Components.Farm
         bool ResetTile(int x, int y)
         {
             // reset only if current tile is not same as tentative tile
-            if (!(this.farm.Grid[x, y] == null && this.grid[x, y] == null || 
-                this.farm.Grid[x, y] != null && this.grid[x, y] != null && this.farm.Grid[x, y].Tile.TileType == this.grid[x, y].Tile.TileType))
+            if (!(this.farm.GetTile(x, y) == null && this.TileGrid[x, y] == null || 
+                this.farm.GetTile(x, y) != null && this.TileGrid[x, y] != null && this.farm.GetTile(x, y).TileType == this.TileGrid[x, y].Tile.TileType))
             {
                 this.RemoveTile(x, y);
-                if (this.farm.Grid[x, y] != null)
+                if (this.farm.GetTile(x, y) != null)
                 {
                     var tileType = Tile.GetFutureTileType(this.farm.GetTile(x, y));
-                    this.AddTile(tileType, x, y);
+                    this.AddTile(new WeakTile(tileType, x, y));
                 }
                 return true;
             }
             return false;
+        }
+
+        public override Structure.StructureBuffs GetTileBuffs(int x, int y)
+        {
+            Structure.StructureBuffs buffs = 0;
+            if (this.tileBuffsCountGrid[x, y] != null)
+            {
+                foreach (var entry in this.tileBuffsCountGrid[x, y])
+                {
+                    var buff = entry.Key;
+                    var count = entry.Value;
+                    if (count > 0)
+                    {
+                        buffs |= buff;
+                    }
+                }
+            }
+            return buffs;
         }
 
         #endregion
@@ -285,46 +376,58 @@ namespace TheHarvest.ECS.Components.Farm
             {
                 this.currChanges.AddPosition(x, y, originalTileType);
                 // no change if the objects in both the tentative and actual grids are the same
-                if ((this.grid[x, y] == null && this.farm.Grid[x, y] == null) 
+                if ((this.TileGrid[x, y] == null && this.farm.GetTile(x, y) == null) 
                     || 
-                    (this.grid[x, y] != null && this.farm.Grid[x, y] != null && this.grid[x, y].Tile.TileType == Tile.GetFutureTileType(this.farm.Grid[x, y].Tile)))
+                    (this.TileGrid[x, y] != null && this.farm.GetTile(x, y) != null && this.TileGrid[x, y].Tile.TileType == Tile.GetFutureTileType(this.farm.GetTile(x, y))))
                 {
-                    this.allChanges[x, y] = false;
+                    this.allTileChanges[x, y] = false;
                 }
                 else
                 {
-                    this.allChanges[x, y] = true;
+                    this.allTileChanges[x, y] = true;
                 }
             }
         }
 
         void UpdateChangeList()
         {
-            this.AppliedChanges.Clear();
-            foreach (var change in this.allChanges.AllValuesWithPos())
+            this.AppliedTileChanges = new List<WeakTile>();
+            foreach (var val in this.allTileChanges.AllValuesWithPos())
             {
-                var val = change.Val;
-                var x = change.X;
-                var y = change.Y;
-                if (val)
+                var change = val.Val;
+                var x = val.X;
+                var y = val.Y;
+                if (change)
                 {
-                    if (this.grid[x, y] != null)
+                    if (this.TileGrid[x, y] != null)
                     {
-                        this.AppliedChanges.Add((WeakTile) this.grid[x, y].Tile);
+                        this.AppliedTileChanges.Add(new WeakTile(this.TileGrid[x, y].Tile));
                     }
                     else
                     {
-                        this.AppliedChanges.Add(new WeakTile(TileType.Destruct, x, y));
+                        this.AppliedTileChanges.Add(new WeakTile(TileType.Destruct, x, y));
                     }
                 }
             }
+
+            /* what was this for?
             foreach (var tileEntity in this.grid.AllValues())
             {
                 var tile = (WeakTile) tileEntity.Tile;
-                if (this.allChanges[tile.X, tile.Y])
+                if (this.allTileChanges[tile.X, tile.Y])
                 {
-                    this.AppliedChanges.Add(tile);
+                    this.AppliedTileChanges.Add(tile);
                 }
+            }
+            */
+
+            this.TileBuffsGrid = new BoundlessSparseMatrix<Structure.StructureBuffs>();
+            foreach (var val in this.tileBuffsCountGrid.AllValuesWithPos())
+            {
+                var tileBuffDict = val.Val;
+                var x = val.X;
+                var y = val.Y;
+                TileBuffsGrid[x, y] = this.GetTileBuffs(x, y);
             }
         }
 
@@ -338,7 +441,7 @@ namespace TheHarvest.ECS.Components.Farm
                     var x = (int) pos.X;
                     var y = (int) pos.Y;
                     var originalTileType = entry.Value;
-                    this.AddTile(originalTileType, x, y);
+                    this.AddTile(new WeakTile(originalTileType, x, y));
                 }
                 this.currChangesNode = this.currChangesNode.Previous;
             }
@@ -362,12 +465,12 @@ namespace TheHarvest.ECS.Components.Farm
                     {
                         TileType upgradedTileType;
                         int upgradeCost;
-                        if (this.grid[x, y] != null && 
-                            Tile.GetUpgradedTileType(this.grid[x, y].Tile.TileType, out upgradedTileType) && 
-                            Tile.GetUpgradeCost(this.grid[x, y].Tile.TileType, upgradedTileType, out upgradeCost) && 
+                        if (this.TileGrid[x, y] != null && 
+                            Tile.GetUpgradedTileType(this.TileGrid[x, y].Tile.TileType, out upgradedTileType) && 
+                            Tile.GetUpgradeCost(this.TileGrid[x, y].Tile.TileType, upgradedTileType, out upgradeCost) && 
                             this.playerState.Money >= upgradeCost)
                         {
-                            this.AddTile(upgradedTileType, x, y);
+                            this.AddTile(new WeakTile(upgradedTileType, x, y));
                         }
                     }
                     else if (tileType == TileType.Reset)
@@ -376,7 +479,7 @@ namespace TheHarvest.ECS.Components.Farm
                     }
                     else
                     {
-                        this.AddTile(tileType, x, y);
+                        this.AddTile(new WeakTile(tileType, x, y));
                     }
                 }
             }

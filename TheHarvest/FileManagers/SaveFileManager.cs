@@ -64,9 +64,9 @@ namespace TheHarvest.FileManagers
                 {
                     farm = FarmScene.Instance.FindEntity("farm").GetComponent<FarmGrid>();
                 }
-                foreach (var tileEntity in farm.Grid.AllValues())
+                foreach (var tile in farm.AllTiles())
                 {
-                    writer.Write(tileEntity.GetComponent<Tile>().ToBytes());
+                    writer.Write(tile.ToBytes());
                 }
             }
         }

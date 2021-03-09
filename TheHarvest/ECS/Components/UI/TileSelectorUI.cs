@@ -63,6 +63,8 @@ namespace TheHarvest.ECS.Components.UI
             this.AddRedoButton();
             this.AddTileSelection(TileType.Wheat1);
             this.window.Row();
+
+            this.AddTileSelection(TileType.Greenhouse1);
         }
 
         void AddTileSelection(TileType tileType)
@@ -77,7 +79,6 @@ namespace TheHarvest.ECS.Components.UI
             {
                 EventManager.Instance.Publish(new TentativeFarmGridOnEvent());
                 this.SetTileSelections();
-                // TODO reset, undo, redo tile buttons
             };
             this.window.Add(button);
             this.window.Row();

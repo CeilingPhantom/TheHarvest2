@@ -10,6 +10,10 @@ namespace TheHarvest.ECS.Components.Tiles
         : base(tiletype, x, y)
         {}
 
+        public WeakTile(Tile tile)
+        : base(tile.TileType, tile.X, tile.Y)
+        {}
+
         public override void OnAddedToEntity()
         {
             this.SpriteAnimator = this.Entity.GetComponent<SpriteAnimator>();

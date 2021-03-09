@@ -10,13 +10,22 @@ using TheHarvest.FileManagers;
 
 namespace TheHarvest.ECS.Components.Tiles
 {
+    public enum TileTypeGroup: byte
+    {
+        Utility,
+        Basic,
+        Advancement,
+        Crop,
+        Livestock,
+        Structure,
+    }
+
     public enum TileType : byte
     {
         // utility tiletypes for tile selection ui - these cannot be created
         Destruct,
         Upgrade,
         Reset,
-        ResetAll,  // TODO
         Undo,
         Redo,
         
@@ -45,7 +54,7 @@ namespace TheHarvest.ECS.Components.Tiles
         Wheat3,
 
         // tiles that advances from construct
-        // animals
+        // livestock
         Chicken1,
         Chicken2,
         Chicken3,
@@ -67,27 +76,27 @@ namespace TheHarvest.ECS.Components.Tiles
     public abstract class Tile : Component, IUpdatable, IComparable<Tile>
     {
         public static readonly int ChunkSize = sizeof(TileType) * 2 + sizeof(int) * 2 + sizeof(float) + sizeof(bool);  // 15
-        public static readonly float Size = 32;
+        public static readonly float SpriteSize = 32;
 
         static Dictionary<TileType, int> tileCosts = new Dictionary<TileType, int>();
 
-        public FarmGrid FarmGrid { get; protected internal set; }
+        public Grid Grid { get; protected internal set; }
         public TileType TileType { get; }
         public int X { get; protected internal set; }
         public int Y { get; protected internal set; }
-        public int Cost { get; private set; }
+        public int Cost { get; private set; }  // TODO resources other than just money to purchase tile, e.g. wood
         public bool IsAdvancing { get; protected set; }
         public TileType AdvancingType { get; protected set; }
         public float CycleTime { get; protected set; }  // not for tile animation - that is managed by the sprite animator
 
-        public static readonly float CycleDuration = 5f;  // TODO replace
+        public static readonly float CycleDuration = 5f;  // TODO replace with appropriate value
 
         protected SpriteAnimator SpriteAnimator;
         static readonly string defaultAnimationName = "default";
 
-        public Tile(TileType type, int x, int y, int cost=0, bool isAdvancing=false, TileType advancingType=TileType.Dirt, float cycleTime=0)
+        public Tile(TileType tileType, int x, int y, int cost=0, bool isAdvancing=false, TileType advancingType=TileType.Dirt, float cycleTime=0)
         {
-            this.TileType = type;
+            this.TileType = tileType;
             this.X = x;
             this.Y = y;
             this.Cost = cost;
@@ -96,10 +105,10 @@ namespace TheHarvest.ECS.Components.Tiles
             this.CycleTime = cycleTime;
         }
 
-        public static Tile CreateTile(TileType type, int x, int y, bool isAdvancing=false, TileType advancingType=TileType.Dirt, float cycleTime=0)
+        public static Tile CreateTile(TileType tileType, int x, int y, bool isAdvancing=false, TileType advancingType=TileType.Dirt, float cycleTime=0)
         {
             Tile tile;
-            switch(type)
+            switch(tileType)
             {
                 case TileType.Dirt:
                     tile = new DirtTile(x, y, isAdvancing, advancingType, cycleTime);
@@ -109,6 +118,9 @@ namespace TheHarvest.ECS.Components.Tiles
                     break;
                 case TileType.Field:
                     tile = new FieldTile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
+                case TileType.Construct:
+                    tile = new ConstructTile(x, y, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Blueberry1:
                     tile = new Blueberry1Tile(x, y, isAdvancing, advancingType, cycleTime);
@@ -155,8 +167,11 @@ namespace TheHarvest.ECS.Components.Tiles
                 case TileType.Wheat3:
                     tile = new Wheat3Tile(x, y, isAdvancing, advancingType, cycleTime);
                     break;
+                case TileType.Greenhouse1:
+                    tile = new Greenhouse1Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(type));
+                    throw new ArgumentOutOfRangeException(nameof(tileType));
             }
             return tile;
         }
@@ -184,6 +199,35 @@ namespace TheHarvest.ECS.Components.Tiles
             return bytes;
         }
 
+        public static TileTypeGroup GetTileTypeGroup(TileType tileType)
+        {
+            if (tileType <= TileType.Redo)
+            {
+                return TileTypeGroup.Utility;
+            }
+            else if (tileType <= TileType.Grass)
+            {
+                return TileTypeGroup.Basic;
+            }
+            else if (tileType <= TileType.Construct)
+            {
+                return TileTypeGroup.Advancement;
+            }
+            else if (tileType <= TileType.Wheat3)
+            {
+                return TileTypeGroup.Crop;
+            }
+            else if (tileType <= TileType.Pig3)
+            {
+                return TileTypeGroup.Livestock;
+            }
+            else if (tileType <= TileType.Silo3)
+            {
+                return TileTypeGroup.Structure;
+            }
+            throw new ArgumentOutOfRangeException(nameof(tileType));
+        }
+
         public static string BaseTileType(TileType tileType)
         {
             return Regex.Match(tileType.ToString(), @"[a-zA-z]+").Value;
@@ -193,11 +237,6 @@ namespace TheHarvest.ECS.Components.Tiles
         {
             var r = Regex.Match(tileType.ToString(), @"[0-9]$");
             return r.Success ? int.Parse(r.Value) : 0;
-        }
-
-        public static bool IsUtilityTileType(TileType tileType)
-        {
-            return tileType < TileType.Dirt;
         }
 
         public static bool GetUpgradedTileType(TileType tileType, out TileType upgradedTiletype)
@@ -295,29 +334,36 @@ namespace TheHarvest.ECS.Components.Tiles
 
         public virtual void Update()
         {
-            this.UpdateCycleTime();
-            // if tile can advance
-            if (this.CycleTime > Tile.CycleDuration)
+            var cyclePassed = this.UpdateCycleTime();
+            if (this.IsAdvancing && cyclePassed)
             {
                 this.AdvanceTile();
             }
         }
 
-        void UpdateCycleTime()
+        protected bool UpdateCycleTime()
         {
+            var r = false;
             this.CycleTime += Time.DeltaTime;
-            if (!this.IsAdvancing)
+            if (this.CycleTime > Tile.CycleDuration)
             {
-                this.CycleTime %= Tile.CycleDuration;
+                r = true;
+                this.CycleTime -= Tile.CycleDuration;
             }
+            return r;
         }
 
         /// <summary>
-        /// if calling this in Update(), make sure this is the last thing done before it returns
+        /// when calling this in Update(), make sure this is the last thing done before it returns
         /// </summary>
         protected virtual void AdvanceTile()
         {
-            this.FarmGrid.AddTile(Tile.CreateTile(this.AdvancingType, this.X, this.Y));
+            this.Grid.AddTile(Tile.CreateTile(this.AdvancingType, this.X, this.Y));
+        }
+
+        public virtual bool IsPlaceable()
+        {
+            return true;
         }
 
         public int CompareTo(Tile other)

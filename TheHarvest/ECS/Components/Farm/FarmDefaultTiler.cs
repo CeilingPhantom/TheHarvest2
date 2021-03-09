@@ -37,7 +37,7 @@ namespace TheHarvest.ECS.Components.Farm
             {
                 for (var y = this.playerCamera.TopLeftTileY; y < this.playerCamera.TopLeftTileY + this.playerCamera.HeightTiles; ++y)
                 {
-                    batcher.Draw(this.defaultTileTexture, new Vector2(x, y) * Tile.Size);
+                    batcher.Draw(this.defaultTileTexture, new Vector2(x, y) * Tile.SpriteSize);
                 }
             }
         }

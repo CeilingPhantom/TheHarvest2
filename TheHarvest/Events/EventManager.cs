@@ -44,7 +44,7 @@ namespace TheHarvest.Events
         {
             for (var i = 0; i < this.nextFrameEvents.Length; ++i)
             {
-                SendEvent(this.nextFrameEvents[i]);
+                this.SendEvent(this.nextFrameEvents[i]);
             }
             this.nextFrameEvents.Clear();
         }

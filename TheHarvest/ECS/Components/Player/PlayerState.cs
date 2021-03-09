@@ -7,18 +7,24 @@ namespace TheHarvest.ECS.Components.Player
 {
     public class PlayerState : EventSubscribingComponent
     {
+        [Flags]
         public enum Seasons : byte
         {
-            Spring,
-            Summer,
-            Fall,
-            Winter,
+            Spring = 1,
+            Summer = 1 << 1,
+            Fall = 1 << 2,
+            Winter = 1 << 3,
         }
+
+        public static int NSeasons = Enum.GetNames(typeof(Seasons)).Length;
 
         static readonly Lazy<PlayerState> lazy = new Lazy<PlayerState>(() => new PlayerState());
         public static PlayerState Instance => lazy.Value;
 
         public static readonly int ChunkSize = 11;
+
+        static readonly float TimeInDay = 5;  // in seconds
+        static readonly byte DaysInSeason = 2;
 
         bool isTentativeState = false;
 
@@ -54,6 +60,7 @@ namespace TheHarvest.ECS.Components.Player
             EventManager.Instance.SubscribeTo<TentativeFarmGridOffEvent>(this);
             
             this.money = 1000;
+            this.Season = Seasons.Spring;
         }
 
         public void LoadFromBytes(byte[] bytes)
@@ -79,7 +86,33 @@ namespace TheHarvest.ECS.Components.Player
         public override void Update()
         {
             base.Update();
+            if (!this.isTentativeState)
+            {
+                this.UpdateTime();
+            }
+        }
+
+        void UpdateTime()
+        {
             this.TimeOfDay += Time.DeltaTime;
+            if (this.TimeOfDay >= PlayerState.TimeInDay)
+            {
+                this.TimeOfDay -= PlayerState.TimeInDay;
+                this.Day += 1;
+                EventManager.Instance.Publish(new NewDayEvent());
+            }
+            if (this.Day >= PlayerState.DaysInSeason)
+            {
+                this.Day = 0;
+                this.Season = (Seasons) ((byte) this.Season << 1);
+                EventManager.Instance.Publish(new NewSeasonEvent());
+            }
+            if ((byte) this.Season > (1 << PlayerState.NSeasons))
+            {
+                this.Season = 0;
+                this.Year += 1;
+                EventManager.Instance.Publish(new NewYearEvent());
+            }
         }
 
         #region Event Processing

@@ -23,8 +23,9 @@ namespace TheHarvest.ECS.Components.UI
             InputManager.Instance.Register(this, PlayerStateUI.inputPriority);
 
             this.window = this.Stage.AddElement(new BaseWindow());
-            this.AddMoneyLabel();
             this.AddTimeLabel();
+            this.AddMoneyLabel();
+            
             this.window.SetMovable(false);
             this.window.SetPosition(0, Stage.GetHeight());
             this.window.Pack();
@@ -52,7 +53,7 @@ namespace TheHarvest.ECS.Components.UI
 
         void UpdateTimeLabel()
         {
-            this.timeLabel.SetText($"{Math.Floor(this.playerState.TimeOfDay)}");
+            this.timeLabel.SetText($"Time: {Math.Floor(this.playerState.TimeOfDay)} Day: {this.playerState.Day} Season: {this.playerState.Season} Year: {this.playerState.Year}");
         }
 
         public override void Update()

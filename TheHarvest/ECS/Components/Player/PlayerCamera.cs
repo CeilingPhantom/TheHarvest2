@@ -29,14 +29,14 @@ namespace TheHarvest.ECS.Components.Player
         public float Width => this.Bounds.Width;
         public float Height => this.Bounds.Height;
 
-        public int TopLeftTileX => (int) Math.Floor(this.Bounds.X / Tile.Size);
-        public int TopLeftTileY => (int) Math.Floor(this.Bounds.Y / Tile.Size);
-        float topTileOverflow => Math.Abs(this.Bounds.Y % Tile.Size);
-        float leftTileOverflow => Math.Abs(this.Bounds.X % Tile.Size);
-        public int WidthTiles => (int) Math.Ceiling((this.Width - this.leftTileOverflow) / Tile.Size) + 
+        public int TopLeftTileX => (int) Math.Floor(this.Bounds.X / Tile.SpriteSize);
+        public int TopLeftTileY => (int) Math.Floor(this.Bounds.Y / Tile.SpriteSize);
+        float topTileOverflow => Math.Abs(this.Bounds.Y % Tile.SpriteSize);
+        float leftTileOverflow => Math.Abs(this.Bounds.X % Tile.SpriteSize);
+        public int WidthTiles => (int) Math.Ceiling((this.Width - this.leftTileOverflow) / Tile.SpriteSize) + 
                                  (this.leftTileOverflow == 0 ? 0 : 1) + 
                                  (this.TopLeftTileX < 0 ? 0 : 1);
-        public int HeightTiles => (int) Math.Ceiling((this.Height - this.topTileOverflow) / Tile.Size) + 
+        public int HeightTiles => (int) Math.Ceiling((this.Height - this.topTileOverflow) / Tile.SpriteSize) + 
                                   (this.topTileOverflow == 0 ? 0 : 1) + 
                                   (this.TopLeftTileY < 0 ? 0 : 1);
 
@@ -130,8 +130,8 @@ namespace TheHarvest.ECS.Components.Player
         public Vector2 MouseToTilePosition()
         {
             var pos = Camera.MouseToWorldPoint();
-            var tileX = (int) Math.Floor(pos.X / Tile.Size);
-            var tileY = (int) Math.Floor(pos.Y / Tile.Size);
+            var tileX = (int) Math.Floor(pos.X / Tile.SpriteSize);
+            var tileY = (int) Math.Floor(pos.Y / Tile.SpriteSize);
             return new Vector2(tileX, tileY);
         }
     }

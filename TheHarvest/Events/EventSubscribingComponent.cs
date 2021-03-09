@@ -5,7 +5,9 @@ namespace TheHarvest.Events
 {
     public abstract class EventSubscribingComponent : Component, IUpdatable, IEventSubscriber
     {
-        Queue<IEvent> queue = new Queue<IEvent>();
+        Queue<IEvent> events = new Queue<IEvent>();
+        // TODO may need this in the future
+        // Queue<IEvent> eventsWhileDisabled = new Queue<IEvent>();
 
         public void SubscribeTo<T>() where T : IEvent
         {
@@ -14,13 +16,15 @@ namespace TheHarvest.Events
         
         public void SendEvent(IEvent e)
         {
-            this.queue.Enqueue(e);
+            this.events.Enqueue(e);
         }
 
         public virtual void Update()
         {
-            while (queue.Count > 0)
-                queue.Dequeue().Accept(this);
+            while (events.Count > 0)
+            {
+                events.Dequeue().Accept(this);
+            }
         }
 
         #region Event Processing
@@ -41,6 +45,15 @@ namespace TheHarvest.Events
         {}
 
         public virtual void ProcessEvent(TentativeFarmGridRedoEvent e)
+        {}
+
+        public virtual void ProcessEvent(NewDayEvent e)
+        {}
+
+        public virtual void ProcessEvent(NewSeasonEvent e)
+        {}
+
+        public virtual void ProcessEvent(NewYearEvent e)
         {}
 
         #endregion

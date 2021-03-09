@@ -1,5 +1,5 @@
 using Microsoft.Xna.Framework;
-using System;
+using System.Linq;
 using Nez;
 
 using TheHarvest.ECS.Components.Player;
@@ -10,11 +10,9 @@ using TheHarvest.Util;
 
 namespace TheHarvest.ECS.Components.Farm
 {
-    public class FarmGrid : EventSubscribingComponent
+    public class FarmGrid : Grid
     {
-        public BoundlessSparseMatrix<TileEntity> Grid { get; private set; } = new BoundlessSparseMatrix<TileEntity>();
         PlayerState playerState = PlayerState.Instance;
-        PlayerCamera playerCamera = PlayerCamera.Instance;
 
         FastList<TileEntity> initTileEntities = new FastList<TileEntity>();
 
@@ -24,6 +22,8 @@ namespace TheHarvest.ECS.Components.Farm
         {
             EventManager.Instance.SubscribeTo<TentativeFarmGridOnEvent>(this);
             EventManager.Instance.SubscribeTo<TentativeFarmGridOffEvent>(this);
+            
+            EventManager.Instance.SubscribeTo<NewSeasonEvent>(this);
         }
 
         public override void OnAddedToEntity()
@@ -47,28 +47,17 @@ namespace TheHarvest.ECS.Components.Farm
 
         #region Grid Accessors and Manipulation
 
-        public Tile GetTile(int x, int y)
+        public override TileEntity AddTile(Tile tile, bool isInit=false)
         {
-            if (this.Grid[x, y] == null)
+            var tileType = tile.TileType;
+            var x = tile.X;
+            var y = tile.Y;
+            this.RemoveTile(x, y);
+            if (tileType != FarmDefaultTiler.DefaultTileType)
             {
-                return null;
-            }
-            return this.Grid[x, y].Tile;
-        }
-
-        public Tile GetTile(Vector2 pos)
-        {
-            return this.GetTile((int) pos.X, (int) pos.Y);
-        }
-
-        public TileEntity AddTile(Tile tile)
-        {
-            this.RemoveTile(tile.X, tile.Y);
-            if (tile.TileType != FarmDefaultTiler.DefaultTileType)
-            {
-                tile.FarmGrid = this;
+                tile.Grid = this;
                 var tileEntity = new TileEntity(tile);
-                this.Grid[tile.X, tile.Y] = tileEntity;
+                this.TileGrid[x, y] = tileEntity;
                 if (this.Entity != null && this.Entity.Scene != null)
                 {
                     this.Entity.Scene.AddEntity(tileEntity);
@@ -76,30 +65,32 @@ namespace TheHarvest.ECS.Components.Farm
                 else
                 {
                     this.initTileEntities.Add(tileEntity);
+                    // also initialise tile buff matrix
+                    if (Tile.GetTileTypeGroup(tileType) == TileTypeGroup.Structure)
+                    {
+                        this.TileBuffsGrid[x, y] |= ((Structure) tile).Buffs;
+                    }
                 }
             }
-            return this.Grid[tile.X, tile.Y];
+            return this.TileGrid[x, y];
         }
 
-        public void RemoveTile(Tile tile)
+        public override bool RemoveTile(int x, int y)
         {
-            tile.Entity.Destroy();
-            this.Grid.Remove(tile.X, tile.Y);
-        }
-
-        public void RemoveTile(int x, int y)
-        {
-            if (this.Grid[x, y] == null)
+            if (this.TileGrid[x, y] == null)
             {
-                return;
+                return false;
             }
-            Tile tile = this.Grid[x, y].Tile;
-            this.RemoveTile(tile);
+            Tile tile = this.TileGrid[x, y].Tile;
+            tile.Entity.Destroy();
+            this.TileGrid.Remove(tile.X, tile.Y);
+            return true;
         }
 
         void ApplyTentativeGridChanges()
         {
-            foreach (var weakTile in this.tentativeFarmGrid.AppliedChanges)
+            this.TileBuffsGrid = this.tentativeFarmGrid.TileBuffsGrid;
+            foreach (var weakTile in this.tentativeFarmGrid.AppliedTileChanges)
             {
                 // if tile was set to be removed
                 if (weakTile.TileType == TileType.Destruct)
@@ -113,7 +104,7 @@ namespace TheHarvest.ECS.Components.Farm
                     var advancesFromTileType = Tile.AdvancesFrom(weakTile.TileType);
                     if (advancesFromTileType.HasValue)
                     {
-                        this.AddTile(Tile.CreateTile(advancesFromTileType.Value, weakTile.X, weakTile.Y, true, weakTile.TileType, 0));
+                        this.AddTile(Tile.CreateTile(advancesFromTileType.Value, weakTile.X, weakTile.Y, true, weakTile.TileType));
                     }
                     else
                     {
@@ -133,7 +124,7 @@ namespace TheHarvest.ECS.Components.Farm
             // after applying tentative changes
             if (!this.tentativeFarmGrid.Enabled)
             {
-                foreach (var tileEntity in this.Grid.AllValues())
+                foreach (var tileEntity in this.TileGrid.AllValues())
                 {
                     tileEntity.Enabled = true;
                 }
@@ -143,7 +134,7 @@ namespace TheHarvest.ECS.Components.Farm
         public override void OnDisabled()
         {
             // disable all tiles
-            foreach (var tileEntity in this.Grid.AllValues())
+            foreach (var tileEntity in this.TileGrid.AllValues())
             {
                 tileEntity.Enabled = false;
             }
@@ -172,6 +163,18 @@ namespace TheHarvest.ECS.Components.Farm
             }
             // call this to truly reenable the grid
             OnEnabled();
+        }
+
+        public override void ProcessEvent(NewSeasonEvent e)
+        {
+            foreach (var tileEntity in this.TileGrid.AllValues())
+            {
+                var tile = tileEntity.Tile;
+                if (!tile.IsPlaceable())
+                {
+                    this.RemoveTile(tile.X, tile.Y);
+                }
+            }
         }
 
         #endregion
