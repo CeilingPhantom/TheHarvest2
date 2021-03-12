@@ -49,7 +49,7 @@ namespace TheHarvest.FileManagers
             var chunk = reader.ReadBytes(Tile.ChunkSize);
             while (chunk.Length > 0)
             {
-                this.LoadedFarm.AddTile(Tile.CreateTile(chunk));
+                this.LoadedFarm.AddTile(Tile.CreateTile(chunk, this.LoadedFarm));
                 chunk = reader.ReadBytes(Tile.ChunkSize);
             }
         }

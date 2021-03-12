@@ -129,7 +129,7 @@ namespace TheHarvest.ECS.Components.Player
 
         public Vector2 MouseToTilePosition()
         {
-            var pos = Camera.MouseToWorldPoint();
+            var pos = this.Camera.MouseToWorldPoint();
             var tileX = (int) Math.Floor(pos.X / Tile.SpriteSize);
             var tileY = (int) Math.Floor(pos.Y / Tile.SpriteSize);
             return new Vector2(tileX, tileY);

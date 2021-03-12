@@ -4,9 +4,9 @@ namespace TheHarvest.Events
     {
         public bool ApplyChanges { get; private set; }
 
-        public TentativeFarmGridOffEvent(bool ApplyChanges)
+        public TentativeFarmGridOffEvent(bool applyChanges)
         {
-            this.ApplyChanges = ApplyChanges;
+            this.ApplyChanges = applyChanges;
         }
 
         public void Accept(IEventSubscriber subscriber)

@@ -1,3 +1,4 @@
+using TheHarvest.ECS.Components.Farm;
 using TheHarvest.ECS.Components.Player;
 using TheHarvest.Events;
 
@@ -7,8 +8,8 @@ namespace TheHarvest.ECS.Components.Tiles
     {
         public PlayerState.Seasons Seasons;
 
-        public Crop(TileType tileType, int x, int y, int cost, PlayerState.Seasons seasons, bool isAdvancing, TileType advancingType, float cycleTime)
-        : base(tileType, x, y, cost, isAdvancing, advancingType, cycleTime)
+        public Crop(TileType tileType, int x, int y, Grid grid, int cost, PlayerState.Seasons seasons, bool isAdvancing, TileType advancingType, float cycleTime)
+        : base(tileType, x, y, grid, cost, isAdvancing, advancingType, cycleTime)
         {
             this.Seasons = seasons;
         }

@@ -1,5 +1,5 @@
 using Microsoft.Xna.Framework;
-using System;
+using System.Linq;
 using System.Collections.Generic;
 using Nez;
 
@@ -20,9 +20,11 @@ namespace TheHarvest.ECS.Components.Farm
         PlayerCamera playerCamera = PlayerCamera.Instance;
         TileHighlighter tileHighlighter;
         TileType? currSelectedTileType = null;
+
+        BoundlessSparseMatrix<bool> invalidTilesGrid = new BoundlessSparseMatrix<bool>();
+        public (int X, int Y)[] InvalidTiles => this.invalidTilesGrid.AllValuesWithPos().Select(val => (val.X, val.Y)).ToArray();
         
-        BoundlessSparseMatrix<bool> allTileChanges = new BoundlessSparseMatrix<bool>();
-        // TODO dont use weak tiles, and just detach entity from tentative and attach to farm
+        BoundlessSparseMatrix<bool> allTileChangesGrid = new BoundlessSparseMatrix<bool>();
         public List<WeakTile> AppliedTileChanges { get; private set; } = new List<WeakTile>();
         
         // to ensure that tiles are only manipulated once per mousedown
@@ -65,20 +67,20 @@ namespace TheHarvest.ECS.Components.Farm
         {
             InputManager.Instance.Register(this, TentativeFarmGrid.inputPriority);
 
-            this.Enabled = false;
-
             this.farm = farm;
-            EventManager.Instance.SubscribeTo<TileSelectionEvent>(this);
-            EventManager.Instance.SubscribeTo<TentativeFarmGridOnEvent>(this);
-            EventManager.Instance.SubscribeTo<TentativeFarmGridOffEvent>(this);
-            EventManager.Instance.SubscribeTo<TentativeFarmGridUndoEvent>(this);
-            EventManager.Instance.SubscribeTo<TentativeFarmGridRedoEvent>(this);
+
+            this.SubscribeTo<TileSelectionEvent>();
+            this.SubscribeTo<TentativeFarmGridApplyChangesRequestEvent>();
+            this.SubscribeTo<TentativeFarmGridOnEvent>();
+            this.SubscribeTo<TentativeFarmGridOffEvent>();
+            this.SubscribeTo<TentativeFarmGridUndoEvent>();
+            this.SubscribeTo<TentativeFarmGridRedoEvent>();
         }
 
         public override void OnAddedToEntity()
         {
-            base.OnAddedToEntity();
-            this.tileHighlighter = this.GetComponent<TileHighlighter>();
+            this.tileHighlighter = this.AddComponent(new TileHighlighter(this));
+            this.Enabled = false;
         }
 
         public override void OnEnabled()
@@ -86,19 +88,23 @@ namespace TheHarvest.ECS.Components.Farm
             // init grid for new tentative changes
             this.TileGrid = new BoundlessSparseMatrix<TileEntity>();
             this.tileBuffsCountGrid = new BoundlessSparseMatrix<Dictionary<Structure.StructureBuffs, int>>();
-            this.allTileChanges = new BoundlessSparseMatrix<bool>();
+            this.allTileChangesGrid = new BoundlessSparseMatrix<bool>();
             foreach (var tile in this.farm.AllTiles())
             {
                 // add "weak" clone/representation of existing tile
                 var tileType = Tile.GetFutureTileType(tile);
-                this.AddTile(new WeakTile(tileType, tile.X, tile.Y), true);
+                this.AddTile(new WeakTile(tileType, tile.X, tile.Y, this), true);
             }
             this.changeLog.Clear();
             this.currChangesNode = this.changeLog.AddFirst(dummyChange);
+
+            this.tileHighlighter.Enabled = true;
         }
 
         public override void OnDisabled()
         {
+            this.tileHighlighter.Enabled = false;
+
             if (this.TileGrid != null)
             {
                 this.UpdateChangeList();
@@ -119,10 +125,6 @@ namespace TheHarvest.ECS.Components.Farm
             {
                 this.ProcessInput();
             }
-            else
-            {
-                this.tileHighlighter.Enabled = false;
-            }
         }
 
         void ProcessInput()
@@ -132,7 +134,7 @@ namespace TheHarvest.ECS.Components.Farm
             // need to check if mouse click collides with any UI
             if (InputManager.Instance.CanAcceptInput(TentativeFarmGrid.inputPriority))
             {
-                this.tileHighlighter.Enabled = true;
+                this.tileHighlighter.HighlightTileAtMouse = true;
                 if (Input.LeftMouseButtonDown)
                 {
                     var pos = this.playerCamera.MouseToTilePosition();
@@ -168,9 +170,7 @@ namespace TheHarvest.ECS.Components.Farm
                         // TODO better way to determine if existing tentative tile should be directly replaceable
                         else
                         {
-                            var tmpTile = Tile.CreateTile(this.currSelectedTileType.Value, x, y);
-                            // whether or not a tile is placeable may depend on surrounding tiles
-                            tmpTile.Grid = this;
+                            var tmpTile = Tile.CreateTile(this.currSelectedTileType.Value, x, y, this);
                             if ((this.farm.GetTile(x, y) == null || 
                                 !Tile.AreSameBaseTileType(Tile.GetFutureTileType(this.farm.GetTile(x, y)), this.currSelectedTileType.Value))
                                 && 
@@ -181,7 +181,7 @@ namespace TheHarvest.ECS.Components.Farm
                                 && 
                                 this.playerState.Money >= tmpTile.Cost)
                             {
-                                this.AddTile(new WeakTile(this.currSelectedTileType.Value, x, y));
+                                this.AddTile(new WeakTile(this.currSelectedTileType.Value, x, y, this));
                                 this.AddChange(x, y, originalTileType);
                             }
                         }
@@ -190,7 +190,7 @@ namespace TheHarvest.ECS.Components.Farm
             }
             else
             {
-                this.tileHighlighter.Enabled = false;
+                this.tileHighlighter.HighlightTileAtMouse = false;
             }
 
             // add change to log when left click released, wherever it occurs
@@ -209,7 +209,7 @@ namespace TheHarvest.ECS.Components.Farm
             if (Input.RightMouseButtonPressed)
             {
                 this.currSelectedTileType = null;
-                this.tileHighlighter.Enabled = false;
+                this.tileHighlighter.HighlightTileAtMouse = false;
             }
         }
 
@@ -220,7 +220,6 @@ namespace TheHarvest.ECS.Components.Farm
             var tileType = tile.TileType;
             var x = tile.X;
             var y = tile.Y;
-            tile.Grid = this;
             if (isInit)
             {
                 this.TileGrid[x, y] = new TileEntity(tile);
@@ -238,8 +237,10 @@ namespace TheHarvest.ECS.Components.Farm
             }
             if (Tile.GetTileTypeGroup(tileType) == TileTypeGroup.Structure)
             {
-                var tmpStructure = (Structure) Tile.CreateTile(tileType, x, y);
+                var tmpStructure = (Structure) Tile.CreateTile(tileType, x, y, this);
                 this.AddTileBuffs(tmpStructure);
+                // check if any existing invalid tiles are now valid
+                this.CheckExistingInvalidTiles();
             }
             return this.TileGrid[x, y];
         }
@@ -260,6 +261,20 @@ namespace TheHarvest.ECS.Components.Farm
             }
         }
 
+        void CheckExistingInvalidTiles()
+        {
+            foreach (var val in this.InvalidTiles)
+            {
+                var x = val.X;
+                var y = val.Y;
+                var tmpTile = Tile.CreateTile(this.TileGrid[x, y].Tile.TileType, x, y, this);
+                if (tmpTile.IsPlaceable())
+                {
+                    this.invalidTilesGrid.Remove(x, y);
+                }
+            }
+        }
+
         public override bool RemoveTile(int x, int y)
         {
             if (this.TileGrid[x, y] != null)
@@ -268,11 +283,13 @@ namespace TheHarvest.ECS.Components.Farm
                 EventManager.Instance.Publish(new AddMoneyEvent(Tile.GetCost(tileType)));
                 this.TileGrid[x, y].Destroy();
                 this.TileGrid.Remove(x, y);
+                this.invalidTilesGrid.Remove(x, y);
                 if (Tile.GetTileTypeGroup(tileType) == TileTypeGroup.Structure)
                 {
-                    var tmpStructure = (Structure) Tile.CreateTile(tileType, x, y);
+                    var tmpStructure = (Structure) Tile.CreateTile(tileType, x, y, this);
                     this.RemoveTileBuffs(tmpStructure);
-                    this.RemoveInvalidTiles(tmpStructure);
+                    // check for invalid tiles
+                    this.CheckNewInvalidTiles(tmpStructure);
                 }
                 return true;
             }
@@ -290,7 +307,7 @@ namespace TheHarvest.ECS.Components.Farm
             }
         }
 
-        void RemoveInvalidTiles(Structure structure)
+        void CheckNewInvalidTiles(Structure structure)
         {
             foreach (var pos in structure.GetBuffedTilePositions())
             {
@@ -298,12 +315,10 @@ namespace TheHarvest.ECS.Components.Farm
                 var y = pos.Y;
                 if (this.TileGrid[x, y] != null)
                 {
-                    var tmpTile = Tile.CreateTile(this.TileGrid[x, y].Tile.TileType, x, y);
-                    // whether or not a tile is placeable may depend on surrounding tiles
-                    tmpTile.Grid = this;
+                    var tmpTile = Tile.CreateTile(this.TileGrid[x, y].Tile.TileType, x, y, this);
                     if (!tmpTile.IsPlaceable())
                     {
-                        this.RemoveTile(x, y);
+                        this.invalidTilesGrid[x, y] = true;
                     }
                 }
             }
@@ -318,7 +333,7 @@ namespace TheHarvest.ECS.Components.Farm
                 Tile.GetUpgradeCost(this.TileGrid[x, y].Tile.TileType, upgradedTileType, out upgradeCost) && 
                 this.playerState.Money >= upgradeCost)
             {
-                this.AddTile(new WeakTile(upgradedTileType, x, y));
+                this.AddTile(new WeakTile(upgradedTileType, x, y, this));
                 return true;
             }
             return false;
@@ -334,7 +349,7 @@ namespace TheHarvest.ECS.Components.Farm
                 if (this.farm.GetTile(x, y) != null)
                 {
                     var tileType = Tile.GetFutureTileType(this.farm.GetTile(x, y));
-                    this.AddTile(new WeakTile(tileType, x, y));
+                    this.AddTile(new WeakTile(tileType, x, y, this));
                 }
                 return true;
             }
@@ -359,6 +374,11 @@ namespace TheHarvest.ECS.Components.Farm
             return buffs;
         }
 
+        bool ValidState()
+        {
+            return this.invalidTilesGrid.IsEmpty();
+        }
+
         #endregion
 
         #region Changelogs and Related
@@ -380,11 +400,11 @@ namespace TheHarvest.ECS.Components.Farm
                     || 
                     (this.TileGrid[x, y] != null && this.farm.GetTile(x, y) != null && this.TileGrid[x, y].Tile.TileType == Tile.GetFutureTileType(this.farm.GetTile(x, y))))
                 {
-                    this.allTileChanges[x, y] = false;
+                    this.allTileChangesGrid[x, y] = false;
                 }
                 else
                 {
-                    this.allTileChanges[x, y] = true;
+                    this.allTileChangesGrid[x, y] = true;
                 }
             }
         }
@@ -392,7 +412,7 @@ namespace TheHarvest.ECS.Components.Farm
         void UpdateChangeList()
         {
             this.AppliedTileChanges = new List<WeakTile>();
-            foreach (var val in this.allTileChanges.AllValuesWithPos())
+            foreach (var val in this.allTileChangesGrid.AllValuesWithPos())
             {
                 var change = val.Val;
                 var x = val.X;
@@ -405,7 +425,7 @@ namespace TheHarvest.ECS.Components.Farm
                     }
                     else
                     {
-                        this.AppliedTileChanges.Add(new WeakTile(TileType.Destruct, x, y));
+                        this.AppliedTileChanges.Add(new WeakTile(TileType.Destruct, x, y, null));
                     }
                 }
             }
@@ -441,7 +461,7 @@ namespace TheHarvest.ECS.Components.Farm
                     var x = (int) pos.X;
                     var y = (int) pos.Y;
                     var originalTileType = entry.Value;
-                    this.AddTile(new WeakTile(originalTileType, x, y));
+                    this.AddTile(new WeakTile(originalTileType, x, y, this));
                 }
                 this.currChangesNode = this.currChangesNode.Previous;
             }
@@ -470,7 +490,7 @@ namespace TheHarvest.ECS.Components.Farm
                             Tile.GetUpgradeCost(this.TileGrid[x, y].Tile.TileType, upgradedTileType, out upgradeCost) && 
                             this.playerState.Money >= upgradeCost)
                         {
-                            this.AddTile(new WeakTile(upgradedTileType, x, y));
+                            this.AddTile(new WeakTile(upgradedTileType, x, y, this));
                         }
                     }
                     else if (tileType == TileType.Reset)
@@ -479,7 +499,7 @@ namespace TheHarvest.ECS.Components.Farm
                     }
                     else
                     {
-                        this.AddTile(new WeakTile(tileType, x, y));
+                        this.AddTile(new WeakTile(tileType, x, y, this));
                     }
                 }
             }
@@ -493,6 +513,11 @@ namespace TheHarvest.ECS.Components.Farm
         {
             this.currSelectedTileType = e.TileType;
             this.currChanges = new MouseDownChanges(this.currSelectedTileType.Value);
+        }
+
+        public override void ProcessEvent(TentativeFarmGridApplyChangesRequestEvent e)
+        {
+            EventManager.Instance.Publish(new TentativeFarmGridApplyChangesResponseEvent(this.ValidState()));
         }
 
         public override void ProcessEvent(TentativeFarmGridOffEvent e)

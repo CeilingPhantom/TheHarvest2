@@ -19,6 +19,8 @@ namespace TheHarvest.ECS.Components.UI
         {
             InputManager.Instance.Register(this, TileSelectorUI.inputPriority);
 
+            this.SubscribeTo<TentativeFarmGridApplyChangesResponseEvent>();
+
             this.window = this.Stage.AddElement(new BaseWindow());
             this.SetEditButton();
 
@@ -65,6 +67,7 @@ namespace TheHarvest.ECS.Components.UI
             this.window.Row();
 
             this.AddTileSelection(TileType.Greenhouse1);
+            this.window.Row();
         }
 
         void AddTileSelection(TileType tileType)
@@ -86,11 +89,10 @@ namespace TheHarvest.ECS.Components.UI
 
         void AddApplyCancelButtons()
         {
-            var applyButton = new TextButton("Apply", new TextButtonStyle());
+            var applyButton = new TextButton("Confirm", new TextButtonStyle());
             applyButton.OnClicked += b => 
             {
-                EventManager.Instance.Publish(new TentativeFarmGridOffEvent(true));
-                this.SetEditButton();
+                EventManager.Instance.Publish(new TentativeFarmGridApplyChangesRequestEvent());
             };
             var cancelButton = new TextButton("Cancel", new TextButtonStyle());
             cancelButton.OnClicked += b => 
@@ -177,6 +179,19 @@ namespace TheHarvest.ECS.Components.UI
                 return true;
             }
             return false;
+        }
+
+        #endregion
+
+        #region Event Processing
+
+        public override void ProcessEvent(TentativeFarmGridApplyChangesResponseEvent e)
+        {
+            if (e.CanApply)
+            {
+                EventManager.Instance.Publish(new TentativeFarmGridOffEvent(true));
+                this.SetEditButton();
+            }
         }
 
         #endregion

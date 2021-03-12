@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TheHarvest.ECS.Components.Farm;
 
 namespace TheHarvest.ECS.Components.Tiles
 {
@@ -8,8 +9,8 @@ namespace TheHarvest.ECS.Components.Tiles
 
         List<(int x, int y)> buffedTilePositions = null;
 
-        public Greenhouse1Tile(int x, int y, bool isAdvancing, TileType advancingType, float cycleTime)
-        : base(TileType.Greenhouse1, StructureBuffs.AllSeasons, x, y, 50, isAdvancing, advancingType, cycleTime)
+        public Greenhouse1Tile(int x, int y, Grid grid, bool isAdvancing, TileType advancingType, float cycleTime)
+        : base(TileType.Greenhouse1, StructureBuffs.AllSeasons, x, y, grid, 50, isAdvancing, advancingType, cycleTime)
         {}
 
         public override (int X, int Y)[] GetBuffedTilePositions(bool forceUpdate=false)

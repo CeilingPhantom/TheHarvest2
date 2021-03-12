@@ -31,7 +31,7 @@ namespace TheHarvest.ECS.Components.Farm
             base.OnAddedToEntity();
             this.tentativeFarmGrid = this.GetComponent<TentativeFarmGrid>();
             
-            this.AddTile(Tile.CreateTile(TileType.Grass, 0, 0));
+            this.AddTile(Tile.CreateTile(TileType.Grass, 0, 0, this));
             
             this.AttachInitTileEntitiesToScene();
         }
@@ -55,7 +55,6 @@ namespace TheHarvest.ECS.Components.Farm
             this.RemoveTile(x, y);
             if (tileType != FarmDefaultTiler.DefaultTileType)
             {
-                tile.Grid = this;
                 var tileEntity = new TileEntity(tile);
                 this.TileGrid[x, y] = tileEntity;
                 if (this.Entity != null && this.Entity.Scene != null)
@@ -104,11 +103,11 @@ namespace TheHarvest.ECS.Components.Farm
                     var advancesFromTileType = Tile.AdvancesFrom(weakTile.TileType);
                     if (advancesFromTileType.HasValue)
                     {
-                        this.AddTile(Tile.CreateTile(advancesFromTileType.Value, weakTile.X, weakTile.Y, true, weakTile.TileType));
+                        this.AddTile(Tile.CreateTile(advancesFromTileType.Value, weakTile.X, weakTile.Y, this, true, weakTile.TileType));
                     }
                     else
                     {
-                        this.AddTile(Tile.CreateTile(weakTile.TileType, weakTile.X, weakTile.Y));
+                        this.AddTile(Tile.CreateTile(weakTile.TileType, weakTile.X, weakTile.Y, this));
                     }
                 }
             }

@@ -10,8 +10,7 @@ namespace TheHarvest.ECS.Components.Farm
     public abstract class Grid : EventSubscribingComponent
     {
         protected internal BoundlessSparseMatrix<TileEntity> TileGrid = new BoundlessSparseMatrix<TileEntity>();
-        // TODO grid representing structure aoe buffs to tiles
-        // will buffs stack?
+        // TODO will buffs stack?
         protected internal BoundlessSparseMatrix<Structure.StructureBuffs> TileBuffsGrid = new BoundlessSparseMatrix<Structure.StructureBuffs>();
 
         #region Grid Accessors and Manipulation

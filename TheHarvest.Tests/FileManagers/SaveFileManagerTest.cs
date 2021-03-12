@@ -15,7 +15,7 @@ namespace TheHarvest.Tests.FileManagers
         public void SaveAndLoadTest1()
         {
             var farm1In = new FarmGrid();
-            var tile1 = Tile.CreateTile(TileType.Dirt, 1, 2, true, TileType.Blueberry1);
+            var tile1 = Tile.CreateTile(TileType.Dirt, 1, 2, farm1In, true, TileType.Blueberry1);
             farm1In.AddTile(tile1);
             SaveFileManager.Instance.Save("test1.dat", farm1In);
 
@@ -38,13 +38,13 @@ namespace TheHarvest.Tests.FileManagers
             bytes[10] = 202;
             PlayerState.Instance.LoadFromBytes(bytes);
             var farm2In = new FarmGrid();
-            var tile1 = Tile.CreateTile(TileType.Dirt, 0, 0);
+            var tile1 = Tile.CreateTile(TileType.Dirt, 0, 0, farm2In);
             farm2In.AddTile(tile1);
-            var tile2 = Tile.CreateTile(TileType.Grass, 0, 1);
+            var tile2 = Tile.CreateTile(TileType.Grass, 0, 1, farm2In);
             farm2In.AddTile(tile2);
-            var tile3 = Tile.CreateTile(TileType.Grass, 1, 0);
+            var tile3 = Tile.CreateTile(TileType.Grass, 1, 0, farm2In);
             farm2In.AddTile(tile3);
-            var tile4 = Tile.CreateTile(TileType.Dirt, 1, 1);
+            var tile4 = Tile.CreateTile(TileType.Dirt, 1, 1, farm2In);
             farm2In.AddTile(tile4);
             SaveFileManager.Instance.Save("test2.dat", farm2In);
 

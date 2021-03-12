@@ -80,7 +80,9 @@ namespace TheHarvest.ECS.Components.Tiles
 
         static Dictionary<TileType, int> tileCosts = new Dictionary<TileType, int>();
 
-        public Grid Grid { get; protected internal set; }
+        // grid to refer to when deciding what to do
+        // may not necessarily be the grid the tile belongs to, but will usually be
+        public Grid Grid { get; protected set; }
         public TileType TileType { get; }
         public int X { get; protected internal set; }
         public int Y { get; protected internal set; }
@@ -94,81 +96,82 @@ namespace TheHarvest.ECS.Components.Tiles
         protected SpriteAnimator SpriteAnimator;
         static readonly string defaultAnimationName = "default";
 
-        public Tile(TileType tileType, int x, int y, int cost=0, bool isAdvancing=false, TileType advancingType=TileType.Dirt, float cycleTime=0)
+        public Tile(TileType tileType, int x, int y, Grid grid, int cost=0, bool isAdvancing=false, TileType advancingType=TileType.Dirt, float cycleTime=0)
         {
             this.TileType = tileType;
             this.X = x;
             this.Y = y;
+            this.Grid = grid;
             this.Cost = cost;
             this.IsAdvancing = isAdvancing;
             this.AdvancingType = advancingType;
             this.CycleTime = cycleTime;
         }
 
-        public static Tile CreateTile(TileType tileType, int x, int y, bool isAdvancing=false, TileType advancingType=TileType.Dirt, float cycleTime=0)
+        public static Tile CreateTile(TileType tileType, int x, int y, Grid grid, bool isAdvancing=false, TileType advancingType=TileType.Dirt, float cycleTime=0)
         {
             Tile tile;
             switch(tileType)
             {
                 case TileType.Dirt:
-                    tile = new DirtTile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new DirtTile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Grass:
-                    tile = new GrassTile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new GrassTile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Field:
-                    tile = new FieldTile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new FieldTile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Construct:
-                    tile = new ConstructTile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new ConstructTile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Blueberry1:
-                    tile = new Blueberry1Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Blueberry1Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Blueberry2:
-                    tile = new Blueberry2Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Blueberry2Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Blueberry3:
-                    tile = new Blueberry3Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Blueberry3Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Carrot1:
-                    tile = new Carrot1Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Carrot1Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Carrot2:
-                    tile = new Carrot2Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Carrot2Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Carrot3:
-                    tile = new Carrot3Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Carrot3Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Potato1:
-                    tile = new Potato1Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Potato1Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Potato2:
-                    tile = new Potato2Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Potato2Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Potato3:
-                    tile = new Potato3Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Potato3Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Strawberry1:
-                    tile = new Strawberry1Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Strawberry1Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Strawberry2:
-                    tile = new Strawberry2Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Strawberry2Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Strawberry3:
-                    tile = new Strawberry3Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Strawberry3Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Wheat1:
-                    tile = new Wheat1Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Wheat1Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Wheat2:
-                    tile = new Wheat2Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Wheat2Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Wheat3:
-                    tile = new Wheat3Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Wheat3Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 case TileType.Greenhouse1:
-                    tile = new Greenhouse1Tile(x, y, isAdvancing, advancingType, cycleTime);
+                    tile = new Greenhouse1Tile(x, y, grid, isAdvancing, advancingType, cycleTime);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(tileType));
@@ -176,7 +179,7 @@ namespace TheHarvest.ECS.Components.Tiles
             return tile;
         }
 
-        public static Tile CreateTile(byte[] byteInput)
+        public static Tile CreateTile(byte[] byteInput, Grid grid)
         {
             var type = (TileType) byteInput[0];
             var x = BitConverter.ToInt32(byteInput, 1);
@@ -184,7 +187,7 @@ namespace TheHarvest.ECS.Components.Tiles
             var isAdvancing = BitConverter.ToBoolean(byteInput, 9);
             var advancingType = (TileType) byteInput[10];
             var cycleTime = BitConverter.ToSingle(byteInput, 11);
-            return CreateTile(type, x, y, isAdvancing, advancingType, cycleTime);
+            return Tile.CreateTile(type, x, y, grid, isAdvancing, advancingType, cycleTime);
         }
 
         public byte[] ToBytes()
@@ -284,7 +287,7 @@ namespace TheHarvest.ECS.Components.Tiles
         {
             if (!Tile.tileCosts.ContainsKey(tileType))
             {
-                Tile.tileCosts[tileType] = Tile.CreateTile(tileType, 0, 0).Cost;
+                Tile.tileCosts[tileType] = Tile.CreateTile(tileType, 0, 0, null).Cost;
             }
             return Tile.tileCosts[tileType];
         }
@@ -358,7 +361,7 @@ namespace TheHarvest.ECS.Components.Tiles
         /// </summary>
         protected virtual void AdvanceTile()
         {
-            this.Grid.AddTile(Tile.CreateTile(this.AdvancingType, this.X, this.Y));
+            this.Grid.AddTile(Tile.CreateTile(this.AdvancingType, this.X, this.Y, this.Grid));
         }
 
         public virtual bool IsPlaceable()

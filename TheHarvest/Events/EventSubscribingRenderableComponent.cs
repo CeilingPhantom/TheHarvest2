@@ -1,38 +1,21 @@
 using System.Collections.Generic;
 using Nez;
 
-using TheHarvest.Events;
-using TheHarvest.Scenes;
-using TheHarvest.Util.Input;
-
-namespace TheHarvest.ECS.Components.UI
+namespace TheHarvest.Events
 {
-    public abstract class BaseUI : UICanvas, IInputable, IEventSubscriber
+    public abstract class EventSubscribingRenderableComponent : RenderableComponent, IUpdatable, IEventSubscriber
     {
         Queue<IEvent> events = new Queue<IEvent>();
+        // TODO may need this in the future
+        // Queue<IEvent> eventsWhileDisabled = new Queue<IEvent>();
 
-        public BaseUI() : base()
+        public virtual void Update()
         {
-            this.RenderLayer = FarmScene.UIRenderLayer;
-            // remember to register subclasses to input manager
-        }
-
-        public override void Update()
-        {
-            base.Update();
             while (events.Count > 0)
             {
                 events.Dequeue().Accept(this);
             }
         }
-
-        #region IInputable
-
-        public abstract bool InputCollision();
-
-        #endregion
-
-        #region Event Processing
 
         public void SubscribeTo<T>() where T : IEvent
         {
@@ -81,7 +64,5 @@ namespace TheHarvest.ECS.Components.UI
 
         public virtual void ProcessEvent(NewYearEvent e)
         {}
-
-        #endregion
     }
 }

@@ -9,16 +9,6 @@ namespace TheHarvest.Events
         // TODO may need this in the future
         // Queue<IEvent> eventsWhileDisabled = new Queue<IEvent>();
 
-        public void SubscribeTo<T>() where T : IEvent
-        {
-            EventManager.Instance.SubscribeTo<T>(this);
-        }
-        
-        public void SendEvent(IEvent e)
-        {
-            this.events.Enqueue(e);
-        }
-
         public virtual void Update()
         {
             while (events.Count > 0)
@@ -27,12 +17,31 @@ namespace TheHarvest.Events
             }
         }
 
-        #region Event Processing
+        public void SubscribeTo<T>() where T : IEvent
+        {
+            EventManager.Instance.SubscribeTo<T>(this);
+        }
+
+        public void Publish<T>(T e) where T : IEvent
+        {
+            EventManager.Instance.Publish(e);
+        }
+        
+        public void SendEvent(IEvent e)
+        {
+            this.events.Enqueue(e);
+        }
 
         public virtual void ProcessEvent(AddMoneyEvent e)
         {}
 
         public virtual void ProcessEvent(TileSelectionEvent e)
+        {}
+
+        public virtual void ProcessEvent(TentativeFarmGridApplyChangesRequestEvent e)
+        {}
+
+        public virtual void ProcessEvent(TentativeFarmGridApplyChangesResponseEvent e)
         {}
 
         public virtual void ProcessEvent(TentativeFarmGridOnEvent e)
@@ -55,7 +64,5 @@ namespace TheHarvest.Events
 
         public virtual void ProcessEvent(NewYearEvent e)
         {}
-
-        #endregion
     }
 }

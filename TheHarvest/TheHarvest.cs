@@ -11,7 +11,6 @@ namespace TheHarvest
 {
     public class TheHarvest : Core
     {
-
         protected override void Initialize()
         {
             base.Initialize();

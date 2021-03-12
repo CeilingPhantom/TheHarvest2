@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 
+using TheHarvest.ECS.Components.Farm;
+
 namespace TheHarvest.ECS.Components.Tiles
 {
     public abstract class Structure : Tile
@@ -17,8 +19,8 @@ namespace TheHarvest.ECS.Components.Tiles
         public readonly StructureBuffs Buffs;
         public readonly List<StructureBuffs> BuffsList = new List<Structure.StructureBuffs>();
 
-        public Structure(TileType tileType, StructureBuffs buffs, int x, int y, int cost=0, bool isAdvancing=false, TileType advancingType=TileType.Dirt, float cycleTime=0)
-        : base(tileType, x, y, cost, isAdvancing, advancingType, cycleTime)
+        public Structure(TileType tileType, StructureBuffs buffs, int x, int y, Grid grid, int cost=0, bool isAdvancing=false, TileType advancingType=TileType.Dirt, float cycleTime=0)
+        : base(tileType, x, y, grid, cost, isAdvancing, advancingType, cycleTime)
         {
             this.Buffs = buffs;
             for (var i = 0; i < Structure.NStructureBuffs; ++i)
